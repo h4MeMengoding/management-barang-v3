@@ -97,8 +97,13 @@ export default function ReportBarang() {
 
       <div className="w-full h-64">
         {isLoading ? (
-          <div className="w-full h-full flex items-center justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+          <div className="w-full h-full animate-pulse p-4">
+            <div className="h-4 bg-gray-200 rounded w-40 mb-4"></div>
+            <div className="flex items-end gap-3 h-44">
+              {months.map((m, idx) => (
+                <div key={idx} className="flex-1 h-20 bg-gray-200 rounded" />
+              ))}
+            </div>
           </div>
         ) : barangData.length === 0 ? (
           <div className="w-full h-full flex items-center justify-center">

@@ -79,8 +79,15 @@ export default function ReportLoker() {
 
       <div className="flex flex-col lg:flex-row items-center justify-between gap-4 lg:gap-6">
         {isLoading ? (
-          <div className="w-full flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+          <div className="w-full py-6">
+            <div className="flex items-center gap-6 w-full animate-pulse">
+              <div className="w-40 h-40 bg-gray-200 rounded-full flex-shrink-0" />
+              <div className="flex-1 space-y-3">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="h-3 bg-gray-200 rounded w-[90%]" />
+                ))}
+              </div>
+            </div>
           </div>
         ) : lokerData.length === 0 ? (
           <div className="w-full text-center py-12">

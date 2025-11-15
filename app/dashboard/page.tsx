@@ -34,17 +34,24 @@ export default function Dashboard() {
   const [kategoriChange, setKategoriChange] = useState<string>('0%');
   const [kategoriChangeType, setKategoriChangeType] = useState<'increase' | 'decrease' | 'neutral'>('neutral');
   const [kategoriPrevious, setKategoriPrevious] = useState<string>('0');
+  const [isLoadingStats, setIsLoadingStats] = useState<boolean>(true);
 
   useEffect(() => {
     const loadStats = async () => {
       const user = getCurrentUser();
-      if (!user) return;
+      if (!user) {
+        setIsLoadingStats(false);
+        return;
+      }
+
+      setIsLoadingStats(true);
 
       try {
         const res = await fetch(`/api/stats?userId=${user.id}`);
         const data: Stats | { error?: string } = await res.json();
         if (!res.ok) {
           console.error('Failed to load stats', data);
+          setIsLoadingStats(false);
           return;
         }
 
@@ -102,6 +109,9 @@ export default function Dashboard() {
         else setKategoriChangeType('neutral');
       } catch (err) {
         console.error('Error loading dashboard stats:', err);
+        setIsLoadingStats(false);
+      } finally {
+        setIsLoadingStats(false);
       }
     };
 
@@ -129,6 +139,7 @@ export default function Dashboard() {
             changeType={lokerChangeType}
             previousValue={lokerPrevious}
             iconBgColor="bg-blue-100"
+            loading={isLoadingStats}
           />
           <StatCard
             icon={<Package size={24} className="text-purple-600" />}
@@ -138,6 +149,7 @@ export default function Dashboard() {
             changeType={barangChangeType}
             previousValue={barangPrevious}
             iconBgColor="bg-purple-100"
+            loading={isLoadingStats}
           />
           <StatCard
             icon={<FolderTree size={24} className="text-yellow-600" />}
@@ -147,6 +159,7 @@ export default function Dashboard() {
             changeType={kategoriChangeType}
             previousValue={kategoriPrevious}
             iconBgColor="bg-yellow-100"
+            loading={isLoadingStats}
           />
         </div>
 
