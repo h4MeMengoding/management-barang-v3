@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { LayoutGrid, PlusSquare, Package, FolderTree, QrCode, ScanLine, Settings, HelpCircle, LogOut, User } from 'lucide-react';
+import NProgress from 'nprogress';
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -83,6 +84,7 @@ export default function Sidebar() {
           <Link
             key={index}
             href={item.href}
+            onClick={() => NProgress.start()}
             className={`w-11 h-11 rounded-xl flex items-center justify-center transition-colors ${
               pathname === item.href
                 ? 'bg-gray-900 text-white'
@@ -148,6 +150,7 @@ export default function Sidebar() {
               <Link
                 key={index}
                 href={item.href}
+                onClick={() => NProgress.start()}
                 className={`p-2.5 rounded-full transition-all ${
                   pathname === item.href
                     ? 'bg-gray-900 text-white'
@@ -161,6 +164,7 @@ export default function Sidebar() {
             {/* Center QR Scanner Button (Elevated) */}
             <Link
               href="/scanQRCode"
+              onClick={() => NProgress.start()}
               className={`p-3.5 rounded-full transition-all shadow-lg -mt-8 ${
                 pathname === '/scanQRCode'
                   ? 'bg-emerald-600 text-white scale-110'
@@ -175,6 +179,7 @@ export default function Sidebar() {
               <Link
                 key={index}
                 href={item.href}
+                onClick={() => NProgress.start()}
                 className={`p-2.5 rounded-full transition-all ${
                   pathname === item.href
                     ? 'bg-gray-900 text-white'
