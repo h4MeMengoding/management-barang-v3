@@ -1,40 +1,172 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
 import Card from '@/components/Card';
+import ProtectedRoute from '@/components/ProtectedRoute';
+import { getCurrentUser } from '@/lib/auth';
 import { Plus, ChevronDown, ChevronUp, FolderTree, Edit2, Trash2, MoreVertical } from 'lucide-react';
-import { useState } from 'react';
+
+interface Category {
+  id: string;
+  name: string;
+  description: string | null;
+  createdAt: string;
+  updatedAt: string;
+  totalQuantity?: number;
+}
 
 export default function ManageCategories() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     name: '',
     description: ''
   });
+  const [categories, setCategories] = useState<Category[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(true);
-  const [activeCardId, setActiveCardId] = useState<number | null>(null);
+  const [activeCardId, setActiveCardId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
 
-  // Dummy data for existing categories
-  const categories = [
-    { id: 1, name: 'Elektronik', description: 'Perangkat elektronik dan gadget', itemCount: 45, createdAt: '2024-01-10' },
-    { id: 2, name: 'Aksesoris', description: 'Aksesoris komputer dan periferalnya', itemCount: 78, createdAt: '2024-01-12' },
-    { id: 3, name: 'Storage', description: 'Perangkat penyimpanan data', itemCount: 32, createdAt: '2024-01-15' },
-    { id: 4, name: 'Audio', description: 'Perangkat audio dan sound system', itemCount: 18, createdAt: '2024-01-18' },
-    { id: 5, name: 'Kabel', description: 'Kabel dan connector berbagai jenis', itemCount: 56, createdAt: '2024-01-20' },
-    { id: 6, name: 'Networking', description: 'Perangkat jaringan dan koneksi', itemCount: 24, createdAt: '2024-01-22' },
-    { id: 7, name: 'Gaming', description: 'Perangkat gaming dan aksesori', itemCount: 15, createdAt: '2024-01-25' },
-    { id: 8, name: 'Office', description: 'Perlengkapan kantor dan ATK', itemCount: 42, createdAt: '2024-01-28' },
-    { id: 9, name: 'Furniture', description: 'Perabotan dan meja kantor', itemCount: 12, createdAt: '2024-02-01' },
-    { id: 10, name: 'Tools', description: 'Peralatan dan toolkit maintenance', itemCount: 28, createdAt: '2024-02-05' },
-    { id: 11, name: 'Charger', description: 'Charger dan adapter daya', itemCount: 38, createdAt: '2024-02-08' },
-    { id: 12, name: 'Display', description: 'Monitor dan layar tampilan', itemCount: 19, createdAt: '2024-02-10' },
-  ];
+  useEffect(() => {
+    loadCategories();
+  }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const loadCategories = async () => {
+    try {
+      setIsLoadingCategories(true);
+      const user = getCurrentUser();
+      if (!user) return;
+
+      const response = await fetch(`/api/categories?userId=${user.id}`);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Gagal memuat kategori');
+      }
+
+      setCategories(data.categories);
+    } catch (err: any) {
+      setError(err.message);
+      console.error('Error loading categories:', err);
+    } finally {
+      setIsLoadingCategories(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
+    setError('');
+    setSuccess('');
+
+    const user = getCurrentUser();
+    if (!user) {
+      setError('User tidak ditemukan');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+
+      if (editingCategory) {
+        // Update existing category
+        const response = await fetch(`/api/categories?id=${editingCategory.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: formData.name,
+            description: formData.description || null,
+            userId: user.id,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Gagal mengupdate kategori');
+        }
+
+        setSuccess('Kategori berhasil diupdate!');
+        setEditingCategory(null);
+      } else {
+        // Create new category
+        const response = await fetch('/api/categories', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: formData.name,
+            description: formData.description || null,
+            userId: user.id,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Gagal membuat kategori');
+        }
+
+        setSuccess('Kategori berhasil ditambahkan!');
+      }
+
+      setFormData({ name: '', description: '' });
+      setIsFormOpen(false);
+      await loadCategories();
+
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEdit = (category: Category) => {
+    setEditingCategory(category);
+    setFormData({
+      name: category.name,
+      description: category.description || '',
+    });
+    setIsFormOpen(true);
+    setActiveCardId(null);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingCategory(null);
     setFormData({ name: '', description: '' });
-    setIsFormOpen(false);
+  };
+
+  const handleDelete = async (categoryId: string) => {
+    if (!confirm('Apakah Anda yakin ingin menghapus kategori ini?')) return;
+
+    const user = getCurrentUser();
+    if (!user) return;
+
+    try {
+      const response = await fetch(`/api/categories?id=${categoryId}&userId=${user.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Gagal menghapus kategori');
+      }
+
+      setSuccess('Kategori berhasil dihapus!');
+      await loadCategories();
+      setActiveCardId(null);
+
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (err: any) {
+      setError(err.message);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -44,16 +176,38 @@ export default function ManageCategories() {
     });
   };
 
-  const toggleActions = (categoryId: number) => {
+  const toggleActions = (categoryId: string) => {
     setActiveCardId(activeCardId === categoryId ? null : categoryId);
   };
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('id-ID', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+  };
+
   return (
+    <ProtectedRoute>
     <div className="min-h-screen bg-[#F5F1E8] lg:pl-24">
       <Sidebar />
       
       <main className="w-full px-4 pt-4 pb-20 md:px-6 md:py-6 lg:px-8 lg:pb-8">
         <Header />
+
+        {/* Success/Error Messages */}
+        {success && (
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <p className="text-green-800 text-sm font-medium">{success}</p>
+          </div>
+        )}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-800 text-sm font-medium">{error}</p>
+          </div>
+        )}
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column: Form - Sticky on Desktop */}
@@ -69,8 +223,12 @@ export default function ManageCategories() {
                       <Plus size={24} className="text-emerald-600" />
                     </div>
                     <div className="text-left">
-                      <h2 className="text-lg font-bold text-gray-900">Tambah Kategori</h2>
-                      <p className="text-xs text-gray-500 mt-0.5">Buat kategori baru</p>
+                      <h2 className="text-lg font-bold text-gray-900">
+                        {editingCategory ? 'Edit Kategori' : 'Tambah Kategori'}
+                      </h2>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        {editingCategory ? 'Perbarui kategori' : 'Buat kategori baru'}
+                      </p>
                     </div>
                   </div>
                   {isFormOpen ? (
@@ -93,6 +251,7 @@ export default function ManageCategories() {
                         value={formData.name}
                         onChange={handleChange}
                         required
+                        placeholder="Contoh: Elektronik"
                         className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors text-sm"
                       />
                     </div>
@@ -107,17 +266,39 @@ export default function ManageCategories() {
                         value={formData.description}
                         onChange={handleChange}
                         rows={4}
+                        placeholder="Deskripsi kategori (opsional)"
                         className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors resize-none text-sm"
                       />
                     </div>
 
-                    <button
-                      type="submit"
-                      className="w-full px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm"
-                    >
-                      <Plus size={20} />
-                      Tambah Kategori
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        type="submit"
+                        disabled={isLoading}
+                        className="flex-1 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isLoading ? (
+                          <>
+                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                            {editingCategory ? 'Mengupdate...' : 'Menambah...'}
+                          </>
+                        ) : (
+                          <>
+                            <Plus size={20} />
+                            {editingCategory ? 'Update Kategori' : 'Tambah Kategori'}
+                          </>
+                        )}
+                      </button>
+                      {editingCategory && (
+                        <button
+                          type="button"
+                          onClick={handleCancelEdit}
+                          className="px-4 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-lg transition-colors"
+                        >
+                          Batal
+                        </button>
+                      )}
+                    </div>
                   </form>
                 )}
               </Card>
@@ -139,56 +320,85 @@ export default function ManageCategories() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {categories.map((category) => (
-                  <div
-                    key={category.id}
-                    className="p-4 rounded-lg border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all bg-white relative"
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                        <FolderTree size={20} className="text-emerald-600" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-gray-900 text-sm">{category.name}</h3>
-                            <p className="text-xs text-gray-500 mt-1 line-clamp-2">{category.description}</p>
+              {isLoadingCategories ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+                </div>
+              ) : categories.length === 0 ? (
+                <div className="text-center py-12">
+                  <FolderTree size={48} className="mx-auto mb-3 text-gray-300" />
+                  <p className="text-gray-500">Belum ada kategori. Tambahkan kategori pertama Anda!</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {categories.map((category) => (
+                    <div
+                      key={category.id}
+                      className="relative"
+                    >
+                      <Link href={`/category/${category.id}`}>
+                        <div className="p-4 rounded-lg border border-gray-100 hover:border-emerald-200 hover:shadow-md transition-all bg-white cursor-pointer">
+                          <div className="flex items-start gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                              <FolderTree size={20} className="text-emerald-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="flex-1 min-w-0">
+                                  <h3 className="font-semibold text-gray-900 text-sm">{category.name}</h3>
+                                  <p className="text-xs text-gray-500 mt-1 line-clamp-2">
+                                    {category.description || 'Tidak ada deskripsi'}
+                                  </p>
+                                </div>
+                                <button
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    toggleActions(category.id);
+                                  }}
+                                  className="p-1 hover:bg-gray-100 rounded transition-colors flex-shrink-0 z-10"
+                                >
+                                  <MoreVertical size={16} className="text-gray-600" />
+                                </button>
+                              </div>
+                              <div className="mt-3">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs text-gray-400">{formatDate(category.createdAt)}</span>
+                                  <span className="text-sm font-semibold text-gray-900">{category.totalQuantity ?? 0} Barang</span>
+                                </div>
+                              </div>
+                            </div>
                           </div>
-                          <button
-                            onClick={() => toggleActions(category.id)}
-                            className="p-1 hover:bg-gray-100 rounded transition-colors flex-shrink-0"
-                          >
-                            <MoreVertical size={16} className="text-gray-600" />
-                          </button>
                         </div>
-                        <div className="flex items-center justify-between mt-3">
-                          <span className="text-xs text-gray-600">{category.itemCount} items</span>
-                          <span className="text-xs text-gray-400">{category.createdAt}</span>
+                      </Link>
+                      {activeCardId === category.id && (
+                        <div className="absolute left-0 right-0 top-full mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-3 z-10">
+                          <div className="flex items-center gap-2">
+                            <button 
+                              onClick={() => handleEdit(category)}
+                              className="flex-1 px-3 py-2 text-xs font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center gap-1"
+                            >
+                              <Edit2 size={14} />
+                              Edit
+                            </button>
+                            <button 
+                              onClick={() => handleDelete(category.id)}
+                              className="flex-1 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center gap-1"
+                            >
+                              <Trash2 size={14} />
+                              Hapus
+                            </button>
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </div>
-                    {activeCardId === category.id && (
-                      <div className="absolute left-0 right-0 top-full mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-3 z-10">
-                        <div className="flex items-center gap-2">
-                          <button className="flex-1 px-3 py-2 text-xs font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center gap-1">
-                            <Edit2 size={14} />
-                            Edit
-                          </button>
-                          <button className="flex-1 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center gap-1">
-                            <Trash2 size={14} />
-                            Hapus
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </Card>
           </div>
         </div>
       </main>
     </div>
+    </ProtectedRoute>
   );
 }

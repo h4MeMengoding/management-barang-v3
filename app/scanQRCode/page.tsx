@@ -5,15 +5,20 @@ import Header from '@/components/Header';
 import Card from '@/components/Card';
 import { ScanLine, X } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { Html5Qrcode } from 'html5-qrcode';
 import jsQR from 'jsqr';
+import { getCurrentUser } from '@/lib/auth';
+import ProtectedRoute from '@/components/ProtectedRoute';
 
 export default function ScanQRCode() {
+  const router = useRouter();
   const [isScanning, setIsScanning] = useState(false);
   const [scannedData, setScannedData] = useState<string | null>(null);
   const [hasCamera, setHasCamera] = useState(true);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
+  const [isSearchingLocker, setIsSearchingLocker] = useState(false);
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const isMountedRef = useRef(true);
 
@@ -25,6 +30,53 @@ export default function ScanQRCode() {
       stopScanner();
     };
   }, []);
+
+  const findLockerByCode = async (code: string) => {
+    try {
+      setIsSearchingLocker(true);
+      const user = getCurrentUser();
+      if (!user) {
+        alert('User tidak ditemukan. Silakan login kembali.');
+        return null;
+      }
+
+      // Search locker by code
+      const response = await fetch(`/api/lockers?userId=${user.id}`);
+      const data = await response.json();
+
+      if (response.ok && data.lockers) {
+        // Find locker with matching code (case-insensitive)
+        const locker = data.lockers.find((l: any) => 
+          l.code.toLowerCase() === code.toLowerCase()
+        );
+        return locker;
+      }
+      return null;
+    } catch (error) {
+      console.error('Error finding locker:', error);
+      return null;
+    } finally {
+      setIsSearchingLocker(false);
+    }
+  };
+
+  const handleQRCodeDetected = async (decodedText: string) => {
+    if (isMountedRef.current) {
+      setScannedData(decodedText);
+      
+      // Search for locker with this code
+      const locker = await findLockerByCode(decodedText);
+      
+      if (locker) {
+        // Navigate to locker detail page
+        router.push(`/locker/${locker.id}`);
+      } else {
+        alert(`QR Code terdeteksi: ${decodedText}\nLoker dengan kode ini tidak ditemukan.`);
+      }
+      
+      stopScanner();
+    }
+  };
 
   const startScanner = async () => {
     try {
@@ -64,11 +116,7 @@ export default function ScanQRCode() {
         config,
         (decodedText) => {
           // Success callback
-          if (isMountedRef.current) {
-            alert(`QR Code terdeteksi: ${decodedText}`);
-            setScannedData(decodedText);
-            stopScanner();
-          }
+          handleQRCodeDetected(decodedText);
         },
         (errorMessage) => {
           // Error callback (biarkan kosong, tidak perlu log setiap frame)
@@ -124,7 +172,7 @@ export default function ScanQRCode() {
       const imageUrl = URL.createObjectURL(selectedFile);
       const img = new Image();
       
-      img.onload = () => {
+      img.onload = async () => {
         // Create canvas to extract image data
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
@@ -147,8 +195,17 @@ export default function ScanQRCode() {
         });
         
         if (code) {
-          alert(`QR Code terdeteksi: ${code.data}`);
           setScannedData(code.data);
+          
+          // Search for locker with this code
+          const locker = await findLockerByCode(code.data);
+          
+          if (locker) {
+            // Navigate to locker detail page
+            router.push(`/locker/${locker.id}`);
+          } else {
+            alert(`QR Code terdeteksi: ${code.data}\nLoker dengan kode ini tidak ditemukan.`);
+          }
         } else {
           alert('QR Code tidak terdeteksi. Pastikan gambar jelas dan mengandung QR code.');
         }
@@ -170,6 +227,7 @@ export default function ScanQRCode() {
   };
 
   return (
+    <ProtectedRoute>
     <div className="min-h-screen bg-[#F5F1E8] lg:pl-24">
       <Sidebar />
       
@@ -177,6 +235,18 @@ export default function ScanQRCode() {
         <div className="hidden lg:block">
           <Header />
         </div>
+        
+        {/* Loading Overlay when searching for locker */}
+        {isSearchingLocker && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center">
+            <div className="bg-white rounded-xl p-6 shadow-xl">
+              <div className="flex items-center gap-3">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+                <p className="text-gray-900 font-medium">Mencari loker...</p>
+              </div>
+            </div>
+          </div>
+        )}
         
         {/* Mobile View - Full Screen Scanner */}
         <div className="lg:hidden">
@@ -440,5 +510,6 @@ export default function ScanQRCode() {
         </div>
       </main>
     </div>
+    </ProtectedRoute>
   );
 }

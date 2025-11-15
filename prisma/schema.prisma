@@ -1,22 +1,68 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DIRECT_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  name      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String     @id @default(uuid())
+  email      String     @unique
+  password   String
+  name       String?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  categories Category[]
+  items      Item[]
+  lockers    Locker[]
 
   @@map("users")
+}
+
+model Locker {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  name        String
+  description String?
+  qrCodeUrl   String?
+  userId      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  items       Item[]
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("lockers")
+}
+
+model Category {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  userId      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items       Item[]
+
+  @@map("categories")
+}
+
+model Item {
+  id          String   @id @default(uuid())
+  name        String
+  categoryId  String
+  quantity    Int      @default(0)
+  lockerId    String
+  description String?
+  userId      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  locker      Locker   @relation(fields: [lockerId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("items")
 }

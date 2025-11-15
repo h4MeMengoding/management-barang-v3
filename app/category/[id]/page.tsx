@@ -7,19 +7,20 @@ import Header from '@/components/Header';
 import Card from '@/components/Card';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { getCurrentUser } from '@/lib/auth';
-import { Package, Edit2, Trash2, Download, ArrowLeft, QrCode } from 'lucide-react';
+import { Package, Edit2, Trash2, ArrowLeft, FolderTree } from 'lucide-react';
+
+interface Category {
+  id: string;
+  name: string;
+  description: string | null;
+  createdAt: string;
+  updatedAt: string;
+  totalQuantity?: number;
+}
 
 interface Locker {
   id: string;
   code: string;
-  name: string;
-  description: string | null;
-  qrCodeUrl: string | null;
-  createdAt: string;
-}
-
-interface Category {
-  id: string;
   name: string;
 }
 
@@ -28,41 +29,47 @@ interface Item {
   name: string;
   quantity: number;
   description: string | null;
-  categoryId: string;
-  category: Category;
+  lockerId: string;
+  locker: Locker;
   createdAt: string;
 }
 
-export default function LockerDetail() {
+export default function CategoryDetail() {
   const router = useRouter();
   const params = useParams();
-  const lockerId = params.id as string;
+  const categoryId = params.id as string;
 
-  const [locker, setLocker] = useState<Locker | null>(null);
+  const [category, setCategory] = useState<Category | null>(null);
   const [items, setItems] = useState<Item[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingItems, setIsLoadingItems] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    loadLocker();
+    loadCategory();
     loadItems();
-  }, [lockerId]);
+  }, [categoryId]);
 
-  const loadLocker = async () => {
+  const loadCategory = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`/api/lockers?id=${lockerId}`);
+      const user = getCurrentUser();
+      if (!user) {
+        setError('User tidak ditemukan');
+        return;
+      }
+
+      const response = await fetch(`/api/categories?id=${categoryId}&userId=${user.id}`);
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Gagal memuat data loker');
+        throw new Error(data.error || 'Gagal memuat data kategori');
       }
 
-      setLocker(data.locker);
+      setCategory(data.category);
     } catch (err: any) {
       setError(err.message);
-      console.error('Error loading locker:', err);
+      console.error('Error loading category:', err);
     } finally {
       setIsLoading(false);
     }
@@ -77,7 +84,7 @@ export default function LockerDetail() {
         return;
       }
 
-      const response = await fetch(`/api/items?lockerId=${lockerId}&userId=${user.id}`);
+      const response = await fetch(`/api/items?categoryId=${categoryId}&userId=${user.id}`);
       const data = await response.json();
 
       if (response.ok) {
@@ -102,43 +109,34 @@ export default function LockerDetail() {
   };
 
   const handleEdit = () => {
-    if (!locker) return;
-    // Handle edit locker - TODO: implement edit modal
-    console.log('Edit locker:', locker.id);
+    if (!category) return;
+    // Redirect to manage categories page with edit mode
+    router.push('/manageCategories');
   };
 
   const handleDelete = async () => {
-    if (!locker) return;
-    if (!confirm('Apakah Anda yakin ingin menghapus loker ini?')) return;
+    if (!category) return;
+    if (!confirm('Apakah Anda yakin ingin menghapus kategori ini?')) return;
 
     try {
-      const response = await fetch(`/api/lockers?id=${locker.id}`, {
+      const user = getCurrentUser();
+      if (!user) return;
+
+      const response = await fetch(`/api/categories?id=${category.id}&userId=${user.id}`, {
         method: 'DELETE',
       });
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Gagal menghapus loker');
+        throw new Error(data.error || 'Gagal menghapus kategori');
       }
 
-      alert('Loker berhasil dihapus');
-      router.push('/addLocker');
+      alert('Kategori berhasil dihapus');
+      router.push('/manageCategories');
     } catch (err: any) {
       alert(err.message);
-      console.error('Error deleting locker:', err);
+      console.error('Error deleting category:', err);
     }
-  };
-
-  const handleDownloadQR = () => {
-    if (!locker?.qrCodeUrl) return;
-    
-    // Create a link element and trigger download
-    const link = document.createElement('a');
-    link.href = locker.qrCodeUrl;
-    link.download = `QR-${locker.code}.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   if (isLoading) {
@@ -157,7 +155,7 @@ export default function LockerDetail() {
     );
   }
 
-  if (error || !locker) {
+  if (error || !category) {
     return (
       <ProtectedRoute>
         <div className="min-h-screen bg-[#F5F1E8] lg:pl-24">
@@ -165,12 +163,12 @@ export default function LockerDetail() {
           <main className="w-full px-4 pt-4 pb-20 md:px-6 md:py-6 lg:px-8 lg:pb-8">
             <Header />
             <div className="text-center py-12">
-              <p className="text-red-600 mb-4">{error || 'Loker tidak ditemukan'}</p>
+              <p className="text-red-600 mb-4">{error || 'Kategori tidak ditemukan'}</p>
               <button
-                onClick={() => router.push('/addLocker')}
+                onClick={() => router.push('/manageCategories')}
                 className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
               >
-                Kembali ke Daftar Loker
+                Kembali ke Daftar Kategori
               </button>
             </div>
           </main>
@@ -179,9 +177,8 @@ export default function LockerDetail() {
     );
   }
 
-  const itemCount = items.length;
-  const status = itemCount > 0 ? 'terisi' : 'kosong';
-
+  const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
+  const itemTypeCount = items.length;
 
   return (
     <ProtectedRoute>
@@ -201,59 +198,42 @@ export default function LockerDetail() {
         </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column: Locker Info - Sticky on Desktop */}
+          {/* Left Column: Category Info - Sticky on Desktop */}
           <div className="lg:col-span-1">
             <div className="lg:sticky lg:top-6">
               <Card>
-                {/* QR Code Section */}
+                {/* Category Icon */}
                 <div className="flex flex-col items-center mb-6">
-                  <div className="bg-white border-2 border-gray-200 rounded-xl p-5">
-                    {locker.qrCodeUrl ? (
-                      <img 
-                        src={locker.qrCodeUrl} 
-                        alt={`QR Code ${locker.code}`}
-                        className="w-48 h-48 rounded-lg"
-                      />
-                    ) : (
-                      <div className="w-48 h-48 bg-gray-100 rounded-lg flex items-center justify-center">
-                        <QrCode size={120} className="text-gray-400" />
-                      </div>
-                    )}
+                  <div className="w-32 h-32 rounded-2xl bg-emerald-100 flex items-center justify-center">
+                    <FolderTree size={64} className="text-emerald-600" />
                   </div>
-                  <button
-                    onClick={handleDownloadQR}
-                    disabled={!locker.qrCodeUrl}
-                    className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-900 hover:bg-gray-800 text-white font-semibold rounded-lg transition-colors shadow-sm text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <Download size={16} />
-                    Download QR
-                  </button>
                 </div>
 
-                {/* Locker Info */}
+                {/* Category Info */}
                 <div className="space-y-4">
                   <div>
-                    <h1 className="text-2xl font-bold text-gray-900">{locker.name}</h1>
-                    <p className="text-sm text-gray-500 mt-1">Kode: <span className="font-semibold text-gray-700">{locker.code}</span></p>
+                    <h1 className="text-2xl font-bold text-gray-900">{category.name}</h1>
+                    <p className="text-sm text-gray-500 mt-1">Kategori Barang</p>
                   </div>
 
-                  {locker.description && (
+                  {category.description && (
                     <p className="text-sm text-gray-600 leading-relaxed pb-4 border-b border-gray-100">
-                      {locker.description}
+                      {category.description}
                     </p>
                   )}
                   
                   <div className="space-y-3 pb-4 border-b border-gray-100">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Status:</span>
-                      <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${status === 'terisi' ? 'bg-emerald-500' : 'bg-gray-400'}`}></div>
-                        <span className="text-sm font-semibold text-gray-900 capitalize">{status}</span>
-                      </div>
+                      <span className="text-sm text-gray-600">Total Barang:</span>
+                      <span className="text-sm font-semibold text-gray-900">{totalQuantity}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Total Barang:</span>
-                      <span className="text-sm font-semibold text-gray-900">{itemCount}</span>
+                      <span className="text-sm text-gray-600">Jenis Barang:</span>
+                      <span className="text-sm font-semibold text-gray-900">{itemTypeCount}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Dibuat:</span>
+                      <span className="text-sm font-semibold text-gray-900">{formatDate(category.createdAt)}</span>
                     </div>
                   </div>
 
@@ -263,14 +243,14 @@ export default function LockerDetail() {
                       className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors shadow-sm"
                     >
                       <Edit2 size={18} />
-                      Edit Loker
+                      Edit Kategori
                     </button>
                     <button
                       onClick={handleDelete}
                       className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors shadow-sm"
                     >
                       <Trash2 size={18} />
-                      Hapus Loker
+                      Hapus Kategori
                     </button>
                   </div>
                 </div>
@@ -284,7 +264,7 @@ export default function LockerDetail() {
               <div className="flex items-center justify-between mb-5">
                 <h2 className="text-xl font-bold text-gray-900">Daftar Barang</h2>
                 <span className="px-3 py-1 bg-gray-100 rounded-full text-sm font-semibold text-gray-700">
-                  {items.length} Barang
+                  {items.length} Jenis
                 </span>
               </div>
 
@@ -295,7 +275,7 @@ export default function LockerDetail() {
               ) : items.length === 0 ? (
                 <div className="text-center py-12 text-gray-500">
                   <Package size={48} className="mx-auto mb-3 text-gray-300" />
-                  <p>Belum ada barang di loker ini</p>
+                  <p>Belum ada barang di kategori ini</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -312,7 +292,7 @@ export default function LockerDetail() {
                           <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 mb-1">
                             {item.name}
                           </h3>
-                          <p className="text-xs text-gray-500 mb-2">{item.category.name}</p>
+                          <p className="text-xs text-gray-500 mb-2">{item.locker.code} - {item.locker.name}</p>
                           <div className="flex items-center justify-between">
                             <span className="text-lg font-bold text-gray-900">{item.quantity}</span>
                             <span className="text-xs text-gray-400">{formatDate(item.createdAt)}</span>

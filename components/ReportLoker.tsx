@@ -1,34 +1,60 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Card from './Card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { getCurrentUser } from '@/lib/auth';
 
 export default function ReportLoker() {
-  const lokerData = [
-    { name: 'Loker A123A', value: 450, color: '#86EFAC' },
-    { name: 'Loker B456B', value: 380, color: '#FDE047' },
-    { name: 'Loker C789C', value: 320, color: '#BAE6FD' },
-    { name: 'Loker D234D', value: 290, color: '#C7D2FE' },
-    { name: 'Loker E567E', value: 410, color: '#FCA5A5' },
-    { name: 'Loker F890F', value: 350, color: '#FDBA74' },
-    { name: 'Loker G123G', value: 275, color: '#A7F3D0' },
-    { name: 'Loker H456H', value: 395, color: '#DDD6FE' },
-    { name: 'Loker I789I', value: 330, color: '#FED7AA' },
-    { name: 'Loker J234J', value: 285, color: '#BFDBFE' },
-    { name: 'Loker K567K', value: 420, color: '#D1FAE5' },
-    { name: 'Loker L890L', value: 310, color: '#FEF3C7' },
-    { name: 'Loker M123M', value: 365, color: '#E9D5FF' },
-    { name: 'Loker N456N', value: 340, color: '#FBCFE8' },
-    { name: 'Loker O789O', value: 375, color: '#CCFBF1' },
-    { name: 'Loker P234P', value: 295, color: '#FCE7F3' },
-    { name: 'Loker Q567Q', value: 385, color: '#FEF9C3' },
-    { name: 'Loker R890R', value: 315, color: '#E0E7FF' },
-    { name: 'Loker S123S', value: 355, color: '#FECACA' },
-    { name: 'Loker T456T', value: 405, color: '#BAE6FD' }
-  ];
+  const [lokerData, setLokerData] = useState<Array<{ name: string; value: number }>>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      const user = getCurrentUser();
+      if (!user) {
+        console.error('User not found for locker distribution');
+        setIsLoading(false);
+        return;
+      }
+      try {
+        setIsLoading(true);
+        const res = await fetch(`/api/stats?userId=${user.id}`);
+        const json = await res.json();
+        if (!res.ok) {
+          console.error('Failed to load locker distribution:', json.error || json);
+          setLokerData([]);
+          return;
+        }
+
+        const dist = (json.lockerDistribution || []).map((d: any) => ({
+          // Prefer label ("CODE - NAME"), fallback to code or name
+          name: d.label || (d.code ? `${d.code} - ${d.name || ''}` : (d.name || d.lockerId)),
+          value: Number(d.value) || 0,
+        }));
+
+        // Sort descending by value and take top 20 for display (to match previous dummy length)
+        dist.sort((a: any, b: any) => b.value - a.value);
+        const top = dist.slice(0, 20);
+        setLokerData(top);
+      } catch (err) {
+        console.error('Error loading locker distribution:', err);
+        setLokerData([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    load();
+  }, []);
 
   const total = lokerData.reduce((sum, item) => sum + item.value, 0);
+
+  const palette = [
+    '#86EFAC', '#FDE047', '#BAE6FD', '#C7D2FE', '#FCA5A5', '#FDBA74', '#A7F3D0', '#DDD6FE',
+    '#FED7AA', '#BFDBFE', '#D1FAE5', '#FEF3C7', '#E9D5FF', '#FBCFE8', '#CCFBF1', '#FCE7F3',
+    '#FEF9C3', '#E0E7FF', '#FECACA', '#BAE6FD'
+  ];
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
@@ -52,44 +78,56 @@ export default function ReportLoker() {
       </div>
 
       <div className="flex flex-col lg:flex-row items-center justify-between gap-4 lg:gap-6">
-        <div className="relative w-40 h-40 lg:w-48 lg:h-48 flex-shrink-0">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={lokerData}
-                cx="50%"
-                cy="50%"
-                innerRadius={60}
-                outerRadius={80}
-                paddingAngle={0}
-                dataKey="value"
-              >
-                {lokerData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip content={<CustomTooltip />} />
-            </PieChart>
-          </ResponsiveContainer>
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="text-center">
-              <p className="text-xl lg:text-2xl font-bold text-gray-900">{total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}</p>
-              <p className="text-xs text-gray-500">Total</p>
-            </div>
+        {isLoading ? (
+          <div className="w-full flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
           </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-x-4 gap-y-2 lg:gap-x-6 lg:gap-y-2.5 flex-1">
-          {lokerData.map((entry, index) => (
-            <div key={`legend-${index}`} className="flex items-center gap-2">
-              <div
-                className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                style={{ backgroundColor: entry.color }}
-              />
-              <span className="text-xs text-gray-600 truncate">{entry.name}</span>
+        ) : lokerData.length === 0 ? (
+          <div className="w-full text-center py-12">
+            <p className="text-gray-500 text-sm">Belum ada data distribusi loker</p>
+          </div>
+        ) : (
+          <>
+            <div className="relative w-40 h-40 lg:w-48 lg:h-48 flex-shrink-0">
+              <ResponsiveContainer width="100%" height="100%">
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="text-center">
+                    <p className="text-xl lg:text-2xl font-bold text-gray-900">{total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}</p>
+                    <p className="text-xs text-gray-500">Total</p>
+                  </div>
+                </div>
+                <PieChart>
+                  <Pie
+                    data={lokerData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={0}
+                    dataKey="value"
+                  >
+                    {lokerData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={palette[index % palette.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip content={<CustomTooltip />} />
+                </PieChart>
+              </ResponsiveContainer>
             </div>
-          ))}
-        </div>
+
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2 lg:gap-x-6 lg:gap-y-2.5 flex-1">
+              {lokerData.map((entry, index) => (
+                <div key={`legend-${index}`} className="flex items-center gap-2">
+                  <div
+                    className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: palette[index % palette.length] }}
+                  />
+                  <span className="text-xs text-gray-600 truncate">{entry.name}</span>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </Card>
   );

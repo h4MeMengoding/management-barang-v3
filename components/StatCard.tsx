@@ -5,7 +5,7 @@ interface StatCardProps {
   title: string;
   value: string;
   change: string;
-  changeType: 'increase' | 'decrease';
+  changeType: 'increase' | 'decrease' | 'neutral';
   previousValue: string;
   iconBgColor?: string;
 }
@@ -41,13 +41,15 @@ export default function StatCard({
         <h2 className="text-3xl lg:text-4xl font-bold text-gray-900">{value}</h2>
         <div className="flex items-center gap-1.5 lg:gap-2 mb-1">
           <span className={`text-xs lg:text-sm font-medium flex items-center gap-1 ${
-            changeType === 'increase' ? 'text-red-500' : 'text-green-500'
+            changeType === 'increase' ? 'text-green-500' : changeType === 'decrease' ? 'text-red-500' : 'text-gray-400'
           }`}>
-            <span className="text-[10px] lg:text-xs">▲</span>
+            <span className="text-[10px] lg:text-xs">
+              {changeType === 'increase' ? '▲' : changeType === 'decrease' ? '▼' : '—'}
+            </span>
             {change}
           </span>
           <span className="text-xs lg:text-sm text-gray-500">
-            Last month total {previousValue}
+            Total kemarin {previousValue}
           </span>
         </div>
       </div>
