@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ProgressBar from "@/components/ProgressBar";
+import RegisterSW from '@/components/RegisterSW';
 import { Suspense } from "react";
 
 const geistSans = Geist({
@@ -25,6 +26,9 @@ export const metadata: Metadata = {
     ],
     apple: '/favicon/apple-touch-icon.png'
   }
+  ,
+  manifest: '/manifest.json',
+  themeColor: '#10B981'
 };
 
 export default function RootLayout({
@@ -39,6 +43,7 @@ export default function RootLayout({
       >
         <Suspense fallback={null}>
           <ProgressBar />
+          <RegisterSW />
         </Suspense>
         {children}
       </body>
