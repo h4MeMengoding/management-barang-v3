@@ -1,22 +1,42 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Camera, Eye, EyeOff, Save } from 'lucide-react';
 import Image from 'next/image';
+import ProtectedRoute from '@/components/ProtectedRoute';
+import Sidebar from '@/components/Sidebar';
+import { getCurrentUser, saveUserSession } from '@/lib/auth';
+import { useRouter } from 'next/navigation';
 
 export default function ProfileSettings() {
+  const router = useRouter();
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   
   const [formData, setFormData] = useState({
-    fullName: 'John Doe',
-    email: 'john.doe@mail.com',
+    fullName: '',
+    email: '',
     currentPassword: '',
     newPassword: '',
     confirmPassword: ''
   });
+
+  // Load user data
+  useEffect(() => {
+    const user = getCurrentUser();
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        fullName: user.name || '',
+        email: user.email
+      }));
+    }
+  }, []);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -37,39 +57,106 @@ export default function ProfileSettings() {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+    setSuccess('');
     
     // Validate password change if attempting to update password
     if (formData.newPassword || formData.confirmPassword) {
       if (!formData.currentPassword) {
-        alert('Masukkan password saat ini untuk mengubah password');
+        setError('Masukkan password saat ini untuk mengubah password');
         return;
       }
       if (formData.newPassword !== formData.confirmPassword) {
-        alert('Password baru dan konfirmasi password tidak cocok!');
+        setError('Password baru dan konfirmasi password tidak cocok!');
         return;
       }
       if (formData.newPassword.length < 8) {
-        alert('Password baru minimal 8 karakter');
+        setError('Password baru minimal 8 karakter');
         return;
       }
     }
     
-    console.log('Update profile:', formData);
-    alert('Profile berhasil diperbarui!');
+    setIsLoading(true);
+
+    try {
+      const user = getCurrentUser();
+      if (!user) {
+        setError('User tidak ditemukan');
+        return;
+      }
+
+      const response = await fetch('/api/auth/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          name: formData.fullName,
+          email: formData.email,
+          currentPassword: formData.currentPassword,
+          newPassword: formData.newPassword,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Gagal memperbarui profile');
+      }
+
+      // Update session dengan data baru
+      saveUserSession(data.user);
+      
+      setSuccess('Profile berhasil diperbarui!');
+      
+      // Clear password fields
+      setFormData(prev => ({
+        ...prev,
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      }));
+
+      // Refresh untuk update sidebar
+      setTimeout(() => {
+        router.refresh();
+      }, 1000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Terjadi kesalahan saat memperbarui profile');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F1E8] lg:pl-24 lg:pr-6 py-6 px-4">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Profile Settings</h1>
-          <p className="text-sm text-gray-600 mt-1">Kelola informasi profil dan keamanan akun Anda</p>
-        </div>
+    <ProtectedRoute>
+      <div className="min-h-screen bg-[#F5F1E8] lg:pl-24">
+        <Sidebar />
+        
+        <div className="lg:pr-6 py-6 px-4">
+          <div className="max-w-4xl mx-auto">
+            {/* Header */}
+            <div className="mb-6">
+              <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Profile Settings</h1>
+              <p className="text-sm text-gray-600 mt-1">Kelola informasi profil dan keamanan akun Anda</p>
+            </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Success/Error Messages */}
+            {success && (
+              <div className="mb-6 p-3 rounded-lg bg-green-50 border border-green-200">
+                <p className="text-sm text-green-600">{success}</p>
+              </div>
+            )}
+            {error && (
+              <div className="mb-6 p-3 rounded-lg bg-red-50 border border-red-200">
+                <p className="text-sm text-red-600">{error}</p>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Profile Picture */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-2xl p-6 shadow-sm">
@@ -87,7 +174,9 @@ export default function ProfileSettings() {
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <span className="text-4xl font-bold text-emerald-600">JD</span>
+                      <span className="text-4xl font-bold text-emerald-600">
+                        {formData.fullName ? formData.fullName.charAt(0).toUpperCase() : 'U'}
+                      </span>
                     </div>
                   )}
                   
@@ -135,7 +224,8 @@ export default function ProfileSettings() {
                     onChange={handleChange}
                     placeholder="John Doe"
                     required
-                    className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors"
+                    disabled={isLoading}
+                    className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
                   />
                 </div>
 
@@ -152,7 +242,8 @@ export default function ProfileSettings() {
                     onChange={handleChange}
                     placeholder="john.doe@mail.com"
                     required
-                    className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors"
+                    disabled={isLoading}
+                    className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
                   />
                 </div>
 
@@ -243,17 +334,20 @@ export default function ProfileSettings() {
                 <div className="pt-4">
                   <button
                     type="submit"
-                    className="w-full flex items-center justify-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm"
+                    disabled={isLoading}
+                    className="w-full flex items-center justify-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm disabled:bg-emerald-400 disabled:cursor-not-allowed"
                   >
                     <Save size={18} />
-                    Simpan Perubahan
+                    {isLoading ? 'Menyimpan...' : 'Simpan Perubahan'}
                   </button>
                 </div>
               </form>
             </div>
           </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </ProtectedRoute>
   );
 }

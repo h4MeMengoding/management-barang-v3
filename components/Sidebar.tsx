@@ -1,19 +1,29 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { LayoutGrid, PlusSquare, Package, FolderTree, QrCode, ScanLine, Settings, HelpCircle, LogOut, User } from 'lucide-react';
 import NProgress from 'nprogress';
+import { clearUserSession, getCurrentUser } from '@/lib/auth';
 
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [userInitial, setUserInitial] = useState('U');
+
+  useEffect(() => {
+    const user = getCurrentUser();
+    if (user && user.name) {
+      setUserInitial(user.name.charAt(0).toUpperCase());
+    } else if (user && user.email) {
+      setUserInitial(user.email.charAt(0).toUpperCase());
+    }
+  }, []);
 
   const handleLogout = () => {
-    // Handle logout logic
-    console.log('Logging out...');
+    clearUserSession();
     router.push('/signin');
   };
 
@@ -114,7 +124,7 @@ export default function Sidebar() {
           className="w-11 h-11 rounded-full bg-emerald-500 overflow-hidden hover:ring-2 hover:ring-emerald-400 transition-all"
         >
           <div className="w-full h-full flex items-center justify-center text-white font-semibold text-sm">
-            JD
+            {userInitial}
           </div>
         </button>
         

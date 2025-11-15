@@ -1,19 +1,47 @@
 'use client';
 
 import { Search, User, LogOut } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { getCurrentUser, clearUserSession } from '@/lib/auth';
 
 export default function Header() {
   const [showSearch, setShowSearch] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [userInitial, setUserInitial] = useState('U');
   const pathname = usePathname();
   const router = useRouter();
 
+  useEffect(() => {
+    const user = getCurrentUser();
+    if (user && user.name) {
+      setUserInitial(user.name.charAt(0).toUpperCase());
+    } else if (user && user.email) {
+      setUserInitial(user.email.charAt(0).toUpperCase());
+    }
+  }, []);
+
+  const [userName, setUserName] = useState<string | null>(null);
+  const [timeGreeting, setTimeGreeting] = useState('pagi');
+
+  useEffect(() => {
+    const user = getCurrentUser();
+    if (user) {
+      setUserName(user.name || user.email || null);
+    }
+
+    const hour = new Date().getHours();
+    let greeting = 'pagi';
+    if (hour >= 4 && hour < 10) greeting = 'pagi';
+    else if (hour >= 10 && hour < 15) greeting = 'siang';
+    else if (hour >= 15 && hour < 18) greeting = 'sore';
+    else greeting = 'malam';
+    setTimeGreeting(greeting);
+  }, []);
+
   const handleLogout = () => {
-    // Handle logout logic
-    console.log('Logging out...');
+    clearUserSession();
     router.push('/signin');
   };
 
@@ -87,7 +115,7 @@ export default function Header() {
               className="w-10 h-10 rounded-full bg-emerald-500 overflow-hidden hover:ring-2 hover:ring-emerald-400 transition-all"
             >
               <div className="w-full h-full flex items-center justify-center text-white font-semibold text-sm">
-                JD
+                {userInitial}
               </div>
             </button>
 
@@ -136,10 +164,12 @@ export default function Header() {
       <div className="hidden lg:flex items-center justify-between mb-6 lg:mb-8 gap-4">
         <div className="flex-1 min-w-0">
           <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
-            {pathname === '/dashboard' ? 'Hello, John!' : getPageTitle()}
+            {pathname === '/dashboard' ? `Halo, ${userName ?? 'User'}` : getPageTitle()}
           </h1>
           <p className="text-sm lg:text-base text-gray-500 mt-1">
-            {getPageDescription()}
+            {pathname === '/dashboard'
+              ? `Selamat ${timeGreeting}, berikut ringkasan barang Anda.`
+              : getPageDescription()}
           </p>
         </div>
 

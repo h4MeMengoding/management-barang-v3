@@ -1,3 +1,6 @@
+'use client';
+
+import ProtectedRoute from '@/components/ProtectedRoute';
 import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
 import StatCard from '@/components/StatCard';
@@ -9,9 +12,10 @@ import { MapPin, Package, FolderTree } from 'lucide-react';
 
 export default function Dashboard() {
   return (
-    <div className="min-h-screen bg-[#F5F1E8] lg:pl-24">
-      {/* Sidebar */}
-      <Sidebar />
+    <ProtectedRoute>
+      <div className="min-h-screen bg-[#F5F1E8] lg:pl-24">
+        {/* Sidebar */}
+        <Sidebar />
 
       {/* Main Content */}
       <main className="w-full px-4 pt-4 pb-20 md:px-6 md:py-6 lg:px-8 lg:pb-8">
@@ -62,5 +66,6 @@ export default function Dashboard() {
         </div>
       </main>
     </div>
+    </ProtectedRoute>
   );
 }
