@@ -91,43 +91,86 @@ export default function Sidebar() {
       {/* Menu Items */}
       <div className="flex flex-col gap-2">
         {menuItems.map((item, index) => (
-          <Link
-            key={index}
-            href={item.href}
-            onClick={() => NProgress.start()}
-            className={`w-11 h-11 rounded-xl flex items-center justify-center transition-colors ${
-              pathname === item.href
-                ? 'bg-gray-900 text-white'
-                : 'text-gray-400 hover:bg-gray-100'
-            }`}
-            title={item.label}
-          >
-            {item.icon}
-          </Link>
+          <div key={index} className="relative group">
+            <Link
+              href={item.href}
+              onClick={() => NProgress.start()}
+              className={`w-11 h-11 rounded-xl flex items-center justify-center transition-colors ${
+                pathname === item.href
+                  ? 'bg-gray-900 text-white'
+                  : 'text-gray-400 hover:bg-gray-100'
+              }`}
+            >
+              {item.icon}
+            </Link>
+
+            {/* Floating tooltip for desktop */}
+            <div className="hidden lg:flex absolute left-full top-1/2 -translate-y-1/2 ml-3 pointer-events-none">
+              <div className="relative">
+                <div className="bg-white text-gray-900 text-sm font-medium px-3 py-2 rounded-lg shadow-lg border border-gray-200 opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150 ease-out whitespace-nowrap z-50">
+                  {item.label}
+                </div>
+                {/* small diamond arrow */}
+                <div className="absolute left-[-6px] top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-t border-l border-gray-200 rotate-45 opacity-0 group-hover:opacity-100 transition-all duration-150 ease-out" />
+              </div>
+            </div>
+          </div>
         ))}
       </div>
 
       {/* Settings & Help at bottom */}
       <div className="mt-auto flex flex-col gap-2">
-        <button className="w-11 h-11 rounded-xl flex items-center justify-center text-gray-400 hover:bg-gray-100">
-          <Settings size={20} />
-        </button>
-        <button className="w-11 h-11 rounded-xl flex items-center justify-center text-gray-400 hover:bg-gray-100">
-          <HelpCircle size={20} />
-        </button>
+        <div className="relative group">
+          <button className="w-11 h-11 rounded-xl flex items-center justify-center text-gray-400 hover:bg-gray-100">
+            <Settings size={20} />
+          </button>
+          <div className="hidden lg:flex absolute left-full top-1/2 -translate-y-1/2 ml-3 pointer-events-none">
+            <div className="relative">
+              <div className="bg-white text-gray-900 text-sm font-medium px-3 py-2 rounded-lg shadow-lg border border-gray-200 opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150 ease-out whitespace-nowrap z-50">
+                Settings
+              </div>
+              <div className="absolute left-[-6px] top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-t border-l border-gray-200 rotate-45 opacity-0 group-hover:opacity-100 transition-all duration-150 ease-out" />
+            </div>
+          </div>
+        </div>
+
+        <div className="relative group">
+          <button className="w-11 h-11 rounded-xl flex items-center justify-center text-gray-400 hover:bg-gray-100">
+            <HelpCircle size={20} />
+          </button>
+          <div className="hidden lg:flex absolute left-full top-1/2 -translate-y-1/2 ml-3 pointer-events-none">
+            <div className="relative">
+              <div className="bg-white text-gray-900 text-sm font-medium px-3 py-2 rounded-lg shadow-lg border border-gray-200 opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150 ease-out whitespace-nowrap z-50">
+                Help
+              </div>
+              <div className="absolute left-[-6px] top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-t border-l border-gray-200 rotate-45 opacity-0 group-hover:opacity-100 transition-all duration-150 ease-out" />
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* User Avatar at bottom */}
       <div className="relative">
-        <button 
-          onClick={() => setShowProfileMenu(!showProfileMenu)}
-          className="w-11 h-11 rounded-full bg-emerald-500 overflow-hidden hover:ring-2 hover:ring-emerald-400 transition-all"
-        >
-          <div className="w-full h-full flex items-center justify-center text-white font-semibold text-sm">
-            {userInitial}
+        <div className="relative group">
+          <button 
+            onClick={() => setShowProfileMenu(!showProfileMenu)}
+            className="w-11 h-11 rounded-full bg-emerald-500 overflow-hidden hover:ring-2 hover:ring-emerald-400 transition-all"
+          >
+            <div className="w-full h-full flex items-center justify-center text-white font-semibold text-sm">
+              {userInitial}
+            </div>
+          </button>
+
+          <div className="hidden lg:flex absolute left-full top-1/2 -translate-y-1/2 ml-3 pointer-events-none">
+            <div className="relative">
+              <div className="bg-white text-gray-900 text-sm font-medium px-3 py-2 rounded-lg shadow-lg border border-gray-200 opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150 ease-out whitespace-nowrap z-50">
+                Profile
+              </div>
+              <div className="absolute left-[-6px] top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-t border-l border-gray-200 rotate-45 opacity-0 group-hover:opacity-100 transition-all duration-150 ease-out" />
+            </div>
           </div>
-        </button>
-        
+        </div>
+
         {/* Profile Dropdown Menu */}
         {showProfileMenu && (
           <div className="absolute bottom-0 left-16 ml-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50">

@@ -17,6 +17,14 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Manajemen Barang",
   description: "Sistem manajemen penyimpanan barang",
+  icons: {
+    icon: [
+      { url: '/favicon/favicon.ico' },
+      { url: '/favicon/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon/favicon-96x96.png', sizes: '96x96' }
+    ],
+    apple: '/favicon/apple-touch-icon.png'
+  }
 };
 
 export default function RootLayout({
