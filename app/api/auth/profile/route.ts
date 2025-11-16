@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
-    const { userId, name, email, currentPassword, newPassword } = body;
+    const { userId, name, email, currentPassword, newPassword, profilePicture } = body;
 
     if (!userId) {
       return NextResponse.json(
@@ -65,6 +65,13 @@ export async function PUT(request: NextRequest) {
         { status: 404 }
       );
     }
+
+    // Update data yang akan di-update
+    const updateData: any = {};
+    
+    if (name !== undefined) updateData.name = name;
+    if (email !== undefined) updateData.email = email;
+    if (profilePicture !== undefined) updateData.profilePicture = profilePicture;
 
     // Jika ada perubahan password
     if (newPassword) {
@@ -86,52 +93,32 @@ export async function PUT(request: NextRequest) {
 
       // Hash password baru
       const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-      // Update dengan password baru
-      const updatedUser = await prisma.user.update({
-        where: { id: userId },
-        data: {
-          name,
-          email,
-          password: hashedPassword,
-        },
-        select: {
-          id: true,
-          email: true,
-          name: true,
-          createdAt: true,
-          updatedAt: true,
-        },
-      });
-
-      return NextResponse.json(
-        {
-          message: 'Profile dan password berhasil diperbarui',
-          user: updatedUser,
-        },
-        { status: 200 }
-      );
+      updateData.password = hashedPassword;
     }
 
-    // Update tanpa password
+    // Update user
     const updatedUser = await prisma.user.update({
       where: { id: userId },
-      data: {
-        name,
-        email,
-      },
+      data: updateData,
       select: {
         id: true,
         email: true,
         name: true,
+        profilePicture: true,
         createdAt: true,
         updatedAt: true,
       },
     });
 
+    const message = newPassword 
+      ? 'Profile dan password berhasil diperbarui'
+      : profilePicture
+      ? 'Foto profil berhasil diperbarui'
+      : 'Profile berhasil diperbarui';
+
     return NextResponse.json(
       {
-        message: 'Profile berhasil diperbarui',
+        message,
         user: updatedUser,
       },
       { status: 200 }

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { LayoutGrid, PlusSquare, Package, FolderTree, QrCode, ScanLine, Settings, HelpCircle, LogOut, User } from 'lucide-react';
 import NProgress from 'nprogress';
@@ -12,6 +13,7 @@ export default function Sidebar() {
   const router = useRouter();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [userInitial, setUserInitial] = useState('U');
+  const [profilePicture, setProfilePicture] = useState<string | null>(null);
 
   useEffect(() => {
     const user = getCurrentUser();
@@ -20,6 +22,22 @@ export default function Sidebar() {
     } else if (user && user.email) {
       setUserInitial(user.email.charAt(0).toUpperCase());
     }
+    
+    // Load profile picture
+    if (user && user.profilePicture) {
+      setProfilePicture(user.profilePicture);
+    }
+    
+    // Listen for profile picture updates
+    const handleProfileUpdate = (event: any) => {
+      setProfilePicture(event.detail);
+    };
+    
+    window.addEventListener('profilePictureUpdated', handleProfileUpdate);
+    
+    return () => {
+      window.removeEventListener('profilePictureUpdated', handleProfileUpdate);
+    };
   }, []);
 
   const handleLogout = () => {
@@ -47,11 +65,6 @@ export default function Sidebar() {
       icon: <FolderTree size={20} />,
       href: '/manage-categories',
       label: 'Kelola Kategori'
-    },
-    {
-      icon: <QrCode size={20} />,
-      href: '/scan-qr',
-      label: 'Kelola QR Code'
     },
     {
       icon: <ScanLine size={20} />,
@@ -156,9 +169,19 @@ export default function Sidebar() {
             onClick={() => setShowProfileMenu(!showProfileMenu)}
             className="w-11 h-11 rounded-full bg-emerald-500 overflow-hidden hover:ring-2 hover:ring-emerald-400 transition-all"
           >
-            <div className="w-full h-full flex items-center justify-center text-white font-semibold text-sm">
-              {userInitial}
-            </div>
+            {profilePicture ? (
+              <Image
+                src={profilePicture}
+                alt="Profile"
+                width={44}
+                height={44}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-white font-semibold text-sm">
+                {userInitial}
+              </div>
+            )}
           </button>
 
           <div className="hidden lg:flex absolute left-full top-1/2 -translate-y-1/2 ml-3 pointer-events-none">

@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Camera, Eye, EyeOff, Save } from 'lucide-react';
+import { Camera, Eye, EyeOff, Save, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Sidebar from '@/components/Sidebar';
 import { getCurrentUser, saveUserSession } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
+import { uploadProfilePicture, getProfilePictureUrl } from '@/lib/supabase-storage';
 
 export default function ProfileSettings() {
   const router = useRouter();
@@ -15,6 +16,7 @@ export default function ProfileSettings() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   
@@ -28,24 +30,104 @@ export default function ProfileSettings() {
 
   // Load user data
   useEffect(() => {
-    const user = getCurrentUser();
-    if (user) {
-      setFormData(prev => ({
-        ...prev,
-        fullName: user.name || '',
-        email: user.email
-      }));
-    }
+    const loadUserData = async () => {
+      const user = getCurrentUser();
+      if (user) {
+        setFormData(prev => ({
+          ...prev,
+          fullName: user.name || '',
+          email: user.email
+        }));
+
+        // Load profile picture from Supabase Storage
+        if (user.profilePicture) {
+          setProfileImage(user.profilePicture);
+        } else {
+          const pictureUrl = await getProfilePictureUrl(user.id);
+          if (pictureUrl) {
+            setProfileImage(pictureUrl);
+            
+            // Update session with the fetched picture URL
+            saveUserSession({ ...user, profilePicture: pictureUrl });
+          }
+        }
+      }
+    };
+
+    loadUserData();
+    
+    // Listen for profile picture updates from other components
+    const handleProfileUpdate = (event: any) => {
+      setProfileImage(event.detail);
+    };
+    
+    window.addEventListener('profilePictureUpdated', handleProfileUpdate);
+    
+    return () => {
+      window.removeEventListener('profilePictureUpdated', handleProfileUpdate);
+    };
   }, []);
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfileImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    const user = getCurrentUser();
+    if (!user) {
+      setError('User tidak ditemukan');
+      return;
+    }
+
+    setIsUploadingImage(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      // Upload to Supabase Storage
+      const { url, error: uploadError } = await uploadProfilePicture(file, user.id);
+
+      if (uploadError) {
+        setError(uploadError);
+        return;
+      }
+
+      // Update profile picture URL in database
+      const response = await fetch('/api/auth/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          profilePicture: url,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Gagal memperbarui foto profil');
+      }
+
+      // Update session first
+      saveUserSession(data.user);
+      
+      // Then update local state
+      setProfileImage(url);
+      
+      // Broadcast event to update other components (like Sidebar)
+      window.dispatchEvent(new CustomEvent('profilePictureUpdated', { detail: url }));
+      
+      setSuccess('Foto profil berhasil diperbarui!');
+      
+      // Force full page reload to ensure all components update
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Terjadi kesalahan saat upload foto');
+    } finally {
+      setIsUploadingImage(false);
     }
   };
 
@@ -96,8 +178,8 @@ export default function ProfileSettings() {
           userId: user.id,
           name: formData.fullName,
           email: formData.email,
-          currentPassword: formData.currentPassword,
-          newPassword: formData.newPassword,
+          currentPassword: formData.currentPassword || undefined,
+          newPassword: formData.newPassword || undefined,
         }),
       });
 
@@ -164,17 +246,23 @@ export default function ProfileSettings() {
               
               <div className="flex flex-col items-center">
                 {/* Profile Image Circle */}
-                <div className="relative w-32 h-32 rounded-full overflow-hidden bg-emerald-100 mb-4">
+                <div className="relative w-32 h-32 rounded-full overflow-hidden bg-gray-200 mb-4 group cursor-pointer">
                   {profileImage ? (
                     <Image
                       src={profileImage}
                       alt="Profile"
                       fill
+                      sizes="128px"
+                      priority
                       className="object-cover"
+                      onError={(e) => {
+                        console.error('Image load error:', profileImage);
+                        setProfileImage(null);
+                      }}
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <span className="text-4xl font-bold text-emerald-600">
+                    <div className="w-full h-full flex items-center justify-center bg-gray-900">
+                      <span className="text-4xl font-bold text-white">
                         {formData.fullName ? formData.fullName.charAt(0).toUpperCase() : 'U'}
                       </span>
                     </div>
@@ -183,23 +271,34 @@ export default function ProfileSettings() {
                   {/* Camera Button Overlay */}
                   <label 
                     htmlFor="profile-upload"
-                    className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-40 transition-all cursor-pointer flex items-center justify-center group"
+                    className={`absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all ${isUploadingImage ? 'cursor-wait' : 'cursor-pointer'} flex items-center justify-center`}
                   >
-                    <Camera className="text-white opacity-0 group-hover:opacity-100 transition-opacity" size={28} />
+                    {isUploadingImage ? (
+                      <Loader2 className="text-white animate-spin" size={28} />
+                    ) : (
+                      <Camera className="text-white opacity-0 group-hover:opacity-100 transition-opacity" size={28} />
+                    )}
                     <input
                       type="file"
                       id="profile-upload"
-                      accept="image/*"
+                      accept="image/jpeg,image/jpg,image/png,image/webp"
                       onChange={handleImageUpload}
+                      disabled={isUploadingImage}
                       className="hidden"
                     />
                   </label>
                 </div>
 
                 <p className="text-xs text-gray-500 text-center">
-                  Upload foto profil Anda
-                  <br />
-                  Format: JPG, PNG (Max 2MB)
+                  {isUploadingImage ? (
+                    <span className="text-emerald-600 font-medium">Uploading...</span>
+                  ) : (
+                    <>
+                      Upload foto profil Anda
+                      <br />
+                      Format: JPG, PNG, WebP (Max 2MB)
+                    </>
+                  )}
                 </p>
               </div>
             </div>

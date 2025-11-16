@@ -4,6 +4,7 @@ import { Search, User, LogOut, Package, FolderTree, Archive } from 'lucide-react
 import { useState, useEffect, useRef } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { getCurrentUser, clearUserSession } from '@/lib/auth';
 
 interface SearchResult {
@@ -35,6 +36,7 @@ export default function Header() {
   const [showSearch, setShowSearch] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [userInitial, setUserInitial] = useState('U');
+  const [profilePicture, setProfilePicture] = useState<string | null>(null);
   const pathname = usePathname();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -47,10 +49,16 @@ export default function Header() {
 
   useEffect(() => {
     const user = getCurrentUser();
-    if (user && user.name) {
-      setUserInitial(user.name.charAt(0).toUpperCase());
-    } else if (user && user.email) {
-      setUserInitial(user.email.charAt(0).toUpperCase());
+    if (user) {
+      if (user.name) {
+        setUserInitial(user.name.charAt(0).toUpperCase());
+      } else if (user.email) {
+        setUserInitial(user.email.charAt(0).toUpperCase());
+      }
+      
+      if (user.profilePicture) {
+        setProfilePicture(user.profilePicture);
+      }
     }
   }, []);
 
@@ -204,22 +212,32 @@ export default function Header() {
         </h1>
 
         {/* Right: Search Icon & Profile */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-shrink-0">
           <button 
             onClick={() => setShowSearch(!showSearch)}
-            className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors"
+            className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors flex-shrink-0"
           >
             <Search size={20} className="text-gray-700" />
           </button>
 
-          <div className="relative">
+          <div className="relative flex-shrink-0">
             <button 
               onClick={() => setShowProfileMenu(!showProfileMenu)}
-              className="w-10 h-10 rounded-full bg-emerald-500 overflow-hidden hover:ring-2 hover:ring-emerald-400 transition-all"
+              className="w-10 h-10 rounded-full bg-emerald-500 overflow-hidden hover:ring-2 hover:ring-emerald-400 transition-all flex items-center justify-center"
             >
-              <div className="w-full h-full flex items-center justify-center text-white font-semibold text-sm">
-                {userInitial}
-              </div>
+              {profilePicture ? (
+                <Image
+                  src={profilePicture}
+                  alt="Profile"
+                  width={40}
+                  height={40}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-white font-semibold text-sm">
+                  {userInitial}
+                </div>
+              )}
             </button>
 
             {/* Profile Dropdown Menu */}
