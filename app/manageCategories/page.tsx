@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
 import Card from '@/components/Card';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { getCurrentUser } from '@/lib/auth';
+import { queryKeys } from '@/lib/hooks/useQuery';
 import { Plus, ChevronDown, ChevronUp, FolderTree, Edit2, Trash2, MoreVertical } from 'lucide-react';
 
 interface Category {
@@ -21,6 +23,7 @@ interface Category {
 
 export default function ManageCategories() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [formData, setFormData] = useState({
     name: '',
     description: ''
@@ -130,6 +133,13 @@ export default function ManageCategories() {
       setIsFormOpen(false);
       await loadCategories();
 
+      // Invalidate queries
+      const user = getCurrentUser();
+      if (user) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.categories(user.id) });
+        queryClient.invalidateQueries({ queryKey: queryKeys.stats(user.id) });
+      }
+
       // Clear success message after 3 seconds
       setTimeout(() => setSuccess(''), 3000);
     } catch (err: any) {
@@ -173,6 +183,12 @@ export default function ManageCategories() {
       setSuccess('Kategori berhasil dihapus!');
       await loadCategories();
       setActiveCardId(null);
+
+      // Invalidate queries
+      if (user) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.categories(user.id) });
+        queryClient.invalidateQueries({ queryKey: queryKeys.stats(user.id) });
+      }
 
       setTimeout(() => setSuccess(''), 3000);
     } catch (err: any) {

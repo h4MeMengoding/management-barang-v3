@@ -1,57 +1,27 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import Card from './Card';
 import { CalendarDays, ChevronDown } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { getCurrentUser } from '@/lib/auth';
+import { useStats } from '@/lib/hooks/useQuery';
 
 export default function ReportBarang() {
   const [period, setPeriod] = useState('Monthly');
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const emptyData = months.map(m => ({ name: m, value: 0 }));
-  const [barangData, setBarangData] = useState<Array<{ name: string; value: number }>>(emptyData);
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: stats, isLoading } = useStats();
 
-  useEffect(() => {
-    const loadMonthly = async () => {
-      const user = getCurrentUser();
-      if (!user) {
-        console.error('User not found for monthly items');
-        setIsLoading(false);
-        return;
-      }
+  const barangData = useMemo(() => {
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    
+    if (!stats?.itemsMonthly) {
+      return months.map(m => ({ name: m, value: 0 }));
+    }
 
-      try {
-        setIsLoading(true);
-        const res = await fetch(`/api/stats?userId=${user.id}`);
-        const json = await res.json();
-        if (!res.ok) {
-          console.error('Failed to load monthly items:', json.error || json);
-          const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-          setBarangData(months.map(m => ({ name: m, value: 0 })));
-          return;
-        }
-
-        const itemsMonthly = json.itemsMonthly || [];
-        // Ensure we have 12 months
-        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-        const final = months.map((m) => {
-          const found = itemsMonthly.find((it: any) => it.name === m);
-          return { name: m, value: found ? Number(found.value) : 0 };
-        });
-        setBarangData(final);
-      } catch (err) {
-        console.error('Error loading monthly items:', err);
-        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-        setBarangData(months.map(m => ({ name: m, value: 0 })));
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadMonthly();
-  }, []);
+    return months.map((m) => {
+      const found = stats.itemsMonthly.find((it: any) => it.name === m);
+      return { name: m, value: found ? Number(found.value) : 0 };
+    });
+  }, [stats]);
 
   const maxValue = useMemo(() => {
     if (!barangData || barangData.length === 0) return 0;
@@ -100,7 +70,7 @@ export default function ReportBarang() {
           <div className="w-full h-full animate-pulse p-4">
             <div className="h-4 bg-gray-200 rounded w-40 mb-4"></div>
             <div className="flex items-end gap-3 h-44">
-              {months.map((m, idx) => (
+              {['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map((m, idx) => (
                 <div key={idx} className="flex-1 h-20 bg-gray-200 rounded" />
               ))}
             </div>

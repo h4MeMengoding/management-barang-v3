@@ -1,46 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useMemo } from 'react';
 import Card from './Card';
 import BarangBaruItem from './BarangBaruItem';
 import { Package } from 'lucide-react';
-import { getCurrentUser } from '@/lib/auth';
+import { useItems } from '@/lib/hooks/useQuery';
 
 export default function BarangBaru() {
-  const [items, setItems] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: items = [], isLoading } = useItems();
 
-  useEffect(() => {
-    const loadRecent = async () => {
-      const user = getCurrentUser();
-      if (!user) {
-        setItems([]);
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        setIsLoading(true);
-        const res = await fetch(`/api/items?userId=${user.id}`);
-        const json = await res.json();
-        if (!res.ok) {
-          console.error('Failed to load items', json);
-          setItems([]);
-          return;
-        }
-
-        const allItems = json.items || [];
-        // Ensure items are sorted by createdAt desc (API already does this), take top 5
-        const recent = allItems.slice(0, 5);
-        setItems(recent);
-      } catch (err) {
-        console.error('Error loading recent items:', err);
-        setItems([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadRecent();
-  }, []);
+  // Get recent 5 items (already sorted by createdAt desc from API)
+  const recentItems = useMemo(() => {
+    return items.slice(0, 5);
+  }, [items]);
 
   const formatDate = (dateStr: string) => {
     try {
@@ -73,10 +43,10 @@ export default function BarangBaru() {
               </div>
             ))}
           </div>
-        ) : items.length === 0 ? (
+        ) : recentItems.length === 0 ? (
           <div className="py-6 text-center text-gray-500">Belum ada barang</div>
         ) : (
-          items.map((it) => (
+          recentItems.map((it) => (
             <BarangBaruItem
               key={it.id}
               icon={<Package size={20} className="text-emerald-600" />}

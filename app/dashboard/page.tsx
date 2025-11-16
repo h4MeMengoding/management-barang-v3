@@ -9,114 +9,92 @@ import ReportLoker from '@/components/ReportLoker';
 import BarangBaru from '@/components/BarangBaru';
 import MaintenanceRequests from '@/components/MaintenanceRequests';
 import { MapPin, Package, FolderTree } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { getCurrentUser } from '@/lib/auth';
-
-interface Stats {
-  totalNow: number;
-  totalYesterday: number;
-  totalItemsNow?: number;
-  totalItemsYesterday?: number;
-  totalCategoriesNow?: number;
-  totalCategoriesYesterday?: number;
-}
+import { useMemo } from 'react';
+import { useStats } from '@/lib/hooks/useQuery';
 
 export default function Dashboard() {
-  const [totalLoker, setTotalLoker] = useState<string>('0');
-  const [lokerChange, setLokerChange] = useState<string>('0%');
-  const [lokerChangeType, setLokerChangeType] = useState<'increase' | 'decrease' | 'neutral'>('neutral');
-  const [lokerPrevious, setLokerPrevious] = useState<string>('0');
-  const [totalBarang, setTotalBarang] = useState<string>('0');
-  const [barangChange, setBarangChange] = useState<string>('0%');
-  const [barangChangeType, setBarangChangeType] = useState<'increase' | 'decrease' | 'neutral'>('neutral');
-  const [barangPrevious, setBarangPrevious] = useState<string>('0');
-  const [totalKategori, setTotalKategori] = useState<string>('0');
-  const [kategoriChange, setKategoriChange] = useState<string>('0%');
-  const [kategoriChangeType, setKategoriChangeType] = useState<'increase' | 'decrease' | 'neutral'>('neutral');
-  const [kategoriPrevious, setKategoriPrevious] = useState<string>('0');
-  const [isLoadingStats, setIsLoadingStats] = useState<boolean>(true);
+  const { data: stats, isLoading: isLoadingStats } = useStats();
 
-  useEffect(() => {
-    const loadStats = async () => {
-      const user = getCurrentUser();
-      if (!user) {
-        setIsLoadingStats(false);
-        return;
-      }
+  // Calculate locker stats
+  const lokerStats = useMemo(() => {
+    if (!stats) return { total: '0', change: '0%', changeType: 'neutral' as const, previous: '0' };
+    
+    const totalNow = stats.totalNow || 0;
+    const totalYesterday = stats.totalYesterday || 0;
+    const formatter = new Intl.NumberFormat('id-ID');
+    
+    let percent = 0;
+    if (totalYesterday === 0) {
+      percent = totalNow > 0 ? 100 : 0;
+    } else {
+      percent = Math.round(((totalNow - totalYesterday) / totalYesterday) * 100);
+    }
 
-      setIsLoadingStats(true);
+    let changeType: 'increase' | 'decrease' | 'neutral' = 'neutral';
+    if (totalNow > totalYesterday) changeType = 'increase';
+    else if (totalNow < totalYesterday) changeType = 'decrease';
 
-      try {
-        const res = await fetch(`/api/stats?userId=${user.id}`);
-        const data: Stats | { error?: string } = await res.json();
-        if (!res.ok) {
-          console.error('Failed to load stats', data);
-          setIsLoadingStats(false);
-          return;
-        }
-
-        const { totalNow, totalYesterday, totalItemsNow, totalItemsYesterday, totalCategoriesNow, totalCategoriesYesterday } = data as Stats;
-        const formatter = new Intl.NumberFormat('id-ID');
-        setTotalLoker(formatter.format(totalNow));
-        setLokerPrevious(formatter.format(totalYesterday));
-
-        let percent = 0;
-        if (totalYesterday === 0) {
-          percent = totalNow > 0 ? 100 : 0;
-        } else {
-          percent = Math.round(((totalNow - totalYesterday) / totalYesterday) * 100);
-        }
-
-        setLokerChange(`${Math.abs(percent)}%`);
-        if (totalNow > totalYesterday) setLokerChangeType('increase');
-        else if (totalNow < totalYesterday) setLokerChangeType('decrease');
-        else setLokerChangeType('neutral');
-
-        // Items (Total Barang)
-        const itemsNow = totalItemsNow ?? 0;
-        const itemsYesterday = totalItemsYesterday ?? 0;
-        setTotalBarang(formatter.format(itemsNow));
-        setBarangPrevious(formatter.format(itemsYesterday));
-
-        let percentItems = 0;
-        if (itemsYesterday === 0) {
-          percentItems = itemsNow > 0 ? 100 : 0;
-        } else {
-          percentItems = Math.round(((itemsNow - itemsYesterday) / itemsYesterday) * 100);
-        }
-
-        setBarangChange(`${Math.abs(percentItems)}%`);
-        if (itemsNow > itemsYesterday) setBarangChangeType('increase');
-        else if (itemsNow < itemsYesterday) setBarangChangeType('decrease');
-        else setBarangChangeType('neutral');
-
-        // Categories (Total Kategori Barang)
-        const catsNow = totalCategoriesNow ?? 0;
-        const catsYesterday = totalCategoriesYesterday ?? 0;
-        setTotalKategori(formatter.format(catsNow));
-        setKategoriPrevious(formatter.format(catsYesterday));
-
-        let percentCats = 0;
-        if (catsYesterday === 0) {
-          percentCats = catsNow > 0 ? 100 : 0;
-        } else {
-          percentCats = Math.round(((catsNow - catsYesterday) / catsYesterday) * 100);
-        }
-
-        setKategoriChange(`${Math.abs(percentCats)}%`);
-        if (catsNow > catsYesterday) setKategoriChangeType('increase');
-        else if (catsNow < catsYesterday) setKategoriChangeType('decrease');
-        else setKategoriChangeType('neutral');
-      } catch (err) {
-        console.error('Error loading dashboard stats:', err);
-        setIsLoadingStats(false);
-      } finally {
-        setIsLoadingStats(false);
-      }
+    return {
+      total: formatter.format(totalNow),
+      change: `${Math.abs(percent)}%`,
+      changeType,
+      previous: formatter.format(totalYesterday)
     };
+  }, [stats]);
 
-    loadStats();
-  }, []);
+  // Calculate item stats
+  const barangStats = useMemo(() => {
+    if (!stats) return { total: '0', change: '0%', changeType: 'neutral' as const, previous: '0' };
+    
+    const itemsNow = stats.totalItemsNow || 0;
+    const itemsYesterday = stats.totalItemsYesterday || 0;
+    const formatter = new Intl.NumberFormat('id-ID');
+    
+    let percent = 0;
+    if (itemsYesterday === 0) {
+      percent = itemsNow > 0 ? 100 : 0;
+    } else {
+      percent = Math.round(((itemsNow - itemsYesterday) / itemsYesterday) * 100);
+    }
+
+    let changeType: 'increase' | 'decrease' | 'neutral' = 'neutral';
+    if (itemsNow > itemsYesterday) changeType = 'increase';
+    else if (itemsNow < itemsYesterday) changeType = 'decrease';
+
+    return {
+      total: formatter.format(itemsNow),
+      change: `${Math.abs(percent)}%`,
+      changeType,
+      previous: formatter.format(itemsYesterday)
+    };
+  }, [stats]);
+
+  // Calculate category stats
+  const kategoriStats = useMemo(() => {
+    if (!stats) return { total: '0', change: '0%', changeType: 'neutral' as const, previous: '0' };
+    
+    const catsNow = stats.totalCategoriesNow || 0;
+    const catsYesterday = stats.totalCategoriesYesterday || 0;
+    const formatter = new Intl.NumberFormat('id-ID');
+    
+    let percent = 0;
+    if (catsYesterday === 0) {
+      percent = catsNow > 0 ? 100 : 0;
+    } else {
+      percent = Math.round(((catsNow - catsYesterday) / catsYesterday) * 100);
+    }
+
+    let changeType: 'increase' | 'decrease' | 'neutral' = 'neutral';
+    if (catsNow > catsYesterday) changeType = 'increase';
+    else if (catsNow < catsYesterday) changeType = 'decrease';
+
+    return {
+      total: formatter.format(catsNow),
+      change: `${Math.abs(percent)}%`,
+      changeType,
+      previous: formatter.format(catsYesterday)
+    };
+  }, [stats]);
 
   return (
     <ProtectedRoute>
@@ -134,30 +112,30 @@ export default function Dashboard() {
           <StatCard
             icon={<MapPin size={24} className="text-blue-600" />}
             title="Total Loker"
-            value={totalLoker}
-            change={lokerChange}
-            changeType={lokerChangeType}
-            previousValue={lokerPrevious}
+            value={lokerStats.total}
+            change={lokerStats.change}
+            changeType={lokerStats.changeType}
+            previousValue={lokerStats.previous}
             iconBgColor="bg-blue-100"
             loading={isLoadingStats}
           />
           <StatCard
             icon={<Package size={24} className="text-purple-600" />}
             title="Total Barang"
-            value={totalBarang}
-            change={barangChange}
-            changeType={barangChangeType}
-            previousValue={barangPrevious}
+            value={barangStats.total}
+            change={barangStats.change}
+            changeType={barangStats.changeType}
+            previousValue={barangStats.previous}
             iconBgColor="bg-purple-100"
             loading={isLoadingStats}
           />
           <StatCard
             icon={<FolderTree size={24} className="text-yellow-600" />}
             title="Total Kategori Barang"
-            value={totalKategori}
-            change={kategoriChange}
-            changeType={kategoriChangeType}
-            previousValue={kategoriPrevious}
+            value={kategoriStats.total}
+            change={kategoriStats.change}
+            changeType={kategoriStats.changeType}
+            previousValue={kategoriStats.previous}
             iconBgColor="bg-yellow-100"
             loading={isLoadingStats}
           />

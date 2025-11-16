@@ -2,11 +2,13 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
 import Card from '@/components/Card';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { getCurrentUser } from '@/lib/auth';
+import { queryKeys } from '@/lib/hooks/useQuery';
 import { Plus, ChevronDown, ChevronUp, Package, MoreVertical, Edit2, Trash2, Minus, Check } from 'lucide-react';
 
 interface Category {
@@ -34,6 +36,7 @@ interface Item {
 
 export default function AddItem() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [formData, setFormData] = useState({
     name: '',
     categoryInput: '',
@@ -314,6 +317,12 @@ export default function AddItem() {
       setIsFormOpen(false);
       await loadData();
 
+      // Invalidate all related queries to update cache
+      if (user) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.items(user.id) });
+        queryClient.invalidateQueries({ queryKey: queryKeys.stats(user.id) });
+      }
+
       setTimeout(() => setSuccess(''), 3000);
     } catch (err: any) {
       setError(err.message);
@@ -369,6 +378,12 @@ export default function AddItem() {
       setSuccess('Barang berhasil dihapus!');
       await loadData();
       setActiveCardId(null);
+
+      // Invalidate queries to update cache
+      if (user) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.items(user.id) });
+        queryClient.invalidateQueries({ queryKey: queryKeys.stats(user.id) });
+      }
 
       setTimeout(() => setSuccess(''), 3000);
     } catch (err: any) {

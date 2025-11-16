@@ -1,54 +1,29 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useMemo } from 'react';
 import Card from './Card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { getCurrentUser } from '@/lib/auth';
+import { useStats } from '@/lib/hooks/useQuery';
 
 export default function ReportLoker() {
-  const [lokerData, setLokerData] = useState<Array<{ name: string; value: number }>>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: stats, isLoading } = useStats();
 
-  useEffect(() => {
-    const load = async () => {
-      const user = getCurrentUser();
-      if (!user) {
-        console.error('User not found for locker distribution');
-        setIsLoading(false);
-        return;
-      }
-      try {
-        setIsLoading(true);
-        const res = await fetch(`/api/stats?userId=${user.id}`);
-        const json = await res.json();
-        if (!res.ok) {
-          console.error('Failed to load locker distribution:', json.error || json);
-          setLokerData([]);
-          return;
-        }
+  const lokerData = useMemo(() => {
+    if (!stats?.lockerDistribution) return [];
 
-        const dist = (json.lockerDistribution || []).map((d: any) => ({
-          // Prefer label ("CODE - NAME"), fallback to code or name
-          name: d.label || (d.code ? `${d.code} - ${d.name || ''}` : (d.name || d.lockerId)),
-          value: Number(d.value) || 0,
-        }));
+    const dist = stats.lockerDistribution.map((d: any) => ({
+      name: d.label || (d.code ? `${d.code} - ${d.name || ''}` : (d.name || d.lockerId)),
+      value: Number(d.value) || 0,
+    }));
 
-        // Sort descending by value and take top 20 for display (to match previous dummy length)
-        dist.sort((a: any, b: any) => b.value - a.value);
-        const top = dist.slice(0, 20);
-        setLokerData(top);
-      } catch (err) {
-        console.error('Error loading locker distribution:', err);
-        setLokerData([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    // Sort descending by value and take top 20
+    dist.sort((a: any, b: any) => b.value - a.value);
+    return dist.slice(0, 20);
+  }, [stats]);
 
-    load();
-  }, []);
-
-  const total = lokerData.reduce((sum, item) => sum + item.value, 0);
+  const total = useMemo(() => {
+    return lokerData.reduce((sum: number, item: any) => sum + item.value, 0);
+  }, [lokerData]);
 
   const palette = [
     '#86EFAC', '#FDE047', '#BAE6FD', '#C7D2FE', '#FCA5A5', '#FDBA74', '#A7F3D0', '#DDD6FE',
@@ -113,7 +88,7 @@ export default function ReportLoker() {
                     paddingAngle={0}
                     dataKey="value"
                   >
-                    {lokerData.map((entry, index) => (
+                    {lokerData.map((entry: any, index: number) => (
                       <Cell key={`cell-${index}`} fill={palette[index % palette.length]} />
                     ))}
                   </Pie>
@@ -123,7 +98,7 @@ export default function ReportLoker() {
             </div>
 
             <div className="grid grid-cols-2 gap-x-4 gap-y-2 lg:gap-x-6 lg:gap-y-2.5 flex-1">
-              {lokerData.map((entry, index) => (
+              {lokerData.map((entry: any, index: number) => (
                 <div key={`legend-${index}`} className="flex items-center gap-2">
                   <div
                     className="w-2.5 h-2.5 rounded-full flex-shrink-0"

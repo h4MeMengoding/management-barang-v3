@@ -256,7 +256,7 @@ export default function Header() {
           <div className="relative">
             <input
               type="text"
-              placeholder="Cari barang, loker, atau kategori..."
+              placeholder="Cari..."
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
               className="w-full pl-4 pr-12 py-3 rounded-full bg-white border border-gray-200 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-300"
@@ -370,7 +370,7 @@ export default function Header() {
           <div className="relative" ref={searchRef}>
             <input
               type="text"
-              placeholder="Cari barang, loker, atau kategori..."
+              placeholder="Cari..."
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
               className="w-64 xl:w-80 pl-4 pr-12 py-2.5 lg:py-3 rounded-full bg-white border border-gray-200 text-sm lg:text-base text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-300"

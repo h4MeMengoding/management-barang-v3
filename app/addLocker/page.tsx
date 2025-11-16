@@ -6,8 +6,10 @@ import Card from '@/components/Card';
 import LockerCard from '@/components/LockerCard';
 import { Plus, ChevronDown, ChevronUp, RefreshCw, Download } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { getCurrentUser } from '@/lib/auth';
+import { queryKeys } from '@/lib/hooks/useQuery';
 import { useRouter } from 'next/navigation';
 
 interface Locker {
@@ -22,6 +24,7 @@ interface Locker {
 
 export default function AddLocker() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [formData, setFormData] = useState({
     name: '',
     code: '',
@@ -126,6 +129,12 @@ export default function AddLocker() {
       
       // Reload lockers
       await loadLockers();
+
+      // Invalidate queries
+      if (user) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.lockers(user.id) });
+        queryClient.invalidateQueries({ queryKey: queryKeys.stats(user.id) });
+      }
       
       // Collapse form
       setTimeout(() => {

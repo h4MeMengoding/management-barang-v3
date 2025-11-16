@@ -3,44 +3,26 @@
 
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.0.0/workbox-sw.js');
 
-const { 
-  registerRoute, 
-  setCacheNameDetails, 
-  clientsClaim 
-} = workbox.core;
+// Check if Workbox loaded successfully
+if (workbox) {
+  console.log('Workbox loaded successfully');
+  
+  // Set cache name details
+  workbox.core.setCacheNameDetails({
+    prefix: 'mb-app',
+    suffix: 'v2',
+    precache: 'precache',
+    runtime: 'runtime'
+  });
 
-const { 
-  NetworkFirst, 
-  CacheFirst, 
-  StaleWhileRevalidate,
-  NetworkOnly 
-} = workbox.strategies;
+  // Claim clients immediately
+  workbox.core.clientsClaim();
 
-const { 
-  CacheableResponsePlugin 
-} = workbox.cacheableResponse;
-
-const { 
-  ExpirationPlugin 
-} = workbox.expiration;
-
-const {
-  BackgroundSyncPlugin
-} = workbox.backgroundSync;
-
-// Set cache name details
-setCacheNameDetails({
-  prefix: 'mb-app',
-  suffix: 'v2',
-  precache: 'precache',
-  runtime: 'runtime'
-});
-
-// Claim clients immediately
-clientsClaim();
-
-// Skip waiting and activate immediately
-self.skipWaiting();
+  // Skip waiting and activate immediately
+  self.skipWaiting();
+} else {
+  console.error('Workbox failed to load');
+}
 
 // ============================================
 // PRECACHE CRITICAL PAGES FOR OFFLINE
@@ -64,7 +46,7 @@ self.addEventListener('install', (event) => {
 // STRATEGY 1: STATIC ASSETS - CACHE FIRST
 // ============================================
 // CSS, JS, Web Fonts - Cache First with 1 year expiration
-registerRoute(
+workbox.routing.registerRoute(
   ({ request, url }) => {
     return (
       request.destination === 'style' ||
@@ -73,13 +55,13 @@ registerRoute(
       url.pathname.startsWith('/_next/static/')
     );
   },
-  new CacheFirst({
+  new workbox.strategies.CacheFirst({
     cacheName: 'mb-app-static-v2',
     plugins: [
-      new CacheableResponsePlugin({
+      new workbox.cacheableResponse.CacheableResponsePlugin({
         statuses: [0, 200]
       }),
-      new ExpirationPlugin({
+      new workbox.expiration.ExpirationPlugin({
         maxEntries: 100,
         maxAgeSeconds: 365 * 24 * 60 * 60, // 1 year
         purgeOnQuotaError: true
@@ -91,15 +73,15 @@ registerRoute(
 // ============================================
 // STRATEGY 2: IMAGES - CACHE FIRST
 // ============================================
-registerRoute(
+workbox.routing.registerRoute(
   ({ request }) => request.destination === 'image',
-  new CacheFirst({
+  new workbox.strategies.CacheFirst({
     cacheName: 'mb-app-images-v2',
     plugins: [
-      new CacheableResponsePlugin({
+      new workbox.cacheableResponse.CacheableResponsePlugin({
         statuses: [0, 200]
       }),
-      new ExpirationPlugin({
+      new workbox.expiration.ExpirationPlugin({
         maxEntries: 100,
         maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
         purgeOnQuotaError: true
@@ -113,22 +95,22 @@ registerRoute(
 // ============================================
 // All /api/* requests go to network only (no cache)
 // This ensures realtime data from Supabase
-registerRoute(
+workbox.routing.registerRoute(
   ({ url }) => url.pathname.startsWith('/api/'),
-  new NetworkOnly()
+  new workbox.strategies.NetworkOnly()
 );
 
 // Also exclude Supabase requests from cache
-registerRoute(
+workbox.routing.registerRoute(
   ({ url }) => url.hostname.includes('supabase.co'),
-  new NetworkOnly()
+  new workbox.strategies.NetworkOnly()
 );
 
 // ============================================
 // STRATEGY 4: PAGES - STALE WHILE REVALIDATE
 // ============================================
 // HTML pages use Stale-While-Revalidate for fast load + fresh data
-registerRoute(
+workbox.routing.registerRoute(
   ({ request, url }) => {
     return (
       request.destination === 'document' ||
@@ -136,13 +118,13 @@ registerRoute(
        request.headers.get('accept')?.includes('text/html'))
     );
   },
-  new StaleWhileRevalidate({
+  new workbox.strategies.StaleWhileRevalidate({
     cacheName: 'mb-app-pages-v2',
     plugins: [
-      new CacheableResponsePlugin({
+      new workbox.cacheableResponse.CacheableResponsePlugin({
         statuses: [0, 200]
       }),
-      new ExpirationPlugin({
+      new workbox.expiration.ExpirationPlugin({
         maxEntries: 50,
         maxAgeSeconds: 7 * 24 * 60 * 60, // 7 days
         purgeOnQuotaError: true
@@ -154,7 +136,7 @@ registerRoute(
 // ============================================
 // BACKGROUND SYNC FOR FORM SUBMISSIONS
 // ============================================
-const bgSyncPlugin = new BackgroundSyncPlugin('formSubmissionQueue', {
+const bgSyncPlugin = new workbox.backgroundSync.BackgroundSyncPlugin('formSubmissionQueue', {
   maxRetentionTime: 24 * 60, // Retry for max 24 hours (in minutes)
   onSync: async ({ queue }) => {
     let entry;
@@ -172,7 +154,7 @@ const bgSyncPlugin = new BackgroundSyncPlugin('formSubmissionQueue', {
 });
 
 // Register background sync for POST/PUT/DELETE to /api/items
-registerRoute(
+workbox.routing.registerRoute(
   ({ url, request }) => {
     return (
       url.pathname.startsWith('/api/items') &&
@@ -181,13 +163,13 @@ registerRoute(
        request.method === 'DELETE')
     );
   },
-  new NetworkOnly({
+  new workbox.strategies.NetworkOnly({
     plugins: [bgSyncPlugin]
   }),
   'POST'
 );
 
-registerRoute(
+workbox.routing.registerRoute(
   ({ url, request }) => {
     return (
       url.pathname.startsWith('/api/items') &&
@@ -196,13 +178,13 @@ registerRoute(
        request.method === 'DELETE')
     );
   },
-  new NetworkOnly({
+  new workbox.strategies.NetworkOnly({
     plugins: [bgSyncPlugin]
   }),
   'PUT'
 );
 
-registerRoute(
+workbox.routing.registerRoute(
   ({ url, request }) => {
     return (
       url.pathname.startsWith('/api/items') &&
@@ -211,7 +193,7 @@ registerRoute(
        request.method === 'DELETE')
     );
   },
-  new NetworkOnly({
+  new workbox.strategies.NetworkOnly({
     plugins: [bgSyncPlugin]
   }),
   'DELETE'

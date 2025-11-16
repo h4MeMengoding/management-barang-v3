@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
 import Card from '@/components/Card';
@@ -9,6 +10,7 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import LockerDetailSkeleton from '@/components/LockerDetailSkeleton';
 import ItemsListSkeleton from '@/components/ItemsListSkeleton';
 import { getCurrentUser } from '@/lib/auth';
+import { queryKeys } from '@/lib/hooks/useQuery';
 import { Package, Edit2, Trash2, Download, ArrowLeft, QrCode } from 'lucide-react';
 
 interface Locker {
@@ -38,6 +40,7 @@ interface Item {
 export default function LockerDetail() {
   const router = useRouter();
   const params = useParams();
+  const queryClient = useQueryClient();
   const lockerId = params.id as string;
 
   const [locker, setLocker] = useState<Locker | null>(null);
