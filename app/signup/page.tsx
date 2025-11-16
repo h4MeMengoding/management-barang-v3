@@ -87,7 +87,7 @@ export default function SignUp() {
     <div className="min-h-screen bg-[#F5F1E8] flex items-center justify-center p-4 lg:p-8">
       <div className="w-full max-w-6xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col lg:flex-row min-h-[700px]">
         {/* Left Side - Image */}
-        <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-amber-100 to-emerald-100">
+        <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-emerald-100 to-emerald-100">
           <div className="absolute inset-0 flex items-center justify-center">
             {/* Placeholder untuk gambar ilustrasi */}
             {/* Ukuran ideal: 800x1000px (portrait) atau sesuaikan dengan aspect ratio 4:5 */}
@@ -139,7 +139,7 @@ export default function SignUp() {
                   placeholder="Joko Why"
                   required
                   disabled={isLoading}
-                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
                 />
               </div>
 
@@ -157,7 +157,7 @@ export default function SignUp() {
                   placeholder="jokowhy@mail.com"
                   required
                   disabled={isLoading}
-                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
                 />
               </div>
 
@@ -177,7 +177,7 @@ export default function SignUp() {
                     required
                     minLength={8}
                     disabled={isLoading}
-                    className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-colors pr-12 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors pr-12 disabled:bg-gray-100 disabled:cursor-not-allowed"
                   />
                   <button
                     type="button"
@@ -206,7 +206,7 @@ export default function SignUp() {
                     placeholder="••••••••"
                     required
                     disabled={isLoading}
-                    className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-colors pr-12 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors pr-12 disabled:bg-gray-100 disabled:cursor-not-allowed"
                   />
                   <button
                     type="button"
@@ -228,15 +228,15 @@ export default function SignUp() {
                   checked={formData.agreeToTerms}
                   onChange={handleChange}
                   required
-                  className="w-3.5 h-3.5 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+                  className="w-3.5 h-3.5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
                 />
                 <label htmlFor="agreeToTerms" className="ml-2 text-xs text-gray-700">
                   Saya setuju dengan{' '}
-                  <Link href="/terms" className="text-amber-600 hover:text-amber-700 font-medium">
+                  <Link href="/terms" className="text-emerald-600 hover:text-emerald-700 font-medium">
                     Syarat & Ketentuan
                   </Link>{' '}
                   dan{' '}
-                  <Link href="/privacy" className="text-amber-600 hover:text-amber-700 font-medium">
+                  <Link href="/privacy" className="text-emerald-600 hover:text-emerald-700 font-medium">
                     Kebijakan Privasi
                   </Link>
                 </label>
@@ -246,7 +246,7 @@ export default function SignUp() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full px-6 py-2.5 bg-amber-600 hover:bg-amber-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm disabled:bg-amber-400 disabled:cursor-not-allowed"
+                className="w-full px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm disabled:bg-emerald-400 disabled:cursor-not-allowed"
               >
                 {isLoading ? 'Membuat Akun...' : 'Buat Akun'}
               </button>
@@ -255,7 +255,7 @@ export default function SignUp() {
             {/* Sign In Link */}
             <p className="text-center text-xs text-gray-600 pt-2">
               Sudah punya akun?{' '}
-              <Link href="/signin" className="text-amber-600 hover:text-amber-700 font-semibold">
+              <Link href="/signin" className="text-emerald-600 hover:text-emerald-700 font-semibold">
                 Masuk
               </Link>
             </p>

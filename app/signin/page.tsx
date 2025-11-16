@@ -72,7 +72,7 @@ export default function SignIn() {
     <div className="min-h-screen bg-[#F5F1E8] flex items-center justify-center p-4 lg:p-8">
       <div className="w-full max-w-6xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col lg:flex-row min-h-[700px]">
         {/* Left Side - Image */}
-        <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-amber-100 to-emerald-100">
+        <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-emerald-100 to-emerald-100">
           <div className="absolute inset-0 flex items-center justify-center">
             {/* Placeholder untuk gambar ilustrasi */}
             {/* Ukuran ideal: 800x1000px (portrait) atau sesuaikan dengan aspect ratio 4:5 */}
@@ -124,7 +124,7 @@ export default function SignIn() {
                   placeholder="amelia@mail.com"
                   required
                   disabled={isLoading}
-                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
                 />
               </div>
 
@@ -134,7 +134,7 @@ export default function SignIn() {
                   <label htmlFor="password" className="block text-xs font-medium text-gray-700">
                     Password
                   </label>
-                  <Link href="/forgot-password" className="text-xs text-amber-600 hover:text-amber-700 font-medium">
+                  <Link href="/forgot-password" className="text-xs text-emerald-600 hover:text-emerald-700 font-medium">
                     Forgot password?
                   </Link>
                 </div>
@@ -148,7 +148,7 @@ export default function SignIn() {
                     placeholder="••••••••"
                     required
                     disabled={isLoading}
-                    className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-colors pr-12 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors pr-12 disabled:bg-gray-100 disabled:cursor-not-allowed"
                   />
                 <button
                   type="button"
@@ -169,7 +169,7 @@ export default function SignIn() {
                   name="rememberMe"
                   checked={formData.rememberMe}
                   onChange={handleChange}
-                  className="w-3.5 h-3.5 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+                  className="w-3.5 h-3.5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
                 />
                 <label htmlFor="rememberMe" className="ml-2 text-xs text-gray-700">
                   Remember me
@@ -180,7 +180,7 @@ export default function SignIn() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full px-6 py-2.5 bg-amber-600 hover:bg-amber-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm disabled:bg-amber-400 disabled:cursor-not-allowed"
+                className="w-full px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm disabled:bg-emerald-400 disabled:cursor-not-allowed"
               >
                 {isLoading ? 'Loading...' : 'Login'}
               </button>
