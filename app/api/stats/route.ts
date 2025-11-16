@@ -10,65 +10,86 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
     }
 
-    // Total lockers now
-    const totalNow = await prisma.locker.count({ where: { userId } });
-
     // Compute start of today (server local timezone) and use to get yesterday's total
     const now = new Date();
     const startOfToday = new Date(now);
     startOfToday.setHours(0, 0, 0, 0);
-    // Total lockers as of end of yesterday (created before today)
-    const totalYesterday = await prisma.locker.count({
-      where: {
-        userId,
-        createdAt: { lt: startOfToday },
-      },
-    });
-
-    // Total items now (sum of quantities)
-    const aggNowItems = await prisma.item.aggregate({
-      _sum: { quantity: true },
-      where: { userId },
-    });
-    const totalItemsNow = aggNowItems._sum.quantity ?? 0;
-
-    // Total items as of end of yesterday (items created before today)
-    const aggYesterdayItems = await prisma.item.aggregate({
-      _sum: { quantity: true },
-      where: {
-        userId,
-        createdAt: { lt: startOfToday },
-      },
-    });
-    const totalItemsYesterday = aggYesterdayItems._sum.quantity ?? 0;
-
-    // Total categories now
-    const totalCategoriesNow = await prisma.category.count({ where: { userId } });
-
-    // Total categories as of end of yesterday
-    const totalCategoriesYesterday = await prisma.category.count({
-      where: {
-        userId,
-        createdAt: { lt: startOfToday },
-      },
-    });
 
     // Monthly items aggregation for current year
     const currentYear = now.getFullYear();
     const startOfYear = new Date(currentYear, 0, 1);
     const startOfNextYear = new Date(currentYear + 1, 0, 1);
 
-    // Fetch items for the year and aggregate in JS by month
-    const itemsThisYear = await prisma.item.findMany({
-      where: {
-        userId,
-        createdAt: {
-          gte: startOfYear,
-          lt: startOfNextYear,
+    // Run all independent queries in parallel
+    const [
+      totalNow,
+      totalYesterday,
+      aggNowItems,
+      aggYesterdayItems,
+      totalCategoriesNow,
+      totalCategoriesYesterday,
+      itemsThisYear,
+      lockerSums,
+    ] = await Promise.all([
+      // Total lockers now
+      prisma.locker.count({ where: { userId } }),
+      
+      // Total lockers as of end of yesterday (created before today)
+      prisma.locker.count({
+        where: {
+          userId,
+          createdAt: { lt: startOfToday },
         },
-      },
-      select: { quantity: true, createdAt: true },
-    });
+      }),
+      
+      // Total items now (sum of quantities)
+      prisma.item.aggregate({
+        _sum: { quantity: true },
+        where: { userId },
+      }),
+      
+      // Total items as of end of yesterday (items created before today)
+      prisma.item.aggregate({
+        _sum: { quantity: true },
+        where: {
+          userId,
+          createdAt: { lt: startOfToday },
+        },
+      }),
+      
+      // Total categories now
+      prisma.category.count({ where: { userId } }),
+      
+      // Total categories as of end of yesterday
+      prisma.category.count({
+        where: {
+          userId,
+          createdAt: { lt: startOfToday },
+        },
+      }),
+      
+      // Fetch items for the year and aggregate in JS by month
+      prisma.item.findMany({
+        where: {
+          userId,
+          createdAt: {
+            gte: startOfYear,
+            lt: startOfNextYear,
+          },
+        },
+        select: { quantity: true, createdAt: true },
+      }),
+      
+      // Locker distribution: sum quantity per locker
+      prisma.item.groupBy({
+        by: ['lockerId'],
+        _sum: { quantity: true },
+        where: { userId },
+      }),
+    ]);
+
+    const totalItemsNow = aggNowItems._sum.quantity ?? 0;
+    const totalItemsYesterday = aggYesterdayItems._sum.quantity ?? 0;
 
     const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const monthlyTotals = new Array(12).fill(0);
@@ -79,13 +100,6 @@ export async function GET(request: NextRequest) {
     });
 
     const itemsMonthly = months.map((name, idx) => ({ name, value: monthlyTotals[idx] }));
-
-    // Locker distribution: sum quantity per locker
-    const lockerSums = await prisma.item.groupBy({
-      by: ['lockerId'],
-      _sum: { quantity: true },
-      where: { userId },
-    });
 
     const lockerIds = lockerSums.map((ls: any) => ls.lockerId).filter(Boolean);
     const lockers = lockerIds.length > 0 ? await prisma.locker.findMany({
