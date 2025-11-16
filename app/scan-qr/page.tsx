@@ -7,8 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ScanLine, X } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Html5Qrcode } from 'html5-qrcode';
-import jsQR from 'jsqr';
+import QrScanner from 'qr-scanner';
 import { getCurrentUser } from '@/lib/auth';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
@@ -22,7 +21,8 @@ export default function ScanQRCode() {
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
   const [isSearchingLocker, setIsSearchingLocker] = useState(false);
   const [scanCount, setScanCount] = useState(0); // Track scan attempts
-  const scannerRef = useRef<Html5Qrcode | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const scannerRef = useRef<QrScanner | null>(null);
   const isMountedRef = useRef(true);
   const lastScanTimeRef = useRef<number>(0);
 
@@ -93,16 +93,13 @@ export default function ScanQRCode() {
       setIsScanning(true);
       
       // Tunggu sebentar agar DOM ter-render
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, 200));
       
-      // Tentukan id berdasarkan screen size
-      const readerId = window.innerWidth < 1024 ? 'qr-reader-mobile' : 'qr-reader-desktop';
-      
-      // Pastikan element sudah ada di DOM
-      const element = document.getElementById(readerId);
-      if (!element) {
-        console.error('QR reader element not found:', readerId);
-        setErrorMessage('Element scanner tidak ditemukan');
+      // Get video element
+      const videoElement = videoRef.current;
+      if (!videoElement) {
+        console.error('Video element not found');
+        setErrorMessage('Video element tidak ditemukan');
         setIsScanning(false);
         return;
       }
@@ -112,59 +109,21 @@ export default function ScanQRCode() {
         await stopScanner();
       }
 
-      const scanner = new Html5Qrcode(readerId);
-      scannerRef.current = scanner;
-
       // Detect if iOS
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
       const isIOSPWA = isIOS && isStandalone;
       
       console.log('Device info:', { isIOS, isStandalone, isIOSPWA });
-      
-      // iOS PWA specific configuration - More aggressive settings
-      const cameraConfig = isIOS 
-        ? { 
-            facingMode: { exact: 'environment' }
-          }
-        : { 
-            facingMode: 'environment'
-          };
 
-      // Detect Android
-      const isAndroid = /Android/i.test(navigator.userAgent);
-
-      const config = {
-        fps: isIOSPWA ? 2 : (isIOS ? 5 : 10), // Very low FPS for iOS PWA
-        qrbox: isIOSPWA ? { width: 200, height: 200 } : { width: 250, height: 250 }, // Smaller box for iOS PWA
-        aspectRatio: isAndroid ? 1.0 : (window.innerWidth < 1024 ? window.innerHeight / window.innerWidth : 1.0), // Fix Android zoom
-        disableFlip: false,
-        // Force software decoding for iOS
-        formatsToSupport: [0], // QR_CODE only
-        experimentalFeatures: {
-          useBarCodeDetectorIfSupported: false // Disable native detector on iOS
-        },
-        // Add verbose for debugging
-        verbose: true,
-        // Add video constraints for Android to prevent zoom
-        videoConstraints: isAndroid ? {
-          facingMode: 'environment',
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
-        } : undefined
-      };
-
-      console.log('Starting scanner with config:', config);
-      console.log('Camera config:', cameraConfig);
-
-      await scanner.start(
-        cameraConfig,
-        config,
-        (decodedText) => {
+      // Create QrScanner instance
+      const scanner = new QrScanner(
+        videoElement,
+        (result) => {
           // Success callback
-          console.log('✅ QR Code detected:', decodedText);
+          console.log('✅ QR Code detected:', result.data);
           
-          // Prevent multiple rapid scans (iOS issue)
+          // Prevent multiple rapid scans
           const now = Date.now();
           if (now - lastScanTimeRef.current < 2000) {
             console.log('⏭️ Skipping duplicate scan');
@@ -172,26 +131,37 @@ export default function ScanQRCode() {
           }
           lastScanTimeRef.current = now;
           
-          // Update scan count for visual feedback
-          setScanCount(prev => prev + 1);
-          
-          handleQRCodeDetected(decodedText);
+          handleQRCodeDetected(result.data);
         },
-        (errorMessage) => {
-          // Error callback - Log untuk debugging di iOS
-          if (errorMessage.includes('NotFoundException')) {
-            // Ini normal, QR code belum terdeteksi
-            // Update scan count untuk visual feedback
-            setScanCount(prev => prev + 1);
-            return;
-          }
-          console.warn('Scan error:', errorMessage);
+        {
+          returnDetailedScanResult: true,
+          highlightScanRegion: false,
+          highlightCodeOutline: false,
+          maxScansPerSecond: isIOSPWA ? 2 : (isIOS ? 5 : 10),
+          preferredCamera: 'environment',
         }
       );
+
+      scannerRef.current = scanner;
+
+      // Start scanning
+      await scanner.start();
+      
+      console.log('✅ Scanner started successfully');
 
       if (isMountedRef.current) {
         setHasCamera(true);
       }
+      
+      // Visual feedback - update scan count periodically
+      const scanCountInterval = setInterval(() => {
+        if (scannerRef.current && isMountedRef.current) {
+          setScanCount(prev => prev + 1);
+        } else {
+          clearInterval(scanCountInterval);
+        }
+      }, 200);
+
     } catch (error: any) {
       console.error('Error accessing camera:', error);
       const errorMsg = error?.message || 'Unknown error';
@@ -207,10 +177,8 @@ export default function ScanQRCode() {
   const stopScanner = async () => {
     if (scannerRef.current) {
       try {
-        if (scannerRef.current.isScanning) {
-          await scannerRef.current.stop();
-        }
-        scannerRef.current.clear();
+        scannerRef.current.stop();
+        scannerRef.current.destroy();
       } catch (error) {
         console.error('Error stopping scanner:', error);
       }
@@ -218,6 +186,7 @@ export default function ScanQRCode() {
     }
     if (isMountedRef.current) {
       setIsScanning(false);
+      setScanCount(0);
     }
   };
 
@@ -239,136 +208,34 @@ export default function ScanQRCode() {
     try {
       setIsSearchingLocker(true);
       
-      // Read file as image
-      const imageUrl = URL.createObjectURL(selectedFile);
-      const img = new Image();
+      console.log('Scanning QR from file...');
       
-      img.onload = async () => {
-        try {
-          // Create canvas to extract image data
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d', { willReadFrequently: true });
-          
-          if (!ctx) {
-            alert('Gagal memproses gambar');
-            setIsSearchingLocker(false);
-            return;
-          }
-
-          // Resize image if too large (iOS photos are huge!)
-          const MAX_SIZE = 1500;
-          let width = img.width;
-          let height = img.height;
-          
-          if (width > MAX_SIZE || height > MAX_SIZE) {
-            const ratio = Math.min(MAX_SIZE / width, MAX_SIZE / height);
-            width = Math.floor(width * ratio);
-            height = Math.floor(height * ratio);
-          }
-          
-          canvas.width = width;
-          canvas.height = height;
-          
-          // Draw image
-          ctx.drawImage(img, 0, 0, width, height);
-          
-          console.log('Image size:', width, 'x', height);
-          
-          // Get image data
-          let imageData = ctx.getImageData(0, 0, width, height);
-          
-          // Try scanning with different inversion attempts
-          console.log('Attempting to scan QR code...');
-          
-          // Attempt 1: Normal
-          let code = jsQR(imageData.data, width, height, {
-            inversionAttempts: 'dontInvert',
-          });
-          
-          if (!code) {
-            console.log('Attempt 1 failed, trying with inversion...');
-            // Attempt 2: With inversion
-            code = jsQR(imageData.data, width, height, {
-              inversionAttempts: 'attemptBoth',
-            });
-          }
-          
-          if (!code) {
-            console.log('Attempt 2 failed, trying with grayscale and contrast...');
-            // Attempt 3: Apply grayscale and increase contrast
-            const data = imageData.data;
-            for (let i = 0; i < data.length; i += 4) {
-              // Convert to grayscale
-              const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
-              // Increase contrast
-              const contrasted = ((gray - 128) * 1.5) + 128;
-              const final = Math.min(255, Math.max(0, contrasted));
-              data[i] = data[i + 1] = data[i + 2] = final;
-            }
-            
-            code = jsQR(data, width, height, {
-              inversionAttempts: 'attemptBoth',
-            });
-          }
-          
-          if (!code) {
-            console.log('Attempt 3 failed, trying smaller scale...');
-            // Attempt 4: Try with 50% scale
-            const smallCanvas = document.createElement('canvas');
-            const smallCtx = smallCanvas.getContext('2d');
-            if (smallCtx) {
-              smallCanvas.width = Math.floor(width * 0.5);
-              smallCanvas.height = Math.floor(height * 0.5);
-              smallCtx.drawImage(canvas, 0, 0, smallCanvas.width, smallCanvas.height);
-              const smallImageData = smallCtx.getImageData(0, 0, smallCanvas.width, smallCanvas.height);
-              
-              code = jsQR(smallImageData.data, smallCanvas.width, smallCanvas.height, {
-                inversionAttempts: 'attemptBoth',
-              });
-            }
-          }
-          
-          setIsSearchingLocker(false);
-          
-          if (code) {
-            console.log('✅ QR Code detected:', code.data);
-            setScannedData(code.data);
-            
-            setIsSearchingLocker(true);
-            // Search for locker with this code
-            const locker = await findLockerByCode(code.data);
-            
-            if (locker) {
-              // Navigate to locker detail page
-              router.push(`/locker/${locker.id}`);
-            } else {
-              alert(`QR Code terdeteksi: ${code.data}\nLoker dengan kode ini tidak ditemukan.`);
-            }
-          } else {
-            console.error('❌ QR Code not detected after all attempts');
-            alert('QR Code tidak terdeteksi. Coba:\n1. Pastikan QR code terlihat jelas\n2. Cahaya cukup terang\n3. QR code tidak terpotong\n4. Ambil foto lebih dekat');
-          }
-        } catch (error) {
-          console.error('Error processing image:', error);
-          alert('Gagal memproses gambar');
-          setIsSearchingLocker(false);
-        }
-        
-        // Cleanup
-        URL.revokeObjectURL(imageUrl);
-      };
+      // Use QrScanner to scan from file
+      const result = await QrScanner.scanImage(selectedFile, {
+        returnDetailedScanResult: true,
+      });
       
-      img.onerror = () => {
-        alert('Gagal memuat gambar');
-        URL.revokeObjectURL(imageUrl);
-        setIsSearchingLocker(false);
-      };
-      
-      img.src = imageUrl;
-    } catch (error) {
-      console.error('Error scanning file:', error);
-      alert('Gagal membaca QR Code. Pastikan file mengandung QR code yang valid.');
       setIsSearchingLocker(false);
+      
+      if (result) {
+        console.log('✅ QR Code detected:', result.data);
+        setScannedData(result.data);
+        
+        setIsSearchingLocker(true);
+        // Search for locker with this code
+        const locker = await findLockerByCode(result.data);
+        
+        if (locker) {
+          // Navigate to locker detail page
+          router.push(`/locker/${locker.id}`);
+        } else {
+          alert(`QR Code terdeteksi: ${result.data}\nLoker dengan kode ini tidak ditemukan.`);
+        }
+      }
+    } catch (error) {
+      console.error('❌ QR Code not detected:', error);
+      setIsSearchingLocker(false);
+      alert('QR Code tidak terdeteksi. Coba:\n1. Pastikan QR code terlihat jelas\n2. Cahaya cukup terang\n3. QR code tidak terpotong\n4. Ambil foto lebih dekat');
     }
   };
 
@@ -514,9 +381,14 @@ export default function ScanQRCode() {
                 </label>
               </div>
 
-              {/* Camera Full Screen - Hidden visually but active */}
+              {/* Camera Full Screen - Video Element */}
               <div className="absolute inset-0 z-0">
-                <div id="qr-reader-mobile" className="w-full h-full"></div>
+                <video 
+                  ref={videoRef}
+                  className="w-full h-full object-cover"
+                  playsInline
+                  muted
+                ></video>
               </div>
 
               {/* Overlay dengan scan area */}
