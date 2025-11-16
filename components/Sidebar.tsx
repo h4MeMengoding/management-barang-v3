@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
@@ -14,6 +14,7 @@ export default function Sidebar() {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [userInitial, setUserInitial] = useState('U');
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
+  const [animateMobileNav, setAnimateMobileNav] = useState(false);
 
   useEffect(() => {
     const user = getCurrentUser();
@@ -38,6 +39,23 @@ export default function Sidebar() {
     return () => {
       window.removeEventListener('profilePictureUpdated', handleProfileUpdate);
     };
+  }, []);
+
+  // Only animate mobile bottom nav on the very first visit in this session.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const flag = sessionStorage.getItem('mobileBottomAnimated');
+      if (!flag) {
+        setAnimateMobileNav(true);
+        // mark as shown so subsequent mounts (navigations) don't animate
+        sessionStorage.setItem('mobileBottomAnimated', '1');
+      } else {
+        setAnimateMobileNav(false);
+      }
+    } catch (e) {
+      setAnimateMobileNav(false);
+    }
   }, []);
 
   const handleLogout = () => {
@@ -83,6 +101,8 @@ export default function Sidebar() {
     menuItems[2], // Kelola Barang
     menuItems[3], // Kelola Kategori
   ];
+
+  // mobile indicator handled via Framer Motion shared layout (layoutId)
 
   return (
     <>
@@ -231,66 +251,95 @@ export default function Sidebar() {
       {/* Mobile Bottom Navigation (FAB Style) */}
       <motion.div 
         className="lg:hidden fixed bottom-4 left-0 right-0 z-50 px-4"
-        initial={{ y: 100, opacity: 0 }}
+        initial={animateMobileNav ? { y: 100, opacity: 0 } : false}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.4, ease: 'easeOut' }}
       >
-        <div className="bg-white rounded-full shadow-2xl border border-gray-200 px-3 py-2 max-w-sm mx-auto">
-          <div className="flex items-center justify-between gap-2">
+        <div className="relative bg-white rounded-full shadow-2xl border border-gray-200 px-3 py-2 max-w-sm mx-auto">
+          <div className="flex items-center justify-between gap-2 relative">
             {/* Left Menu Items */}
             {mobileMenuLeft.map((item, index) => (
-              <Link
-                key={index}
-                href={item.href}
-                className={`p-2.5 rounded-full transition-all ${
-                  pathname === item.href
-                    ? 'bg-gray-900 text-white'
-                    : 'text-gray-400 hover:bg-gray-100'
-                }`}
-              >
-                <motion.div
-                  whileTap={{ scale: 0.9 }}
-                  transition={{ duration: 0.1 }}
-                >
-                  {item.icon}
-                </motion.div>
+              <Link key={index} href={item.href}>
+                <div className="relative">
+                  {pathname === item.href && (
+                    <motion.span
+                      layoutId="mobile-indicator"
+                      initial={false}
+                      transition={{ duration: 0.28, ease: 'easeInOut' }}
+                      className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none bg-emerald-600"
+                      style={{ width: 40, height: 40, zIndex: 10 }}
+                    />
+                  )}
+
+                  <div className={`p-2.5 rounded-full relative z-20 transition-all ${
+                    pathname === item.href ? 'text-white' : 'text-gray-400'
+                  }`}>
+                    <motion.div
+                      whileTap={{ scale: 0.9 }}
+                      transition={{ duration: 0.1 }}
+                    >
+                      {item.icon}
+                    </motion.div>
+                  </div>
+                </div>
               </Link>
             ))}
-            
+
             {/* Center QR Scanner Button (Elevated) */}
-            <Link
-              href="/scan-qr"
-              className={`p-3.5 rounded-full transition-all shadow-lg -mt-8 ${
-                pathname === '/scan-qr'
-                  ? 'bg-emerald-600 text-white scale-110'
-                  : 'bg-emerald-500 text-white hover:bg-emerald-600'
-              }`}
-            >
-              <motion.div
-                whileTap={{ scale: 0.9 }}
-                transition={{ duration: 0.1 }}
-              >
-                <ScanLine size={24} />
-              </motion.div>
-            </Link>
-            
-            {/* Right Menu Items */}
-            {mobileMenuRight.map((item, index) => (
-              <Link
-                key={index}
-                href={item.href}
-                className={`p-2.5 rounded-full transition-all ${
-                  pathname === item.href
-                    ? 'bg-gray-900 text-white'
-                    : 'text-gray-400 hover:bg-gray-100'
-                }`}
-              >
-                <motion.div
-                  whileTap={{ scale: 0.9 }}
-                  transition={{ duration: 0.1 }}
+            <Link href="/scan-qr">
+              <div className="relative">
+                {pathname === '/scan-qr' && (
+                  <motion.span
+                    layoutId="mobile-indicator"
+                    initial={false}
+                    transition={{ duration: 0.28, ease: 'easeInOut' }}
+                    className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none bg-emerald-600"
+                    style={{ width: 56, height: 56, zIndex: 10 }}
+                  />
+                )}
+
+                <div
+                  className={`p-3.5 rounded-full transition-all shadow-lg -mt-8 relative z-20 ${
+                    pathname === '/scan-qr'
+                      ? 'bg-emerald-600 text-white scale-110'
+                      : 'bg-emerald-500 text-white'
+                  }`}
                 >
-                  {item.icon}
-                </motion.div>
+                  <motion.div
+                    whileTap={{ scale: 0.9 }}
+                    transition={{ duration: 0.1 }}
+                  >
+                    <ScanLine size={24} />
+                  </motion.div>
+                </div>
+              </div>
+            </Link>
+
+            {/* Right Menu Items */}
+            {mobileMenuRight.map((item, idx) => (
+              <Link key={idx} href={item.href}>
+                <div className="relative">
+                  {pathname === item.href && (
+                    <motion.span
+                      layoutId="mobile-indicator"
+                      initial={false}
+                      transition={{ duration: 0.28, ease: 'easeInOut' }}
+                      className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none bg-emerald-600"
+                      style={{ width: 40, height: 40, zIndex: 10 }}
+                    />
+                  )}
+
+                  <div className={`p-2.5 rounded-full relative z-20 transition-all ${
+                    pathname === item.href ? 'text-white' : 'text-gray-400'
+                  }`}>
+                    <motion.div
+                      whileTap={{ scale: 0.9 }}
+                      transition={{ duration: 0.1 }}
+                    >
+                      {item.icon}
+                    </motion.div>
+                  </div>
+                </div>
               </Link>
             ))}
           </div>
