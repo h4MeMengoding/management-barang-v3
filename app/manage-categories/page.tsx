@@ -79,14 +79,14 @@ export default function ManageCategories() {
     setError('');
     setSuccess('');
 
-    const user = getCurrentUser();
-    if (!user) {
-      setError('User tidak ditemukan');
-      return;
-    }
-
     try {
       setIsLoading(true);
+
+      const user = getCurrentUser();
+      if (!user) {
+        setError('User tidak ditemukan');
+        return;
+      }
 
       if (editingCategory) {
         // Update existing category
@@ -134,7 +134,6 @@ export default function ManageCategories() {
       await loadCategories();
 
       // Invalidate queries
-      const user = getCurrentUser();
       if (user) {
         queryClient.invalidateQueries({ queryKey: queryKeys.categories(user.id) });
         queryClient.invalidateQueries({ queryKey: queryKeys.stats(user.id) });
