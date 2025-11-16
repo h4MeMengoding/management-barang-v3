@@ -17,6 +17,7 @@ export default function ScanQRCode() {
   const [isScanning, setIsScanning] = useState(false);
   const [scannedData, setScannedData] = useState<string | null>(null);
   const [hasCamera, setHasCamera] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string>('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
   const [isSearchingLocker, setIsSearchingLocker] = useState(false);
@@ -81,6 +82,9 @@ export default function ScanQRCode() {
 
   const startScanner = async () => {
     try {
+      // Reset error message
+      setErrorMessage('');
+      
       // Set state dulu
       setIsScanning(true);
       
@@ -94,6 +98,7 @@ export default function ScanQRCode() {
       const element = document.getElementById(readerId);
       if (!element) {
         console.error('QR reader element not found:', readerId);
+        setErrorMessage('Element scanner tidak ditemukan');
         setIsScanning(false);
         return;
       }
@@ -106,29 +111,58 @@ export default function ScanQRCode() {
       const scanner = new Html5Qrcode(readerId);
       scannerRef.current = scanner;
 
+      // Detect if iOS
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+      
+      // iOS PWA specific configuration
+      const cameraConfig = isIOS 
+        ? { 
+            facingMode: { exact: 'environment' }
+          }
+        : { 
+            facingMode: 'environment' 
+          };
+
       const config = {
-        fps: 10,
+        fps: isIOS ? 5 : 10, // Lower FPS for iOS
         qrbox: { width: 250, height: 250 },
-        aspectRatio: window.innerWidth < 1024 ? window.innerHeight / window.innerWidth : 1.0
+        aspectRatio: window.innerWidth < 1024 ? window.innerHeight / window.innerWidth : 1.0,
+        disableFlip: false,
+        // Important for iOS
+        experimentalFeatures: {
+          useBarCodeDetectorIfSupported: false
+        }
       };
 
+      console.log('Starting scanner with config:', config);
+      console.log('Camera config:', cameraConfig);
+
       await scanner.start(
-        { facingMode: 'environment' },
+        cameraConfig,
         config,
         (decodedText) => {
           // Success callback
+          console.log('QR Code detected:', decodedText);
           handleQRCodeDetected(decodedText);
         },
         (errorMessage) => {
-          // Error callback (biarkan kosong, tidak perlu log setiap frame)
+          // Error callback - Log untuk debugging di iOS
+          if (errorMessage.includes('NotFoundException')) {
+            // Ini normal, QR code belum terdeteksi
+            return;
+          }
+          console.warn('Scan error:', errorMessage);
         }
       );
 
       if (isMountedRef.current) {
         setHasCamera(true);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error accessing camera:', error);
+      const errorMsg = error?.message || 'Unknown error';
+      setErrorMessage(`Camera error: ${errorMsg}`);
+      
       if (isMountedRef.current) {
         setHasCamera(false);
         setIsScanning(false);
@@ -283,14 +317,48 @@ export default function ScanQRCode() {
                   </motion.div>
                   <h2 className="text-xl font-bold text-gray-900 mb-2">Scan QR Code</h2>
                   <p className="text-gray-600 mb-4">Scan QR code loker untuk melihat informasi</p>
-                  <motion.button
-                    onClick={startScanner}
-                    className="px-6 py-2 bg-emerald-600 text-white rounded-lg font-medium"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    Mulai Scan
-                  </motion.button>
+                  
+                  <div className="space-y-3">
+                    <motion.button
+                      onClick={startScanner}
+                      className="w-full px-6 py-2 bg-emerald-600 text-white rounded-lg font-medium"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      Scan dengan Kamera
+                    </motion.button>
+                    
+                    {/* Alternative: Upload from Gallery (iOS Fallback) */}
+                    <div className="text-sm text-gray-500">atau</div>
+                    
+                    <label className="block">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        onChange={(e) => {
+                          handleFileUpload(e);
+                          if (e.target.files?.[0]) {
+                            setTimeout(() => handleScanFromFile(), 100);
+                          }
+                        }}
+                        className="hidden"
+                        id="mobile-qr-upload"
+                      />
+                      <motion.div
+                        onClick={() => document.getElementById('mobile-qr-upload')?.click()}
+                        className="w-full px-6 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium cursor-pointer"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        Upload Foto QR
+                      </motion.div>
+                    </label>
+                    
+                    <p className="text-xs text-gray-500 mt-3">
+                      💡 Jika kamera tidak berfungsi, gunakan opsi upload
+                    </p>
+                  </div>
                 </div>
               </Card>
             </motion.div>
@@ -393,13 +461,56 @@ export default function ScanQRCode() {
                     <X size={32} className="text-red-600" />
                   </div>
                   <h2 className="text-xl font-bold text-gray-900 mb-2">Kamera Tidak Tersedia</h2>
-                  <p className="text-gray-600 mb-4">Izinkan akses kamera untuk melakukan scan</p>
-                  <button
-                    onClick={startScanner}
-                    className="px-6 py-2 bg-emerald-600 text-white rounded-lg font-medium"
-                  >
-                    Coba Lagi
-                  </button>
+                  <p className="text-gray-600 mb-4">
+                    {errorMessage || 'Izinkan akses kamera untuk melakukan scan'}
+                  </p>
+                  <div className="space-y-3">
+                    <button
+                      onClick={startScanner}
+                      className="w-full px-6 py-2 bg-emerald-600 text-white rounded-lg font-medium"
+                    >
+                      Coba Lagi
+                    </button>
+                    
+                    {/* Alternative Upload */}
+                    <div className="text-sm text-gray-500">atau</div>
+                    
+                    <label className="block">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        onChange={(e) => {
+                          handleFileUpload(e);
+                          if (e.target.files?.[0]) {
+                            setHasCamera(true);
+                            setTimeout(() => handleScanFromFile(), 100);
+                          }
+                        }}
+                        className="hidden"
+                        id="error-qr-upload"
+                      />
+                      <motion.div
+                        onClick={() => document.getElementById('error-qr-upload')?.click()}
+                        className="w-full px-6 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium cursor-pointer"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        Upload Foto QR Sebagai Gantinya
+                      </motion.div>
+                    </label>
+                    
+                    {/* iOS PWA Help */}
+                    <div className="p-4 bg-gray-50 rounded-lg text-left">
+                      <p className="text-sm font-semibold text-gray-700 mb-2">Tips untuk iOS:</p>
+                      <ol className="text-xs text-gray-600 space-y-1 list-decimal list-inside">
+                        <li>Pastikan Safari memiliki akses kamera di Settings</li>
+                        <li>Buka kembali app dari home screen</li>
+                        <li>Izinkan akses kamera saat diminta</li>
+                        <li>Atau gunakan opsi Upload Foto di atas</li>
+                      </ol>
+                    </div>
+                  </div>
                 </div>
               </Card>
             </div>

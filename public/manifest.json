@@ -8,6 +8,7 @@
   "orientation": "portrait",
   "background_color": "#F5F1E8",
   "theme_color": "#10B981",
+  "permissions": ["camera"],
   "icons": [
     {
       "src": "/favicon/web-app-manifest-192x192.png",
