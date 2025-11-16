@@ -21,8 +21,10 @@ export default function ScanQRCode() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
   const [isSearchingLocker, setIsSearchingLocker] = useState(false);
+  const [scanCount, setScanCount] = useState(0); // Track scan attempts
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const isMountedRef = useRef(true);
+  const lastScanTimeRef = useRef<number>(0);
 
   useEffect(() => {
     isMountedRef.current = true;
@@ -82,8 +84,10 @@ export default function ScanQRCode() {
 
   const startScanner = async () => {
     try {
-      // Reset error message
+      // Reset error message and scan count
       setErrorMessage('');
+      setScanCount(0);
+      lastScanTimeRef.current = 0;
       
       // Set state dulu
       setIsScanning(true);
@@ -113,8 +117,12 @@ export default function ScanQRCode() {
 
       // Detect if iOS
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
+      const isIOSPWA = isIOS && isStandalone;
       
-      // iOS PWA specific configuration
+      console.log('Device info:', { isIOS, isStandalone, isIOSPWA });
+      
+      // iOS PWA specific configuration - More aggressive settings
       const cameraConfig = isIOS 
         ? { 
             facingMode: { exact: 'environment' }
@@ -124,14 +132,17 @@ export default function ScanQRCode() {
           };
 
       const config = {
-        fps: isIOS ? 5 : 10, // Lower FPS for iOS
-        qrbox: { width: 250, height: 250 },
+        fps: isIOSPWA ? 2 : (isIOS ? 5 : 10), // Very low FPS for iOS PWA
+        qrbox: isIOSPWA ? { width: 200, height: 200 } : { width: 250, height: 250 }, // Smaller box for iOS PWA
         aspectRatio: window.innerWidth < 1024 ? window.innerHeight / window.innerWidth : 1.0,
         disableFlip: false,
-        // Important for iOS
+        // Force software decoding for iOS
+        formatsToSupport: [0], // QR_CODE only
         experimentalFeatures: {
-          useBarCodeDetectorIfSupported: false
-        }
+          useBarCodeDetectorIfSupported: false // Disable native detector on iOS
+        },
+        // Add verbose for debugging
+        verbose: true
       };
 
       console.log('Starting scanner with config:', config);
@@ -142,13 +153,27 @@ export default function ScanQRCode() {
         config,
         (decodedText) => {
           // Success callback
-          console.log('QR Code detected:', decodedText);
+          console.log('✅ QR Code detected:', decodedText);
+          
+          // Prevent multiple rapid scans (iOS issue)
+          const now = Date.now();
+          if (now - lastScanTimeRef.current < 2000) {
+            console.log('⏭️ Skipping duplicate scan');
+            return;
+          }
+          lastScanTimeRef.current = now;
+          
+          // Update scan count for visual feedback
+          setScanCount(prev => prev + 1);
+          
           handleQRCodeDetected(decodedText);
         },
         (errorMessage) => {
           // Error callback - Log untuk debugging di iOS
           if (errorMessage.includes('NotFoundException')) {
             // Ini normal, QR code belum terdeteksi
+            // Update scan count untuk visual feedback
+            setScanCount(prev => prev + 1);
             return;
           }
           console.warn('Scan error:', errorMessage);
@@ -379,7 +404,28 @@ export default function ScanQRCode() {
                   <X size={24} />
                 </button>
                 <h1 className="text-white font-bold text-lg tracking-wider">SCAN QR CODE</h1>
-                <div className="w-12"></div>
+                
+                {/* iOS Native Camera Button */}
+                <label className="w-12 h-12 rounded-xl bg-emerald-600/90 backdrop-blur-sm flex items-center justify-center text-white shadow-lg cursor-pointer">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={(e) => {
+                      stopScanner();
+                      handleFileUpload(e);
+                      if (e.target.files?.[0]) {
+                        setTimeout(() => handleScanFromFile(), 100);
+                      }
+                    }}
+                    className="hidden"
+                    id="scanner-native-camera"
+                  />
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                    <circle cx="12" cy="13" r="4"></circle>
+                  </svg>
+                </label>
               </div>
 
               {/* Camera Full Screen - Hidden visually but active */}
@@ -416,7 +462,21 @@ export default function ScanQRCode() {
 
               {/* Bottom Instructions */}
               <div className="absolute bottom-0 left-0 right-0 p-6 pb-8 text-center z-30 safe-area-bottom">
-                <p className="text-white text-base font-medium mb-6">Arahkan kamera ke QR Code loker</p>
+                <p className="text-white text-base font-medium mb-2">Arahkan kamera ke QR Code loker</p>
+                
+                {/* Scanning indicator */}
+                <div className="flex items-center justify-center gap-2 mb-4">
+                  <div className={`w-2 h-2 rounded-full ${scanCount > 0 ? 'bg-emerald-400' : 'bg-gray-400'} animate-pulse`}></div>
+                  <p className="text-xs text-gray-300">
+                    {scanCount > 0 ? `Scanning... (${scanCount} frames)` : 'Memulai...'}
+                  </p>
+                </div>
+                
+                {/* iOS PWA Hint */}
+                <p className="text-xs text-gray-400 mb-4">
+                  💡 iOS: Tidak terdeteksi? Tap icon kamera di kanan atas
+                </p>
+                
                 <div className="flex items-center justify-center">
                   <button className="w-16 h-16 rounded-full bg-emerald-600 flex items-center justify-center text-white shadow-xl shadow-emerald-500/30">
                     <ScanLine size={32} />
