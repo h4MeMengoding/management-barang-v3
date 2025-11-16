@@ -128,13 +128,16 @@ export default function ScanQRCode() {
             facingMode: { exact: 'environment' }
           }
         : { 
-            facingMode: 'environment' 
+            facingMode: 'environment'
           };
+
+      // Detect Android
+      const isAndroid = /Android/i.test(navigator.userAgent);
 
       const config = {
         fps: isIOSPWA ? 2 : (isIOS ? 5 : 10), // Very low FPS for iOS PWA
         qrbox: isIOSPWA ? { width: 200, height: 200 } : { width: 250, height: 250 }, // Smaller box for iOS PWA
-        aspectRatio: window.innerWidth < 1024 ? window.innerHeight / window.innerWidth : 1.0,
+        aspectRatio: isAndroid ? 1.0 : (window.innerWidth < 1024 ? window.innerHeight / window.innerWidth : 1.0), // Fix Android zoom
         disableFlip: false,
         // Force software decoding for iOS
         formatsToSupport: [0], // QR_CODE only
@@ -142,7 +145,13 @@ export default function ScanQRCode() {
           useBarCodeDetectorIfSupported: false // Disable native detector on iOS
         },
         // Add verbose for debugging
-        verbose: true
+        verbose: true,
+        // Add video constraints for Android to prevent zoom
+        videoConstraints: isAndroid ? {
+          facingMode: 'environment',
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        } : undefined
       };
 
       console.log('Starting scanner with config:', config);
@@ -228,46 +237,121 @@ export default function ScanQRCode() {
     if (!selectedFile) return;
 
     try {
+      setIsSearchingLocker(true);
+      
       // Read file as image
       const imageUrl = URL.createObjectURL(selectedFile);
       const img = new Image();
       
       img.onload = async () => {
-        // Create canvas to extract image data
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        
-        if (!ctx) {
-          alert('Gagal memproses gambar');
-          return;
-        }
-
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
-        
-        // Get image data
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        
-        // Scan QR code
-        const code = jsQR(imageData.data, imageData.width, imageData.height, {
-          inversionAttempts: 'dontInvert',
-        });
-        
-        if (code) {
-          setScannedData(code.data);
+        try {
+          // Create canvas to extract image data
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d', { willReadFrequently: true });
           
-          // Search for locker with this code
-          const locker = await findLockerByCode(code.data);
-          
-          if (locker) {
-            // Navigate to locker detail page
-            router.push(`/locker/${locker.id}`);
-          } else {
-            alert(`QR Code terdeteksi: ${code.data}\nLoker dengan kode ini tidak ditemukan.`);
+          if (!ctx) {
+            alert('Gagal memproses gambar');
+            setIsSearchingLocker(false);
+            return;
           }
-        } else {
-          alert('QR Code tidak terdeteksi. Pastikan gambar jelas dan mengandung QR code.');
+
+          // Resize image if too large (iOS photos are huge!)
+          const MAX_SIZE = 1500;
+          let width = img.width;
+          let height = img.height;
+          
+          if (width > MAX_SIZE || height > MAX_SIZE) {
+            const ratio = Math.min(MAX_SIZE / width, MAX_SIZE / height);
+            width = Math.floor(width * ratio);
+            height = Math.floor(height * ratio);
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          
+          // Draw image
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          console.log('Image size:', width, 'x', height);
+          
+          // Get image data
+          let imageData = ctx.getImageData(0, 0, width, height);
+          
+          // Try scanning with different inversion attempts
+          console.log('Attempting to scan QR code...');
+          
+          // Attempt 1: Normal
+          let code = jsQR(imageData.data, width, height, {
+            inversionAttempts: 'dontInvert',
+          });
+          
+          if (!code) {
+            console.log('Attempt 1 failed, trying with inversion...');
+            // Attempt 2: With inversion
+            code = jsQR(imageData.data, width, height, {
+              inversionAttempts: 'attemptBoth',
+            });
+          }
+          
+          if (!code) {
+            console.log('Attempt 2 failed, trying with grayscale and contrast...');
+            // Attempt 3: Apply grayscale and increase contrast
+            const data = imageData.data;
+            for (let i = 0; i < data.length; i += 4) {
+              // Convert to grayscale
+              const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+              // Increase contrast
+              const contrasted = ((gray - 128) * 1.5) + 128;
+              const final = Math.min(255, Math.max(0, contrasted));
+              data[i] = data[i + 1] = data[i + 2] = final;
+            }
+            
+            code = jsQR(data, width, height, {
+              inversionAttempts: 'attemptBoth',
+            });
+          }
+          
+          if (!code) {
+            console.log('Attempt 3 failed, trying smaller scale...');
+            // Attempt 4: Try with 50% scale
+            const smallCanvas = document.createElement('canvas');
+            const smallCtx = smallCanvas.getContext('2d');
+            if (smallCtx) {
+              smallCanvas.width = Math.floor(width * 0.5);
+              smallCanvas.height = Math.floor(height * 0.5);
+              smallCtx.drawImage(canvas, 0, 0, smallCanvas.width, smallCanvas.height);
+              const smallImageData = smallCtx.getImageData(0, 0, smallCanvas.width, smallCanvas.height);
+              
+              code = jsQR(smallImageData.data, smallCanvas.width, smallCanvas.height, {
+                inversionAttempts: 'attemptBoth',
+              });
+            }
+          }
+          
+          setIsSearchingLocker(false);
+          
+          if (code) {
+            console.log('✅ QR Code detected:', code.data);
+            setScannedData(code.data);
+            
+            setIsSearchingLocker(true);
+            // Search for locker with this code
+            const locker = await findLockerByCode(code.data);
+            
+            if (locker) {
+              // Navigate to locker detail page
+              router.push(`/locker/${locker.id}`);
+            } else {
+              alert(`QR Code terdeteksi: ${code.data}\nLoker dengan kode ini tidak ditemukan.`);
+            }
+          } else {
+            console.error('❌ QR Code not detected after all attempts');
+            alert('QR Code tidak terdeteksi. Coba:\n1. Pastikan QR code terlihat jelas\n2. Cahaya cukup terang\n3. QR code tidak terpotong\n4. Ambil foto lebih dekat');
+          }
+        } catch (error) {
+          console.error('Error processing image:', error);
+          alert('Gagal memproses gambar');
+          setIsSearchingLocker(false);
         }
         
         // Cleanup
@@ -277,12 +361,14 @@ export default function ScanQRCode() {
       img.onerror = () => {
         alert('Gagal memuat gambar');
         URL.revokeObjectURL(imageUrl);
+        setIsSearchingLocker(false);
       };
       
       img.src = imageUrl;
     } catch (error) {
       console.error('Error scanning file:', error);
       alert('Gagal membaca QR Code. Pastikan file mengandung QR code yang valid.');
+      setIsSearchingLocker(false);
     }
   };
 
