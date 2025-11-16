@@ -35,6 +35,17 @@ export default function ManageCategories() {
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
 
   useEffect(() => {
+    // Collapse the form by default on mobile (width < 1024px)
+    if (typeof window !== 'undefined') {
+      try {
+        if (window.innerWidth < 1024) {
+          setIsFormOpen(false);
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
+
     loadCategories();
   }, []);
 
@@ -321,8 +332,22 @@ export default function ManageCategories() {
               </div>
 
               {isLoadingCategories ? (
-                <div className="flex items-center justify-center py-12">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="p-4 rounded-lg border border-gray-100 bg-white animate-pulse">
+                      <div className="flex items-start gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-gray-200 flex-shrink-0" />
+                        <div className="flex-1 min-w-0 space-y-2">
+                          <div className="h-4 bg-gray-200 rounded w-3/4" />
+                          <div className="h-3 bg-gray-200 rounded w-1/2" />
+                          <div className="mt-3 flex items-center justify-between">
+                            <div className="h-3 bg-gray-200 rounded w-1/4" />
+                            <div className="h-4 bg-gray-200 rounded w-1/6" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ) : categories.length === 0 ? (
                 <div className="text-center py-12">

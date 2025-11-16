@@ -37,6 +37,17 @@ export default function AddLocker() {
 
   // Load lockers
   useEffect(() => {
+    // Collapse the form by default on mobile (width < 1024px)
+    if (typeof window !== 'undefined') {
+      try {
+        if (window.innerWidth < 1024) {
+          setIsFormOpen(false);
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
+
     loadLockers();
     generateCode(); // Auto generate code on mount
   }, []);
@@ -275,8 +286,22 @@ export default function AddLocker() {
               </div>
 
               {isLoadingLockers ? (
-                <div className="flex items-center justify-center py-12">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="bg-white rounded-xl p-4 lg:p-5 shadow-sm border border-gray-100 animate-pulse">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-start gap-3 flex-1 min-w-0">
+                          <div className="w-12 h-12 rounded-xl bg-gray-200 flex items-center justify-center flex-shrink-0" />
+                          <div className="flex-1 min-w-0 space-y-2">
+                            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                            <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                            <div className="h-3 bg-gray-200 rounded w-1/3"></div>
+                          </div>
+                        </div>
+                        <div className="w-20 h-6 bg-gray-200 rounded-full" />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ) : lockers.length === 0 ? (
                 <div className="text-center py-12">
