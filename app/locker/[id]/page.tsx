@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import Sidebar from '@/components/Sidebar';
@@ -11,7 +11,7 @@ import LockerDetailSkeleton from '@/components/LockerDetailSkeleton';
 import ItemsListSkeleton from '@/components/ItemsListSkeleton';
 import { getCurrentUser } from '@/lib/auth';
 import { queryKeys } from '@/lib/hooks/useQuery';
-import { Package, Edit2, Trash2, Download, ArrowLeft, QrCode } from 'lucide-react';
+import { Package, Edit2, Trash2, Download, ArrowLeft, QrCode, Plus, ChevronDown, Minus, Check } from 'lucide-react';
 
 interface Locker {
   id: string;
@@ -48,11 +48,57 @@ export default function LockerDetail() {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingItems, setIsLoadingItems] = useState(true);
   const [error, setError] = useState('');
+  const [viewMode, setViewMode] = useState<'qr' | 'form'>('qr');
+  
+  // Form states
+  const [formData, setFormData] = useState({
+    name: '',
+    categoryInput: '',
+    categoryId: '',
+    quantity: 0,
+    description: ''
+  });
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const [categorySearchInput, setCategorySearchInput] = useState('');
+  const [isAddingNewCategory, setIsAddingNewCategory] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState('');
+  const [formSuccess, setFormSuccess] = useState('');
+  const categoryDropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     loadLocker();
     loadItems();
+    loadCategories();
   }, [lockerId]);
+
+  useEffect(() => {
+    // Filter categories based on search input
+    if (categorySearchInput) {
+      const filtered = categories.filter(cat =>
+        cat.name.toLowerCase().includes(categorySearchInput.toLowerCase())
+      );
+      setFilteredCategories(filtered);
+    } else {
+      setFilteredCategories(categories);
+    }
+  }, [categorySearchInput, categories]);
+
+  useEffect(() => {
+    // Close category dropdown when clicking outside
+    const handleClickOutside = (event: MouseEvent) => {
+      if (categoryDropdownRef.current && !categoryDropdownRef.current.contains(event.target as Node)) {
+        setShowCategoryDropdown(false);
+        setCategorySearchInput('');
+        setIsAddingNewCategory(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const loadLocker = async () => {
     try {
@@ -94,6 +140,23 @@ export default function LockerDetail() {
       console.error('Error loading items:', err);
     } finally {
       setIsLoadingItems(false);
+    }
+  };
+
+  const loadCategories = async () => {
+    try {
+      const user = getCurrentUser();
+      if (!user) return;
+
+      const response = await fetch(`/api/categories?userId=${user.id}`);
+      const data = await response.json();
+
+      if (response.ok) {
+        setCategories(data.categories || []);
+        setFilteredCategories(data.categories || []);
+      }
+    } catch (err) {
+      console.error('Error loading categories:', err);
     }
   };
 
@@ -146,6 +209,155 @@ export default function LockerDetail() {
     document.body.removeChild(link);
   };
 
+  const handleCategorySelect = (category: Category) => {
+    setFormData({
+      ...formData,
+      categoryInput: category.name,
+      categoryId: category.id,
+    });
+    setShowCategoryDropdown(false);
+    setCategorySearchInput('');
+    setIsAddingNewCategory(false);
+  };
+
+  const handleAddNewCategory = async () => {
+    const categoryName = categorySearchInput.trim();
+    if (!categoryName) return;
+
+    const existingCategory = categories.find(
+      cat => cat.name.toLowerCase() === categoryName.toLowerCase()
+    );
+
+    if (existingCategory) {
+      handleCategorySelect(existingCategory);
+      return;
+    }
+
+    const user = getCurrentUser();
+    if (!user) return;
+
+    try {
+      setIsAddingNewCategory(true);
+      const response = await fetch('/api/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: categoryName,
+          userId: user.id,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setCategories([...categories, data.category]);
+        handleCategorySelect(data.category);
+        setFormSuccess('Kategori baru berhasil ditambahkan!');
+        setTimeout(() => setFormSuccess(''), 3000);
+      }
+    } catch (err) {
+      console.error('Error creating category:', err);
+    } finally {
+      setIsAddingNewCategory(false);
+    }
+  };
+
+  const handleCategoryKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      await handleAddNewCategory();
+    }
+  };
+
+  const incrementQuantity = () => {
+    setFormData({ ...formData, quantity: formData.quantity + 1 });
+  };
+
+  const decrementQuantity = () => {
+    if (formData.quantity > 0) {
+      setFormData({ ...formData, quantity: formData.quantity - 1 });
+    }
+  };
+
+  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value) || 0;
+    if (value >= 0) {
+      setFormData({ ...formData, quantity: value });
+    }
+  };
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormError('');
+    setFormSuccess('');
+
+    if (!formData.categoryId) {
+      setFormError('Silakan pilih kategori atau buat kategori baru dengan menekan Enter');
+      return;
+    }
+
+    const user = getCurrentUser();
+    if (!user) {
+      setFormError('User tidak ditemukan');
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+
+      const response = await fetch('/api/items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          categoryId: formData.categoryId,
+          quantity: formData.quantity,
+          lockerId: lockerId,
+          description: formData.description || null,
+          userId: user.id,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Gagal menambahkan barang');
+      }
+
+      setFormSuccess('Barang berhasil ditambahkan!');
+      setFormData({
+        name: '',
+        categoryInput: '',
+        categoryId: '',
+        quantity: 0,
+        description: ''
+      });
+      
+      await loadItems();
+
+      // Invalidate queries
+      queryClient.invalidateQueries({ queryKey: queryKeys.items(user.id) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.stats(user.id) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.locker(lockerId) });
+
+      setTimeout(() => {
+        setFormSuccess('');
+        setViewMode('qr');
+      }, 2000);
+    } catch (err: any) {
+      setFormError(err.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
   if (isLoading) {
     return (
       <ProtectedRoute>
@@ -184,6 +396,9 @@ export default function LockerDetail() {
 
   const itemCount = items.length;
   const status = itemCount > 0 ? 'terisi' : 'kosong';
+  const typesCount = items.length;
+  const totalQuantity = items.reduce((s, it) => s + (it.quantity || 0), 0);
+  const nf = new Intl.NumberFormat('id-ID');
 
 
   return (
@@ -204,79 +419,261 @@ export default function LockerDetail() {
         </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column: Locker Info - Sticky on Desktop */}
+          {/* Left Column: QR Code / Add Item Form - Sticky on Desktop */}
           <div className="lg:col-span-1">
             <div className="lg:sticky lg:top-6">
               <Card>
-                {/* QR Code Section */}
-                <div className="flex flex-col items-center mb-6">
-                  <div className="bg-white border-2 border-gray-200 rounded-xl p-5">
-                    {locker.qrCodeUrl ? (
-                      <img 
-                        src={locker.qrCodeUrl} 
-                        alt={`QR Code ${locker.code}`}
-                        className="w-48 h-48 rounded-lg"
-                      />
-                    ) : (
-                      <div className="w-48 h-48 bg-gray-100 rounded-lg flex items-center justify-center">
-                        <QrCode size={120} className="text-gray-400" />
-                      </div>
-                    )}
-                  </div>
+                {/* Toggle Buttons */}
+                <div className="flex gap-2 mb-4">
                   <button
-                    onClick={handleDownloadQR}
-                    disabled={!locker.qrCodeUrl}
-                    className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-900 hover:bg-gray-800 text-white font-semibold rounded-lg transition-colors shadow-sm text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={() => setViewMode('qr')}
+                    className={`flex-1 py-2 px-4 rounded-lg font-semibold text-sm transition-colors ${
+                      viewMode === 'qr'
+                        ? 'bg-emerald-600 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
                   >
-                    <Download size={16} />
-                    Download QR
+                    <QrCode size={16} className="inline mr-2" />
+                    QR Code
+                  </button>
+                  <button
+                    onClick={() => setViewMode('form')}
+                    className={`flex-1 py-2 px-4 rounded-lg font-semibold text-sm transition-colors ${
+                      viewMode === 'form'
+                        ? 'bg-emerald-600 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    <Plus size={16} className="inline mr-2" />
+                    Tambah Barang
                   </button>
                 </div>
 
-                {/* Locker Info */}
-                <div className="space-y-4">
-                  <div>
-                    <h1 className="text-2xl font-bold text-gray-900">{locker.name}</h1>
-                    <p className="text-sm text-gray-500 mt-1">Kode: <span className="font-semibold text-gray-700">{locker.code}</span></p>
-                  </div>
+                {viewMode === 'qr' ? (
+                  <>
+                    {/* QR Code Section */}
+                    <div className="flex flex-col items-center mb-6">
+                      <div className="bg-white border-2 border-gray-200 rounded-xl p-5">
+                        {locker.qrCodeUrl ? (
+                          <img 
+                            src={locker.qrCodeUrl} 
+                            alt={`QR Code ${locker.code}`}
+                            className="w-48 h-48 rounded-lg"
+                          />
+                        ) : (
+                          <div className="w-48 h-48 bg-gray-100 rounded-lg flex items-center justify-center">
+                            <QrCode size={120} className="text-gray-400" />
+                          </div>
+                        )}
+                      </div>
+                      <button
+                        onClick={handleDownloadQR}
+                        disabled={!locker.qrCodeUrl}
+                        className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-900 hover:bg-gray-800 text-white font-semibold rounded-lg transition-colors shadow-sm text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <Download size={16} />
+                        Download QR
+                      </button>
+                    </div>
 
-                  {locker.description && (
-                    <p className="text-sm text-gray-600 leading-relaxed pb-4 border-b border-gray-100">
-                      {locker.description}
-                    </p>
-                  )}
-                  
-                  <div className="space-y-3 pb-4 border-b border-gray-100">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Status:</span>
-                      <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${status === 'terisi' ? 'bg-emerald-500' : 'bg-gray-400'}`}></div>
-                        <span className="text-sm font-semibold text-gray-900 capitalize">{status}</span>
+                    {/* Locker Info */}
+                    <div className="space-y-4">
+                      <div>
+                        <h1 className="text-2xl font-bold text-gray-900">{locker.name}</h1>
+                        <p className="text-sm text-gray-500 mt-1">Kode: <span className="font-semibold text-gray-700">{locker.code}</span></p>
+                      </div>
+
+                      {locker.description && (
+                        <p className="text-sm text-gray-600 leading-relaxed pb-4 border-b border-gray-100">
+                          {locker.description}
+                        </p>
+                      )}
+                      
+                      <div className="space-y-3 pb-4 border-b border-gray-100">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-600">Status:</span>
+                          <div className="flex items-center gap-2">
+                            <div className={`w-2 h-2 rounded-full ${status === 'terisi' ? 'bg-emerald-500' : 'bg-gray-400'}`}></div>
+                            <span className="text-sm font-semibold text-gray-900 capitalize">{status}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-600">Total Barang:</span>
+                          <span className="text-sm font-semibold text-gray-900">{itemCount}</span>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <button
+                          onClick={handleEdit}
+                          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg transition-colors shadow-sm"
+                        >
+                          <Edit2 size={18} />
+                          Edit Loker
+                        </button>
+                        <button
+                          onClick={handleDelete}
+                          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-red-400 hover:bg-red-500 text-white font-semibold rounded-lg transition-colors shadow-sm"
+                        >
+                          <Trash2 size={18} />
+                          Hapus Loker
+                        </button>
                       </div>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Total Barang:</span>
-                      <span className="text-sm font-semibold text-gray-900">{itemCount}</span>
-                    </div>
-                  </div>
+                  </>
+                ) : (
+                  <>
+                    {/* Add Item Form */}
+                    <div className="space-y-4">
+                      <div>
+                        <h2 className="text-xl font-bold text-gray-900 mb-1">Tambah Barang Baru</h2>
+                        <p className="text-sm text-gray-500">Ke loker: <span className="font-semibold text-emerald-600">{locker.name}</span></p>
+                      </div>
 
-                  <div className="space-y-2">
-                    <button
-                      onClick={handleEdit}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors shadow-sm"
-                    >
-                      <Edit2 size={18} />
-                      Edit Loker
-                    </button>
-                    <button
-                      onClick={handleDelete}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors shadow-sm"
-                    >
-                      <Trash2 size={18} />
-                      Hapus Loker
-                    </button>
-                  </div>
-                </div>
+                      {formError && (
+                        <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+                          {formError}
+                        </div>
+                      )}
+
+                      {formSuccess && (
+                        <div className="p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">
+                          {formSuccess}
+                        </div>
+                      )}
+
+                      <form onSubmit={handleFormSubmit} className="space-y-4">
+                        {/* Name Input */}
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            Nama Barang <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            name="name"
+                            value={formData.name}
+                            onChange={handleFormChange}
+                            required
+                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm placeholder:text-gray-400 text-gray-900"
+                            placeholder="Masukkan nama barang"
+                          />
+                        </div>
+
+                        {/* Category Dropdown */}
+                        <div className="relative" ref={categoryDropdownRef}>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            Kategori <span className="text-red-500">*</span>
+                          </label>
+                          <div className="relative">
+                            <input
+                              type="text"
+                              value={showCategoryDropdown ? categorySearchInput : formData.categoryInput}
+                              onChange={(e) => {
+                                setCategorySearchInput(e.target.value);
+                                setShowCategoryDropdown(true);
+                              }}
+                              onFocus={() => setShowCategoryDropdown(true)}
+                              onKeyDown={handleCategoryKeyDown}
+                              className="w-full px-4 py-2.5 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm placeholder:text-gray-400 text-gray-900"
+                              placeholder="Cari atau buat kategori baru"
+                            />
+                            <ChevronDown 
+                              size={20} 
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                            />
+                          </div>
+
+                          {showCategoryDropdown && (
+                            <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                              {filteredCategories.length > 0 ? (
+                                filteredCategories.map(cat => (
+                                  <button
+                                    key={cat.id}
+                                    type="button"
+                                    onClick={() => handleCategorySelect(cat)}
+                                    className="w-full px-4 py-2.5 text-left hover:bg-gray-50 text-sm transition-colors flex items-center justify-between group plac"
+                                  >
+                                    <span className="text-gray-900">{cat.name}</span>
+                                    {formData.categoryId === cat.id && (
+                                      <Check size={16} className="text-emerald-600" />
+                                    )}
+                                  </button>
+                                ))
+                              ) : null}
+                              
+                              {categorySearchInput && !filteredCategories.some(c => c.name.toLowerCase() === categorySearchInput.toLowerCase()) && (
+                                <button
+                                  type="button"
+                                  onClick={handleAddNewCategory}
+                                  disabled={isAddingNewCategory}
+                                  className="w-full px-4 py-2.5 text-left bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold text-sm transition-colors border-t border-emerald-200"
+                                >
+                                  {isAddingNewCategory ? 'Menambahkan...' : `+ Buat kategori "${categorySearchInput}"`}
+                                </button>
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Quantity Input */}
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            Jumlah Barang <span className="text-red-500">*</span>
+                          </label>
+                          <div className="flex items-center gap-3">
+                            <button
+                              type="button"
+                              onClick={decrementQuantity}
+                              className="w-10 h-10 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                            >
+                              <Minus size={18} className="text-gray-700" />
+                            </button>
+                            <input
+                              type="number"
+                              name="quantity"
+                              value={formData.quantity}
+                              onChange={handleQuantityChange}
+                              min="0"
+                              required
+                              className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm text-center font-semibold text-gray-900"
+                            />
+                            <button
+                              type="button"
+                              onClick={incrementQuantity}
+                              className="w-10 h-10 flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors"
+                            >
+                              <Plus size={18} />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Description */}
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            Deskripsi (Opsional)
+                          </label>
+                          <textarea
+                            name="description"
+                            value={formData.description}
+                            onChange={handleFormChange}
+                            rows={3}
+                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm resize-none placeholder:text-gray-400 text-gray-900"
+                            placeholder="Masukkan deskripsi barang"
+                          />
+                        </div>
+
+                        {/* Submit Button */}
+                        <button
+                          type="submit"
+                          disabled={isSubmitting}
+                          className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 text-white font-bold rounded-lg transition-colors shadow-sm disabled:cursor-not-allowed"
+                        >
+                          {isSubmitting ? 'Menambahkan...' : 'Tambah Barang'}
+                        </button>
+                      </form>
+                    </div>
+                  </>
+                )}
               </Card>
             </div>
           </div>
@@ -284,10 +681,10 @@ export default function LockerDetail() {
           {/* Right Column: Items List */}
           <div className="lg:col-span-2">
             <Card>
-              <div className="flex items-center justify-between mb-5">
+                <div className="flex items-center justify-between mb-5">
                 <h2 className="text-xl font-bold text-gray-900">Daftar Barang</h2>
                 <span className="px-3 py-1 bg-gray-100 rounded-full text-sm font-semibold text-gray-700">
-                  {items.length} Barang
+                  {nf.format(totalQuantity)} Barang • {typesCount} Jenis
                 </span>
               </div>
 
@@ -311,11 +708,11 @@ export default function LockerDetail() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 mb-1">
-                            {item.name}
+                            <span className="inline">{item.name}</span>
+                            <span className="ml-2 text-sm font-medium text-emerald-600">×{item.quantity}</span>
                           </h3>
                           <p className="text-xs text-gray-500 mb-2">{item.category.name}</p>
                           <div className="flex items-center justify-between">
-                            <span className="text-lg font-bold text-gray-900">{item.quantity}</span>
                             <span className="text-xs text-gray-400">{formatDate(item.createdAt)}</span>
                           </div>
                         </div>

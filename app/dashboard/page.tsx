@@ -8,7 +8,7 @@ import ReportBarang from '@/components/ReportBarang';
 import ReportLoker from '@/components/ReportLoker';
 import BarangBaru from '@/components/BarangBaru';
 import MaintenanceRequests from '@/components/MaintenanceRequests';
-import { MapPin, Package, FolderTree } from 'lucide-react';
+import { Container, Package, FolderTree } from 'lucide-react';
 import { useMemo } from 'react';
 import { useStats } from '@/lib/hooks/useQuery';
 
@@ -110,33 +110,33 @@ export default function Dashboard() {
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-6">
           <StatCard
-            icon={<MapPin size={24} className="text-blue-600" />}
+            icon={<Container size={24} className="text-emerald-600" />}
             title="Total Loker"
             value={lokerStats.total}
             change={lokerStats.change}
             changeType={lokerStats.changeType}
             previousValue={lokerStats.previous}
-            iconBgColor="bg-blue-100"
+            iconBgColor="bg-emerald-100"
             loading={isLoadingStats}
           />
           <StatCard
-            icon={<Package size={24} className="text-purple-600" />}
+            icon={<Package size={24} className="text-emerald-600" />}
             title="Total Barang"
             value={barangStats.total}
             change={barangStats.change}
             changeType={barangStats.changeType}
             previousValue={barangStats.previous}
-            iconBgColor="bg-purple-100"
+            iconBgColor="bg-emerald-100"
             loading={isLoadingStats}
           />
           <StatCard
-            icon={<FolderTree size={24} className="text-yellow-600" />}
+            icon={<FolderTree size={24} className="text-emerald-600" />}
             title="Total Kategori Barang"
             value={kategoriStats.total}
             change={kategoriStats.change}
             changeType={kategoriStats.changeType}
             previousValue={kategoriStats.previous}
-            iconBgColor="bg-yellow-100"
+            iconBgColor="bg-emerald-100"
             loading={isLoadingStats}
           />
         </div>

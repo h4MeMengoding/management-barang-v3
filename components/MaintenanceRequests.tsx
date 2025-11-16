@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Card from './Card';
 import MaintenanceItem from './MaintenanceItem';
-import { Package } from 'lucide-react';
+import { Container, Package } from 'lucide-react';
 import { getCurrentUser } from '@/lib/auth';
 
 export default function MaintenanceRequests() {
@@ -72,7 +72,8 @@ export default function MaintenanceRequests() {
           lokers.map((loker: any, index: number) => (
             <MaintenanceItem
               key={loker.id}
-              icon={<Package size={20} className={colors[index % colors.length]} />}
+              icon={<Container size={20} className="text-emerald-600" />}
+              iconBg="bg-emerald-100 rounded-lg"
               title={loker.name}
               subtitle={loker.code}
               description={`${loker.itemCount ?? 0} Barang`}

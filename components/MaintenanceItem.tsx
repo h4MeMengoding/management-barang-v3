@@ -3,6 +3,7 @@ import Image from 'next/image';
 
 interface MaintenanceItemProps {
   icon: React.ReactNode;
+  iconBg?: string;
   title: string;
   subtitle: string;
   description: string;
@@ -12,16 +13,19 @@ interface MaintenanceItemProps {
 
 export default function MaintenanceItem({
   icon,
+  iconBg,
   title,
   subtitle,
   description,
   personName,
   personImage
 }: MaintenanceItemProps) {
+  const wrapperClass = `w-10 h-10 lg:w-12 lg:h-12 ${iconBg ?? 'rounded-full bg-gray-100'} flex items-center justify-center flex-shrink-0`;
+
   return (
     <div className="flex items-center justify-between py-2.5 lg:py-3 gap-2">
       <div className="flex items-center gap-2.5 lg:gap-3 flex-1 min-w-0">
-        <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+        <div className={wrapperClass}>
           {icon}
         </div>
         <div className="min-w-0 flex-1">
