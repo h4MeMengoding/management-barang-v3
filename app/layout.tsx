@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   }
   ,
   manifest: '/manifest.json',
-  themeColor: '#10B981'
+  themeColor: '#F5F1E8'
 };
 
 export default function RootLayout({
@@ -39,6 +39,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-title" content="Manajemen Barang" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="theme-color" content="#F5F1E8" />
+        <meta name="msapplication-TileColor" content="#F5F1E8" />
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/favicon/web-app-manifest-192x192.png" />
+        <link rel="icon" type="image/png" sizes="512x512" href="/favicon/web-app-manifest-512x512.png" />
+        <link rel="shortcut icon" href="/favicon/favicon.ico" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
