@@ -8,6 +8,7 @@ import ReportBarang from '@/components/ReportBarang';
 import ReportLoker from '@/components/ReportLoker';
 import BarangBaru from '@/components/BarangBaru';
 import MaintenanceRequests from '@/components/MaintenanceRequests';
+import { motion } from 'framer-motion';
 import { Container, Package, FolderTree } from 'lucide-react';
 import { useMemo } from 'react';
 import { useStats } from '@/lib/hooks/useQuery';
@@ -108,50 +109,95 @@ export default function Dashboard() {
         <Header />
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-6">
-          <StatCard
-            icon={<Container size={24} className="text-emerald-600" />}
-            title="Total Loker"
-            value={lokerStats.total}
-            change={lokerStats.change}
-            changeType={lokerStats.changeType}
-            previousValue={lokerStats.previous}
-            iconBgColor="bg-emerald-100"
-            loading={isLoadingStats}
-          />
-          <StatCard
-            icon={<Package size={24} className="text-emerald-600" />}
-            title="Total Barang"
-            value={barangStats.total}
-            change={barangStats.change}
-            changeType={barangStats.changeType}
-            previousValue={barangStats.previous}
-            iconBgColor="bg-emerald-100"
-            loading={isLoadingStats}
-          />
-          <StatCard
-            icon={<FolderTree size={24} className="text-emerald-600" />}
-            title="Total Kategori Barang"
-            value={kategoriStats.total}
-            change={kategoriStats.change}
-            changeType={kategoriStats.changeType}
-            previousValue={kategoriStats.previous}
-            iconBgColor="bg-emerald-100"
-            loading={isLoadingStats}
-          />
-        </div>
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-6"
+          initial="hidden"
+          animate="visible"
+          variants={{
+            visible: {
+              transition: {
+                staggerChildren: 0.1,
+              },
+            },
+          }}
+        >
+          <motion.div
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0 },
+            }}
+            transition={{ duration: 0.4 }}
+          >
+            <StatCard
+              icon={<Container size={24} className="text-emerald-600" />}
+              title="Total Loker"
+              value={lokerStats.total}
+              change={lokerStats.change}
+              changeType={lokerStats.changeType}
+              previousValue={lokerStats.previous}
+              iconBgColor="bg-emerald-100"
+              loading={isLoadingStats}
+            />
+          </motion.div>
+          <motion.div
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0 },
+            }}
+            transition={{ duration: 0.4 }}
+          >
+            <StatCard
+              icon={<Package size={24} className="text-emerald-600" />}
+              title="Total Barang"
+              value={barangStats.total}
+              change={barangStats.change}
+              changeType={barangStats.changeType}
+              previousValue={barangStats.previous}
+              iconBgColor="bg-emerald-100"
+              loading={isLoadingStats}
+            />
+          </motion.div>
+          <motion.div
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0 },
+            }}
+            transition={{ duration: 0.4 }}
+          >
+            <StatCard
+              icon={<FolderTree size={24} className="text-emerald-600" />}
+              title="Total Kategori Barang"
+              value={kategoriStats.total}
+              change={kategoriStats.change}
+              changeType={kategoriStats.changeType}
+              previousValue={kategoriStats.previous}
+              iconBgColor="bg-emerald-100"
+              loading={isLoadingStats}
+            />
+          </motion.div>
+        </motion.div>
 
         {/* Report Barang & Report Loker */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-4 lg:gap-6 mb-6">
+        <motion.div 
+          className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-4 lg:gap-6 mb-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.3 }}
+        >
           <ReportBarang />
           <ReportLoker />
-        </div>
+        </motion.div>
 
         {/* Barang Baru & Maintenance Requests */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+        <motion.div 
+          className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.4 }}
+        >
           <BarangBaru />
           <MaintenanceRequests />
-        </div>
+        </motion.div>
       </main>
     </div>
     </ProtectedRoute>

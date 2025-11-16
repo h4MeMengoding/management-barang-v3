@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 import { LayoutGrid, PlusSquare, Package, FolderTree, QrCode, ScanLine, Settings, HelpCircle, LogOut, User } from 'lucide-react';
 import { clearUserSession, getCurrentUser } from '@/lib/auth';
 
@@ -103,7 +104,13 @@ export default function Sidebar() {
       {/* Menu Items */}
       <div className="flex flex-col gap-2">
         {menuItems.map((item, index) => (
-          <div key={index} className="relative group">
+          <motion.div 
+            key={index} 
+            className="relative group"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3, delay: index * 0.05 }}
+          >
             <Link
               href={item.href}
               className={`w-11 h-11 rounded-xl flex items-center justify-center transition-colors ${
@@ -112,7 +119,13 @@ export default function Sidebar() {
                   : 'text-gray-400 hover:bg-gray-100'
               }`}
             >
-              {item.icon}
+              <motion.div
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ duration: 0.2 }}
+              >
+                {item.icon}
+              </motion.div>
             </Link>
 
             {/* Floating tooltip for desktop */}
@@ -125,7 +138,7 @@ export default function Sidebar() {
                 <div className="absolute left-[-6px] top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-t border-l border-gray-200 rotate-45 opacity-0 group-hover:opacity-100 transition-all duration-150 ease-out" />
               </div>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
 
@@ -216,7 +229,12 @@ export default function Sidebar() {
       </div>
 
       {/* Mobile Bottom Navigation (FAB Style) */}
-      <div className="lg:hidden fixed bottom-4 left-0 right-0 z-50 px-4">
+      <motion.div 
+        className="lg:hidden fixed bottom-4 left-0 right-0 z-50 px-4"
+        initial={{ y: 100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
+      >
         <div className="bg-white rounded-full shadow-2xl border border-gray-200 px-3 py-2 max-w-sm mx-auto">
           <div className="flex items-center justify-between gap-2">
             {/* Left Menu Items */}
@@ -230,7 +248,12 @@ export default function Sidebar() {
                     : 'text-gray-400 hover:bg-gray-100'
                 }`}
               >
-                {item.icon}
+                <motion.div
+                  whileTap={{ scale: 0.9 }}
+                  transition={{ duration: 0.1 }}
+                >
+                  {item.icon}
+                </motion.div>
               </Link>
             ))}
             
@@ -243,7 +266,12 @@ export default function Sidebar() {
                   : 'bg-emerald-500 text-white hover:bg-emerald-600'
               }`}
             >
-              <ScanLine size={24} />
+              <motion.div
+                whileTap={{ scale: 0.9 }}
+                transition={{ duration: 0.1 }}
+              >
+                <ScanLine size={24} />
+              </motion.div>
             </Link>
             
             {/* Right Menu Items */}
@@ -257,12 +285,17 @@ export default function Sidebar() {
                     : 'text-gray-400 hover:bg-gray-100'
                 }`}
               >
-                {item.icon}
+                <motion.div
+                  whileTap={{ scale: 0.9 }}
+                  transition={{ duration: 0.1 }}
+                >
+                  {item.icon}
+                </motion.div>
               </Link>
             ))}
           </div>
         </div>
-      </div>
+      </motion.div>
     </>
   );
 }

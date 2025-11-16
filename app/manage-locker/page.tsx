@@ -4,6 +4,7 @@ import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
 import Card from '@/components/Card';
 import LockerCard from '@/components/LockerCard';
+import { motion } from 'framer-motion';
 import { Plus, ChevronDown, ChevronUp, RefreshCw, Download } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -188,8 +189,17 @@ export default function AddLocker() {
                     )}
                   </button>
 
-                  {isFormOpen && (
-                    <form onSubmit={handleSubmit} className="space-y-5 mt-5 pt-5 border-t border-gray-100">
+                  <AnimatePresence>
+                    {isFormOpen && (
+                      <motion.form 
+                        onSubmit={handleSubmit} 
+                        className="space-y-5 mt-5 pt-5 border-t border-gray-100"
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3, ease: 'easeInOut' }}
+                        style={{ overflow: 'hidden' }}
+                      >
                       {/* Success/Error Messages */}
                       {success && (
                         <div className="p-3 rounded-lg bg-green-50 border border-green-200">
@@ -273,8 +283,9 @@ export default function AddLocker() {
                         <Plus size={20} />
                         {isLoading ? 'Membuat...' : 'Tambah Loker'}
                       </button>
-                    </form>
+                    </motion.form>
                   )}
+                </AnimatePresence>
                 </Card>
               </div>
             </div>
@@ -317,18 +328,38 @@ export default function AddLocker() {
                   <p className="text-gray-500">Belum ada loker. Tambahkan loker pertama Anda!</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <motion.div 
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                  initial="hidden"
+                  animate="visible"
+                  variants={{
+                    visible: {
+                      transition: {
+                        staggerChildren: 0.08,
+                      },
+                    },
+                  }}
+                >
                   {lockers.map((locker) => (
-                    <LockerCard
+                    <motion.div
                       key={locker.id}
-                      id={locker.id}
-                      name={locker.name}
-                      code={locker.code}
-                      itemCount={locker.itemCount}
-                      status={locker.itemCount > 0 ? "terisi" : "kosong"}
-                    />
+                      variants={{
+                        hidden: { opacity: 0, scale: 0.95 },
+                        visible: { opacity: 1, scale: 1 },
+                      }}
+                      transition={{ duration: 0.3 }}
+                      whileHover={{ y: -4 }}
+                    >
+                      <LockerCard
+                        id={locker.id}
+                        name={locker.name}
+                        code={locker.code}
+                        itemCount={locker.itemCount}
+                        status={locker.itemCount > 0 ? "terisi" : "kosong"}
+                      />
+                    </motion.div>
                   ))}
-                </div>
+                </motion.div>
               )}
             </Card>
           </div>

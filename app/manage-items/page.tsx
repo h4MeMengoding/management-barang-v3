@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
+import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
 import Card from '@/components/Card';
@@ -521,8 +522,17 @@ export default function AddItem() {
                   )}
                 </button>
 
+                <AnimatePresence>
                 {isFormOpen && (
-                  <form onSubmit={handleSubmit} className="space-y-5 mt-5 pt-5 border-t border-gray-100">
+                  <motion.form 
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: 'easeInOut' }}
+                    style={{ overflow: 'hidden' }}
+                    onSubmit={handleSubmit} 
+                    className="space-y-5 mt-5 pt-5 border-t border-gray-100"
+                  >
                     <div>
                       <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
                         Nama Barang <span className="text-red-500">*</span>
@@ -797,8 +807,9 @@ export default function AddItem() {
                         </button>
                       )}
                     </div>
-                  </form>
+                  </motion.form>
                 )}
+                </AnimatePresence>
               </Card>
             </div>
           </div>
@@ -843,11 +854,28 @@ export default function AddItem() {
                   <p className="text-gray-500">Belum ada barang. Tambahkan barang pertama Anda!</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <motion.div 
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                  initial="hidden"
+                  animate="visible"
+                  variants={{
+                    visible: {
+                      transition: {
+                        staggerChildren: 0.05,
+                      },
+                    },
+                  }}
+                >
                   {items.map((item) => (
-                    <div
+                    <motion.div
                       key={item.id}
                       className="p-4 rounded-lg border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all bg-white relative"
+                      variants={{
+                        hidden: { opacity: 0, y: 20 },
+                        visible: { opacity: 1, y: 0 },
+                      }}
+                      transition={{ duration: 0.3 }}
+                      whileHover={{ y: -2 }}
                     >
                       <div className="flex items-start gap-3">
                         <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
@@ -859,12 +887,13 @@ export default function AddItem() {
                               <h3 className="font-semibold text-gray-900 text-sm truncate">{item.name}</h3>
                               <p className="text-xs text-gray-500 mt-0.5">{item.category.name}</p>
                             </div>
-                            <button
+                            <motion.button
                               onClick={() => toggleActions(item.id)}
                               className="p-1 hover:bg-gray-100 rounded transition-colors flex-shrink-0"
+                              whileTap={{ scale: 0.9 }}
                             >
                               <MoreVertical size={16} className="text-gray-600" />
-                            </button>
+                            </motion.button>
                           </div>
                           <div className="flex items-center justify-between mt-2">
                             <span className="text-xs text-gray-600">Qty: {item.quantity}</span>
@@ -873,29 +902,37 @@ export default function AddItem() {
                           <p className="text-xs text-gray-500 mt-1 truncate">{item.locker.name} ({item.locker.code})</p>
                         </div>
                       </div>
-                      {activeCardId === item.id && (
-                        <div className="absolute left-0 right-0 top-full mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-3 z-10">
-                          <div className="flex items-center gap-2">
-                            <button 
-                              onClick={() => handleEdit(item)}
-                              className="flex-1 px-3 py-2 text-xs font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center gap-1"
-                            >
-                              <Edit2 size={14} />
-                              Edit
-                            </button>
-                            <button 
-                              onClick={() => handleDelete(item.id)}
-                              className="flex-1 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center gap-1"
-                            >
-                              <Trash2 size={14} />
-                              Hapus
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
+                      <AnimatePresence>
+                        {activeCardId === item.id && (
+                          <motion.div 
+                            className="absolute left-0 right-0 top-full mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-3 z-10"
+                            initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            <div className="flex items-center gap-2">
+                              <button 
+                                onClick={() => handleEdit(item)}
+                                className="flex-1 px-3 py-2 text-xs font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center gap-1"
+                              >
+                                <Edit2 size={14} />
+                                Edit
+                              </button>
+                              <button 
+                                onClick={() => handleDelete(item.id)}
+                                className="flex-1 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center gap-1"
+                              >
+                                <Trash2 size={14} />
+                                Hapus
+                              </button>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </motion.div>
                   ))}
-                </div>
+                </motion.div>
               )}
             </Card>
           </div>

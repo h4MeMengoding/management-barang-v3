@@ -3,6 +3,7 @@
 import { Search, User, LogOut, Package, FolderTree, Archive } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getCurrentUser, clearUserSession } from '@/lib/auth';
@@ -241,33 +242,49 @@ export default function Header() {
             </button>
 
             {/* Profile Dropdown Menu */}
-            {showProfileMenu && (
-              <div className="absolute top-12 right-0 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50">
-                <Link
-                  href="/profile"
-                  onClick={() => setShowProfileMenu(false)}
-                  className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors text-gray-700"
+            <AnimatePresence>
+              {showProfileMenu && (
+                <motion.div 
+                  className="absolute top-12 right-0 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50"
+                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
                 >
-                  <User size={18} />
-                  <span className="text-sm font-medium">Profile Settings</span>
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors text-red-600"
-                >
-                  <LogOut size={18} />
-                  <span className="text-sm font-medium">Logout</span>
-                </button>
-              </div>
-            )}
+                  <Link
+                    href="/profile"
+                    onClick={() => setShowProfileMenu(false)}
+                    className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors text-gray-700"
+                  >
+                    <User size={18} />
+                    <span className="text-sm font-medium">Profile Settings</span>
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors text-red-600"
+                  >
+                    <LogOut size={18} />
+                    <span className="text-sm font-medium">Logout</span>
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </div>
 
       {/* Mobile Search Bar (Expandable) */}
-      {showSearch && (
-        <div className="lg:hidden mb-4 animate-in slide-in-from-top duration-200" ref={mobileSearchRef}>
-          <div className="relative">
+      <AnimatePresence>
+        {showSearch && (
+          <motion.div 
+            className="lg:hidden mb-4" 
+            ref={mobileSearchRef}
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="relative">
             <input
               type="text"
               placeholder="Cari..."
@@ -363,11 +380,17 @@ export default function Header() {
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
       )}
+      </AnimatePresence>
 
       {/* Desktop Header - Original Layout */}
-      <div className="hidden lg:flex items-center justify-between mb-6 lg:mb-8 gap-4">
+      <motion.div 
+        className="hidden lg:flex items-center justify-between mb-6 lg:mb-8 gap-4"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
         <div className="flex-1 min-w-0">
           <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
             {pathname === '/dashboard' ? `Halo, ${userName ?? 'User'}` : getPageTitle()}
@@ -477,7 +500,7 @@ export default function Header() {
             )}
           </div>
         </div>
-      </div>
+      </motion.div>
     </>
   );
 }

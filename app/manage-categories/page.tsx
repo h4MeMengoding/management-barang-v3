@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
+import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
@@ -264,8 +265,17 @@ export default function ManageCategories() {
                   )}
                 </button>
 
+                <AnimatePresence>
                 {isFormOpen && (
-                  <form onSubmit={handleSubmit} className="space-y-5 mt-5 pt-5 border-t border-gray-100">
+                  <motion.form 
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: 'easeInOut' }}
+                    style={{ overflow: 'hidden' }}
+                    onSubmit={handleSubmit} 
+                    className="space-y-5 mt-5 pt-5 border-t border-gray-100"
+                  >
                     <div>
                       <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
                         Nama Kategori <span className="text-red-500">*</span>
@@ -325,8 +335,9 @@ export default function ManageCategories() {
                         </button>
                       )}
                     </div>
-                  </form>
+                  </motion.form>
                 )}
+                </AnimatePresence>
               </Card>
             </div>
           </div>
@@ -370,11 +381,28 @@ export default function ManageCategories() {
                   <p className="text-gray-500">Belum ada kategori. Tambahkan kategori pertama Anda!</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <motion.div 
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                  initial="hidden"
+                  animate="visible"
+                  variants={{
+                    visible: {
+                      transition: {
+                        staggerChildren: 0.08,
+                      },
+                    },
+                  }}
+                >
                   {categories.map((category) => (
-                    <div
+                    <motion.div
                       key={category.id}
                       className="relative"
+                      variants={{
+                        hidden: { opacity: 0, scale: 0.95 },
+                        visible: { opacity: 1, scale: 1 },
+                      }}
+                      transition={{ duration: 0.3 }}
+                      whileHover={{ y: -4 }}
                     >
                       <Link href={`/category/${category.id}`}>
                         <div className="p-4 rounded-lg border border-gray-100 hover:border-emerald-200 hover:shadow-md transition-all bg-white cursor-pointer">
@@ -390,15 +418,16 @@ export default function ManageCategories() {
                                     {category.description || 'Tidak ada deskripsi'}
                                   </p>
                                 </div>
-                                <button
+                                <motion.button
                                   onClick={(e) => {
                                     e.preventDefault();
                                     toggleActions(category.id);
                                   }}
                                   className="p-1 hover:bg-gray-100 rounded transition-colors flex-shrink-0 z-10"
+                                  whileTap={{ scale: 0.9 }}
                                 >
                                   <MoreVertical size={16} className="text-gray-600" />
-                                </button>
+                                </motion.button>
                               </div>
                               <div className="mt-3">
                                 <div className="flex items-center justify-between">
@@ -410,29 +439,37 @@ export default function ManageCategories() {
                           </div>
                         </div>
                       </Link>
-                      {activeCardId === category.id && (
-                        <div className="absolute left-0 right-0 top-full mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-3 z-10">
-                          <div className="flex items-center gap-2">
-                            <button 
-                              onClick={() => handleEdit(category)}
-                              className="flex-1 px-3 py-2 text-xs font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center gap-1"
-                            >
-                              <Edit2 size={14} />
-                              Edit
-                            </button>
-                            <button 
-                              onClick={() => handleDelete(category.id)}
-                              className="flex-1 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center gap-1"
-                            >
-                              <Trash2 size={14} />
-                              Hapus
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
+                      <AnimatePresence>
+                        {activeCardId === category.id && (
+                          <motion.div 
+                            className="absolute left-0 right-0 top-full mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-3 z-10"
+                            initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            <div className="flex items-center gap-2">
+                              <button 
+                                onClick={() => handleEdit(category)}
+                                className="flex-1 px-3 py-2 text-xs font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center gap-1"
+                              >
+                                <Edit2 size={14} />
+                                Edit
+                              </button>
+                              <button 
+                                onClick={() => handleDelete(category.id)}
+                                className="flex-1 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center gap-1"
+                              >
+                                <Trash2 size={14} />
+                                Hapus
+                              </button>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </motion.div>
                   ))}
-                </div>
+                </motion.div>
               )}
             </Card>
           </div>

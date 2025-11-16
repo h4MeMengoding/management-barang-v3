@@ -3,6 +3,7 @@
 import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
 import Card from '@/components/Card';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ScanLine, X } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
@@ -237,42 +238,70 @@ export default function ScanQRCode() {
         </div>
         
         {/* Loading Overlay when searching for locker */}
-        {isSearchingLocker && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center">
-            <div className="bg-white rounded-xl p-6 shadow-xl">
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 bg-emerald-600 rounded-full animate-bounce"></div>
-                <div className="w-2 h-2 bg-emerald-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                <div className="w-2 h-2 bg-emerald-600 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
-                <p className="text-gray-900 font-medium ml-2">Mencari loker...</p>
-              </div>
-            </div>
-          </div>
-        )}
+        <AnimatePresence>
+          {isSearchingLocker && (
+            <motion.div 
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <motion.div 
+                className="bg-white rounded-xl p-6 shadow-xl"
+                initial={{ scale: 0.9, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.9, y: 20 }}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 bg-emerald-600 rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-emerald-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                  <div className="w-2 h-2 bg-emerald-600 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                  <p className="text-gray-900 font-medium ml-2">Mencari loker...</p>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
         
         {/* Mobile View - Full Screen Scanner */}
         <div className="lg:hidden">
           {!isScanning && !scannedData && hasCamera && (
-            <div className="min-h-screen flex items-center justify-center p-4">
+            <motion.div 
+              className="min-h-screen flex items-center justify-center p-4"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3 }}
+            >
               <Card>
                 <div className="text-center">
-                  <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-4">
+                  <motion.div 
+                    className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-4"
+                    animate={{ scale: [1, 1.1, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
                     <ScanLine size={32} className="text-emerald-600" />
-                  </div>
+                  </motion.div>
                   <h2 className="text-xl font-bold text-gray-900 mb-2">Scan QR Code</h2>
                   <p className="text-gray-600 mb-4">Scan QR code loker untuk melihat informasi</p>
-                  <button
+                  <motion.button
                     onClick={startScanner}
                     className="px-6 py-2 bg-emerald-600 text-white rounded-lg font-medium"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                   >
                     Mulai Scan
-                  </button>
+                  </motion.button>
                 </div>
               </Card>
-            </div>
+            </motion.div>
           )}
           {isScanning ? (
-            <div className="fixed inset-0 z-50 flex flex-col bg-black">
+            <motion.div 
+              className="fixed inset-0 z-50 flex flex-col bg-black"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
               {/* Top Bar */}
               <div className="absolute top-0 left-0 right-0 p-4 flex items-center justify-between z-30 safe-area-top">
                 <button
@@ -326,7 +355,7 @@ export default function ScanQRCode() {
                   </button>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ) : scannedData ? (
             <div className="min-h-screen flex items-center justify-center p-4">
               <Card>
