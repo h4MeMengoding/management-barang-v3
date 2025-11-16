@@ -113,7 +113,7 @@ export default function CategoryDetail() {
   const handleEdit = () => {
     if (!category) return;
     // Redirect to manage categories page with edit mode
-    router.push('/manageCategories');
+    router.push('/manage-categories');
   };
 
   const handleDelete = async () => {
@@ -134,7 +134,7 @@ export default function CategoryDetail() {
       }
 
       alert('Kategori berhasil dihapus');
-      router.push('/manageCategories');
+      router.push('/manage-categories');
     } catch (err: any) {
       alert(err.message);
       console.error('Error deleting category:', err);
@@ -165,7 +165,7 @@ export default function CategoryDetail() {
             <div className="text-center py-12">
               <p className="text-red-600 mb-4">{error || 'Kategori tidak ditemukan'}</p>
               <button
-                onClick={() => router.push('/manageCategories')}
+                onClick={() => router.push('/manage-categories')}
                 className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
               >
                 Kembali ke Daftar Kategori

@@ -55,9 +55,20 @@ export default function LockerDetail() {
     name: '',
     categoryInput: '',
     categoryId: '',
-    quantity: 0,
+    quantity: 1,
     description: ''
   });
+
+  // Parse item names from comma-separated input
+  const parsedItemNames = formData.name
+    .split(',')
+    .map(n => n.trim())
+    .filter(n => n.length > 0);
+  
+  const isMultipleItems = parsedItemNames.length > 1;
+
+  // Individual quantities for each item (when multiple items)
+  const [itemQuantities, setItemQuantities] = useState<Record<string, number>>({});
   const [categories, setCategories] = useState<Category[]>([]);
   const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
@@ -190,7 +201,7 @@ export default function LockerDetail() {
       }
 
       alert('Loker berhasil dihapus');
-      router.push('/addLocker');
+      router.push('/manage-locker');
     } catch (err: any) {
       alert(err.message);
       console.error('Error deleting locker:', err);
@@ -286,6 +297,26 @@ export default function LockerDetail() {
     }
   };
 
+  const handleIndividualQuantityChange = (itemName: string, value: number) => {
+    if (value >= 0) {
+      setItemQuantities(prev => ({ ...prev, [itemName]: value }));
+    }
+  };
+
+  const incrementIndividualQuantity = (itemName: string) => {
+    setItemQuantities(prev => ({ ...prev, [itemName]: (prev[itemName] || 0) + 1 }));
+  };
+
+  const decrementIndividualQuantity = (itemName: string) => {
+    setItemQuantities(prev => {
+      const current = prev[itemName] || 0;
+      if (current > 0) {
+        return { ...prev, [itemName]: current - 1 };
+      }
+      return prev;
+    });
+  };
+
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError('');
@@ -305,33 +336,63 @@ export default function LockerDetail() {
     try {
       setIsSubmitting(true);
 
-      const response = await fetch('/api/items', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: formData.name,
-          categoryId: formData.categoryId,
-          quantity: formData.quantity,
-          lockerId: lockerId,
-          description: formData.description || null,
-          userId: user.id,
-        }),
-      });
+      // Support batch creation for multiple items
+      if (isMultipleItems) {
+        const createPromises = parsedItemNames.map(itemName => {
+          const quantity = itemQuantities[itemName] || 0;
+          return fetch('/api/items', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: itemName,
+              categoryId: formData.categoryId,
+              quantity: quantity,
+              lockerId: lockerId,
+              description: formData.description || null,
+              userId: user.id,
+            }),
+          });
+        });
 
-      const data = await response.json();
+        const responses = await Promise.all(createPromises);
+        const failedItems = responses.filter(r => !r.ok);
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Gagal menambahkan barang');
+        if (failedItems.length > 0) {
+          throw new Error(`Gagal menambahkan ${failedItems.length} dari ${parsedItemNames.length} barang`);
+        }
+
+        setFormSuccess(`${parsedItemNames.length} barang berhasil ditambahkan!`);
+      } else {
+        // Single item creation
+        const response = await fetch('/api/items', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: formData.name,
+            categoryId: formData.categoryId,
+            quantity: formData.quantity,
+            lockerId: lockerId,
+            description: formData.description || null,
+            userId: user.id,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Gagal menambahkan barang');
+        }
+
+        setFormSuccess('Barang berhasil ditambahkan!');
       }
-
-      setFormSuccess('Barang berhasil ditambahkan!');
       setFormData({
         name: '',
         categoryInput: '',
         categoryId: '',
-        quantity: 0,
+        quantity: 1,
         description: ''
       });
+      setItemQuantities({});
       
       await loadItems();
 
@@ -382,7 +443,7 @@ export default function LockerDetail() {
             <div className="text-center py-12">
               <p className="text-red-600 mb-4">{error || 'Loker tidak ditemukan'}</p>
               <button
-                onClick={() => router.push('/addLocker')}
+                onClick={() => router.push('/manage-locker')}
                 className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
               >
                 Kembali ke Daftar Loker
@@ -555,8 +616,16 @@ export default function LockerDetail() {
                             onChange={handleFormChange}
                             required
                             className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm placeholder:text-gray-400 text-gray-900"
-                            placeholder="Masukkan nama barang"
+                            placeholder="Masukkan nama barang (wajib)"
                           />
+                          <p className="mt-1.5 text-xs text-gray-500">
+                            💡 <span className="font-medium">Tips:</span> Pisahkan dengan koma (,) untuk menambahkan beberapa barang sekaligus
+                          </p>
+                          {isMultipleItems && (
+                            <p className="mt-1 text-xs text-emerald-600 font-medium">
+                              ✓ Terdeteksi {parsedItemNames.length} barang. Isi jumlah untuk setiap barang di bawah.
+                            </p>
+                          )}
                         </div>
 
                         {/* Category Dropdown */}
@@ -615,37 +684,76 @@ export default function LockerDetail() {
                           )}
                         </div>
 
-                        {/* Quantity Input */}
-                        <div>
-                          <label className="block text-sm font-semibold text-gray-700 mb-2">
-                            Jumlah Barang <span className="text-red-500">*</span>
-                          </label>
-                          <div className="flex items-center gap-3">
-                            <button
-                              type="button"
-                              onClick={decrementQuantity}
-                              className="w-10 h-10 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
-                            >
-                              <Minus size={18} className="text-gray-700" />
-                            </button>
-                            <input
-                              type="number"
-                              name="quantity"
-                              value={formData.quantity}
-                              onChange={handleQuantityChange}
-                              min="0"
-                              required
-                              className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm text-center font-semibold text-gray-900"
-                            />
-                            <button
-                              type="button"
-                              onClick={incrementQuantity}
-                              className="w-10 h-10 flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors"
-                            >
-                              <Plus size={18} />
-                            </button>
+                        {/* Quantity Input - Conditional based on single vs multiple items */}
+                        {isMultipleItems ? (
+                          <div className="space-y-3">
+                            <label className="block text-sm font-semibold text-gray-700">
+                              Jumlah Barang <span className="text-red-500">*</span>
+                            </label>
+                            {parsedItemNames.map((itemName, index) => (
+                              <div key={index}>
+                                <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                                  {itemName}
+                                </label>
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => decrementIndividualQuantity(itemName)}
+                                    className="w-10 h-10 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                                  >
+                                    <Minus size={18} className="text-gray-700" />
+                                  </button>
+                                  <input
+                                    type="number"
+                                    value={itemQuantities[itemName] || 0}
+                                    onChange={(e) => handleIndividualQuantityChange(itemName, parseInt(e.target.value) || 0)}
+                                    required
+                                    min="0"
+                                    className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm text-center font-semibold text-gray-900"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => incrementIndividualQuantity(itemName)}
+                                    className="w-10 h-10 flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors"
+                                  >
+                                    <Plus size={18} />
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
                           </div>
-                        </div>
+                        ) : (
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                              Jumlah Barang <span className="text-red-500">*</span>
+                            </label>
+                            <div className="flex items-center gap-3">
+                              <button
+                                type="button"
+                                onClick={decrementQuantity}
+                                className="w-10 h-10 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                              >
+                                <Minus size={18} className="text-gray-700" />
+                              </button>
+                              <input
+                                type="number"
+                                name="quantity"
+                                value={formData.quantity}
+                                onChange={handleQuantityChange}
+                                min="0"
+                                required
+                                className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm text-center font-semibold text-gray-900"
+                              />
+                              <button
+                                type="button"
+                                onClick={incrementQuantity}
+                                className="w-10 h-10 flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors"
+                              >
+                                <Plus size={18} />
+                              </button>
+                            </div>
+                          </div>
+                        )}
 
                         {/* Description */}
                         <div>
@@ -658,7 +766,7 @@ export default function LockerDetail() {
                             onChange={handleFormChange}
                             rows={3}
                             className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm resize-none placeholder:text-gray-400 text-gray-900"
-                            placeholder="Masukkan deskripsi barang"
+                            placeholder="Masukkan deskripsi barang (opsional)"
                           />
                         </div>
 

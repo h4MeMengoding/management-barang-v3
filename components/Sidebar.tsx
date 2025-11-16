@@ -35,27 +35,27 @@ export default function Sidebar() {
     },
     {
       icon: <PlusSquare size={20} />,
-      href: '/addLocker',
+      href: '/manage-locker',
       label: 'Kelola Loker'
     },
     {
       icon: <Package size={20} />,
-      href: '/addItem',
+      href: '/manage-items',
       label: 'Kelola Barang'
     },
     {
       icon: <FolderTree size={20} />,
-      href: '/manageCategories',
+      href: '/manage-categories',
       label: 'Kelola Kategori'
     },
     {
       icon: <QrCode size={20} />,
-      href: '/manageQRCode',
+      href: '/scan-qr',
       label: 'Kelola QR Code'
     },
     {
       icon: <ScanLine size={20} />,
-      href: '/scanQRCode',
+      href: '/scan-qr',
       label: 'Scan QR Code'
     }
   ];
@@ -216,10 +216,10 @@ export default function Sidebar() {
             
             {/* Center QR Scanner Button (Elevated) */}
             <Link
-              href="/scanQRCode"
+              href="/scan-qr"
               onClick={() => NProgress.start()}
               className={`p-3.5 rounded-full transition-all shadow-lg -mt-8 ${
-                pathname === '/scanQRCode'
+                pathname === '/scan-qr'
                   ? 'bg-emerald-600 text-white scale-110'
                   : 'bg-emerald-500 text-white hover:bg-emerald-600'
               }`}

@@ -41,7 +41,7 @@ export default function AddItem() {
     name: '',
     categoryInput: '',
     categoryId: '',
-    quantity: 0,
+    quantity: 1,
     lockerId: '',
     lockerName: '',
     description: ''
@@ -64,6 +64,17 @@ export default function AddItem() {
   const [editingItem, setEditingItem] = useState<Item | null>(null);
   const categoryDropdownRef = useRef<HTMLDivElement>(null);
   const lockerDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Parse item names from comma-separated input
+  const parsedItemNames = formData.name
+    .split(',')
+    .map(n => n.trim())
+    .filter(n => n.length > 0);
+  
+  const isMultipleItems = parsedItemNames.length > 1;
+
+  // Individual quantities for each item (when multiple items)
+  const [itemQuantities, setItemQuantities] = useState<Record<string, number>>({});
 
   useEffect(() => {
     // Collapse the form by default on mobile (width < 1024px)
@@ -239,6 +250,26 @@ export default function AddItem() {
     }
   };
 
+  const handleIndividualQuantityChange = (itemName: string, value: number) => {
+    if (value >= 0) {
+      setItemQuantities(prev => ({ ...prev, [itemName]: value }));
+    }
+  };
+
+  const incrementIndividualQuantity = (itemName: string) => {
+    setItemQuantities(prev => ({ ...prev, [itemName]: (prev[itemName] || 0) + 1 }));
+  };
+
+  const decrementIndividualQuantity = (itemName: string) => {
+    setItemQuantities(prev => {
+      const current = prev[itemName] || 0;
+      if (current > 0) {
+        return { ...prev, [itemName]: current - 1 };
+      }
+      return prev;
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -259,7 +290,7 @@ export default function AddItem() {
       setIsLoading(true);
 
       if (editingItem) {
-        // Update existing item
+        // Update existing item (no batch support for edit)
         const response = await fetch(`/api/items?id=${editingItem.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -282,38 +313,68 @@ export default function AddItem() {
         setSuccess('Barang berhasil diupdate!');
         setEditingItem(null);
       } else {
-        // Create new item
-        const response = await fetch('/api/items', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: formData.name,
-            categoryId: formData.categoryId,
-            quantity: formData.quantity,
-            lockerId: formData.lockerId,
-            description: formData.description || null,
-            userId: user.id,
-          }),
-        });
+        // Create new item(s) - support batch creation
+        if (isMultipleItems) {
+          // Batch creation for multiple items
+          const createPromises = parsedItemNames.map(itemName => {
+            const quantity = itemQuantities[itemName] || 0;
+            return fetch('/api/items', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                name: itemName,
+                categoryId: formData.categoryId,
+                quantity: quantity,
+                lockerId: formData.lockerId,
+                description: formData.description || null,
+                userId: user.id,
+              }),
+            });
+          });
 
-        const data = await response.json();
+          const responses = await Promise.all(createPromises);
+          const failedItems = responses.filter(r => !r.ok);
 
-        if (!response.ok) {
-          throw new Error(data.error || 'Gagal menambahkan barang');
+          if (failedItems.length > 0) {
+            throw new Error(`Gagal menambahkan ${failedItems.length} dari ${parsedItemNames.length} barang`);
+          }
+
+          setSuccess(`${parsedItemNames.length} barang berhasil ditambahkan!`);
+        } else {
+          // Single item creation
+          const response = await fetch('/api/items', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: formData.name,
+              categoryId: formData.categoryId,
+              quantity: formData.quantity,
+              lockerId: formData.lockerId,
+              description: formData.description || null,
+              userId: user.id,
+            }),
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            throw new Error(data.error || 'Gagal menambahkan barang');
+          }
+
+          setSuccess('Barang berhasil ditambahkan!');
         }
-
-        setSuccess('Barang berhasil ditambahkan!');
       }
 
       setFormData({
         name: '',
         categoryInput: '',
         categoryId: '',
-        quantity: 0,
+        quantity: 1,
         lockerId: '',
         lockerName: '',
         description: ''
       });
+      setItemQuantities({});
       setIsFormOpen(false);
       await loadData();
 
@@ -352,7 +413,7 @@ export default function AddItem() {
       name: '',
       categoryInput: '',
       categoryId: '',
-      quantity: 0,
+      quantity: 1,
       lockerId: '',
       lockerName: '',
       description: ''
@@ -473,9 +534,19 @@ export default function AddItem() {
                         value={formData.name}
                         onChange={handleChange}
                         required
-                        placeholder="Contoh: Laptop Dell XPS"
+                        placeholder="Nama barang (wajib)"
                         className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors text-sm"
                       />
+                      {!editingItem && (
+                        <p className="mt-1.5 text-xs text-gray-500">
+                          💡 <span className="font-medium">Tips:</span> Pisahkan dengan koma (,) untuk menambahkan beberapa barang sekaligus
+                        </p>
+                      )}
+                      {isMultipleItems && !editingItem && (
+                        <p className="mt-1.5 text-xs text-emerald-600 font-medium">
+                          ✓ Terdeteksi {parsedItemNames.length} barang. Isi jumlah untuk setiap barang di bawah.
+                        </p>
+                      )}
                     </div>
 
                     <div className="relative" ref={categoryDropdownRef}>
@@ -563,37 +634,77 @@ export default function AddItem() {
                       )}
                     </div>
 
-                    <div>
-                      <label htmlFor="quantity" className="block text-sm font-semibold text-gray-700 mb-2">
-                        Jumlah Barang <span className="text-red-500">*</span>
-                      </label>
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={decrementQuantity}
-                          className="w-10 h-10 flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors"
-                        >
-                          <Minus size={18} className="text-gray-700" />
-                        </button>
-                        <input
-                          type="number"
-                          id="quantity"
-                          name="quantity"
-                          value={formData.quantity}
-                          onChange={handleQuantityChange}
-                          required
-                          min="0"
-                          className="flex-1 px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 text-center font-semibold focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors text-sm"
-                        />
-                        <button
-                          type="button"
-                          onClick={incrementQuantity}
-                          className="w-10 h-10 flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors"
-                        >
-                          <Plus size={18} className="text-white" />
-                        </button>
+                    {/* Quantity Input - Conditional based on single vs multiple items */}
+                    {!editingItem && isMultipleItems ? (
+                      <div className="space-y-3">
+                        <label className="block text-sm font-semibold text-gray-700">
+                          Jumlah Barang <span className="text-red-500">*</span>
+                        </label>
+                        {parsedItemNames.map((itemName, index) => (
+                          <div key={index}>
+                            <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                              {itemName}
+                            </label>
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => decrementIndividualQuantity(itemName)}
+                                className="w-10 h-10 flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors"
+                              >
+                                <Minus size={18} className="text-gray-700" />
+                              </button>
+                              <input
+                                type="number"
+                                value={itemQuantities[itemName] || 0}
+                                onChange={(e) => handleIndividualQuantityChange(itemName, parseInt(e.target.value) || 0)}
+                                required
+                                min="0"
+                                className="flex-1 px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 text-center font-semibold focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors text-sm"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => incrementIndividualQuantity(itemName)}
+                                className="w-10 h-10 flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors"
+                              >
+                                <Plus size={18} className="text-white" />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    </div>
+                    ) : (
+                      <div>
+                        <label htmlFor="quantity" className="block text-sm font-semibold text-gray-700 mb-2">
+                          Jumlah Barang <span className="text-red-500">*</span>
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={decrementQuantity}
+                            className="w-10 h-10 flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors"
+                          >
+                            <Minus size={18} className="text-gray-700" />
+                          </button>
+                          <input
+                            type="number"
+                            id="quantity"
+                            name="quantity"
+                            value={formData.quantity}
+                            onChange={handleQuantityChange}
+                            required
+                            min="0"
+                            className="flex-1 px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 text-center font-semibold focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors text-sm"
+                          />
+                          <button
+                            type="button"
+                            onClick={incrementQuantity}
+                            className="w-10 h-10 flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors"
+                          >
+                            <Plus size={18} className="text-white" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
 
                     <div className="relative" ref={lockerDropdownRef}>
                       <label htmlFor="lockerId" className="block text-sm font-semibold text-gray-700 mb-2">

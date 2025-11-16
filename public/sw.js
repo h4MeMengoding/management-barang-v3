@@ -30,7 +30,7 @@ if (workbox) {
 const CRITICAL_PAGES = [
   '/',
   '/dashboard',
-  '/addItem',
+  '/manage-items',
   '/offline.html'
 ];
 

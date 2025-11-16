@@ -151,15 +151,13 @@ export default function Header() {
     switch (pathname) {
       case '/dashboard':
         return 'Dashboard';
-      case '/addLocker':
+      case '/manage-locker':
         return 'Kelola Loker';
-      case '/addItem':
+      case '/manage-items':
         return 'Kelola Barang';
-      case '/manageCategories':
+      case '/manage-categories':
         return 'Kelola Kategori';
-      case '/manageQRCode':
-        return 'Kelola QR Code';
-      case '/scanQRCode':
+      case '/scan-qr':
         return 'Scan QR Code';
       default:
         if (pathname.startsWith('/locker/')) {
@@ -177,15 +175,13 @@ export default function Header() {
     switch (pathname) {
       case '/dashboard':
         return 'Explore information and activity about your property';
-      case '/addLocker':
+      case '/manage-locker':
         return 'Kelola dan tambahkan loker penyimpanan baru';
-      case '/addItem':
+      case '/manage-items':
         return 'Kelola dan tambahkan barang ke dalam loker';
-      case '/manageCategories':
+      case '/manage-categories':
         return 'Kelola kategori barang';
-      case '/manageQRCode':
-        return 'Kelola QR Code untuk loker';
-      case '/scanQRCode':
+      case '/scan-qr':
         return 'Scan QR Code untuk mengakses loker';
       default:
         if (pathname.startsWith('/locker/')) {
