@@ -241,8 +241,10 @@ export default function ScanQRCode() {
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center">
             <div className="bg-white rounded-xl p-6 shadow-xl">
               <div className="flex items-center gap-3">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
-                <p className="text-gray-900 font-medium">Mencari loker...</p>
+                <div className="w-2 h-2 bg-emerald-600 rounded-full animate-bounce"></div>
+                <div className="w-2 h-2 bg-emerald-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                <div className="w-2 h-2 bg-emerald-600 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                <p className="text-gray-900 font-medium ml-2">Mencari loker...</p>
               </div>
             </div>
           </div>

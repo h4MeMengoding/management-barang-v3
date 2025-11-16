@@ -6,6 +6,8 @@ import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
 import Card from '@/components/Card';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import LockerDetailSkeleton from '@/components/LockerDetailSkeleton';
+import ItemsListSkeleton from '@/components/ItemsListSkeleton';
 import { getCurrentUser } from '@/lib/auth';
 import { Package, Edit2, Trash2, Download, ArrowLeft, QrCode } from 'lucide-react';
 
@@ -148,9 +150,7 @@ export default function LockerDetail() {
           <Sidebar />
           <main className="w-full px-4 pt-4 pb-20 md:px-6 md:py-6 lg:px-8 lg:pb-8">
             <Header />
-            <div className="flex items-center justify-center h-96">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
-            </div>
+            <LockerDetailSkeleton />
           </main>
         </div>
       </ProtectedRoute>
@@ -289,9 +289,7 @@ export default function LockerDetail() {
               </div>
 
               {isLoadingItems ? (
-                <div className="flex items-center justify-center py-12">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
-                </div>
+                <ItemsListSkeleton />
               ) : items.length === 0 ? (
                 <div className="text-center py-12 text-gray-500">
                   <Package size={48} className="mx-auto mb-3 text-gray-300" />
