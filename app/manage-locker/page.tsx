@@ -53,7 +53,7 @@ export default function AddLocker() {
     }
 
     loadLockers();
-    generateCode(); // Auto generate code on mount
+    // Do not auto-generate code on mount anymore; user will input code manually.
   }, []);
 
   const loadLockers = async () => {
@@ -103,6 +103,44 @@ export default function AddLocker() {
         return;
       }
 
+      // Validate code format
+      const code = formData.code?.trim().toUpperCase();
+      const isValidFormat = /^[A-Z]\d{3}$/.test(code);
+      if (!isValidFormat) {
+        setError('Format kode tidak valid. Gunakan 1 huruf diikuti 3 angka, contoh: A001');
+        setIsLoading(false);
+        return;
+      }
+
+      // If availability hasn't been checked yet (null), check now
+      if (codeStatus.available === null) {
+        try {
+          const res = await fetch(`/api/lockers?code=${encodeURIComponent(code)}`);
+          if (res.ok) {
+            setError('Kode sudah digunakan, silakan ganti');
+            setIsLoading(false);
+            return;
+          } else if (res.status === 404) {
+            // available -> continue
+          } else {
+            const d = await res.json().catch(() => ({}));
+            setError(d?.error || 'Gagal memeriksa kode');
+            setIsLoading(false);
+            return;
+          }
+        } catch (err) {
+          setError('Gagal memeriksa kode');
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      if (codeStatus.available === false) {
+        setError('Kode sudah digunakan, silakan ganti');
+        setIsLoading(false);
+        return;
+      }
+
       const response = await fetch('/api/lockers', {
         method: 'POST',
         headers: {
@@ -110,7 +148,7 @@ export default function AddLocker() {
         },
         body: JSON.stringify({
           name: formData.name,
-          code: formData.code,
+          code,
           description: formData.description,
           userId: user.id,
         }),
@@ -150,10 +188,70 @@ export default function AddLocker() {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+
+    // If editing code, normalize to uppercase and run validation/check when appropriate
+    if (name === 'code') {
+      // Normalize and filter input per-position:
+      // - 1st character: letter A-Z only
+      // - next 3 characters: digits only
+      // - max length: 4
+      const raw = value.toUpperCase();
+      let filtered = '';
+      for (let i = 0; i < raw.length && filtered.length < 4; i++) {
+        const ch = raw[i];
+        if (filtered.length === 0) {
+          if (/^[A-Z]$/.test(ch)) filtered += ch;
+        } else {
+          if (/^\d$/.test(ch)) filtered += ch;
+        }
+      }
+
+      setFormData({ ...formData, code: filtered });
+
+      // Validate and check when exactly 4 chars
+      const isValidFormat = /^[A-Z]\d{3}$/.test(filtered);
+      if (filtered.length === 4) {
+        checkCodeAvailability(filtered, isValidFormat);
+      } else {
+        setCodeStatus({ checking: false, available: null, message: '' });
+      }
+
+      return;
+    }
+
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: value
     });
+  };
+
+  // Code availability state
+  const [codeStatus, setCodeStatus] = useState<{ checking: boolean; available: boolean | null; message: string }>({ checking: false, available: null, message: '' });
+
+  const checkCodeAvailability = async (code: string, isValidFormat?: boolean) => {
+    if (!isValidFormat) {
+      setCodeStatus({ checking: false, available: null, message: 'Format kode tidak valid (contoh: A001)' });
+      return;
+    }
+
+    setCodeStatus({ checking: true, available: null, message: '' });
+    try {
+      const res = await fetch(`/api/lockers?code=${encodeURIComponent(code)}`);
+
+      if (res.ok) {
+        // Found locker with same code -> taken
+        setCodeStatus({ checking: false, available: false, message: 'Kode sudah digunakan, silakan ganti' });
+      } else if (res.status === 404) {
+        // Not found -> available
+        setCodeStatus({ checking: false, available: true, message: 'Kode tersedia' });
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setCodeStatus({ checking: false, available: null, message: data?.error || 'Gagal memeriksa kode' });
+      }
+    } catch (err) {
+      setCodeStatus({ checking: false, available: null, message: 'Gagal memeriksa kode' });
+    }
   };
 
   return (
@@ -243,8 +341,7 @@ export default function AddLocker() {
                             placeholder="A123"
                             required
                             disabled={isLoading}
-                            readOnly
-                            className="flex-1 px-4 py-3 rounded-lg border border-gray-300 bg-gray-50 text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors text-sm font-mono disabled:cursor-not-allowed"
+                            className="flex-1 px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors text-sm font-mono disabled:cursor-not-allowed"
                           />
                           <button
                             type="button"
@@ -256,7 +353,15 @@ export default function AddLocker() {
                             <RefreshCw size={18} className={isGeneratingCode ? 'animate-spin' : ''} />
                           </button>
                         </div>
-                        <p className="text-xs text-gray-500 mt-1">Kode otomatis di-generate (format: 1 huruf + 3 angka)</p>
+                        <p className="text-xs text-gray-500 mt-1">Masukkan kode (format: 1 huruf + 3 angka, contoh: A001). Bisa juga generate menggunakan tombol.</p>
+                        <div className="mt-2">
+                          {codeStatus.checking && (
+                            <p className="text-xs text-gray-500">Memeriksa kode...</p>
+                          )}
+                          {!codeStatus.checking && codeStatus.message && (
+                            <p className={`text-xs ${codeStatus.available === true ? 'text-emerald-600' : codeStatus.available === false ? 'text-red-600' : 'text-gray-500'}`}>{codeStatus.message}</p>
+                          )}
+                        </div>
                       </div>
 
                       <div>
