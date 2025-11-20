@@ -24,6 +24,11 @@ COPY . .
 # Set dummy environment variables for build time prisma generate
 ENV DIRECT_URL="postgresql://dummy:dummy@localhost:5432/dummy"
 ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
+
+# Set dummy environment variables for build time (Supabase)
+ENV NEXT_PUBLIC_SUPABASE_URL="https://dummy.supabase.co"
+ENV NEXT_PUBLIC_SUPABASE_ANON_KEY="dummy-key"
+
 RUN npx prisma generate
 
 # Next.js collects completely anonymous telemetry data about general usage.
