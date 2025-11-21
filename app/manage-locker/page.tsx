@@ -162,9 +162,9 @@ export default function AddLocker() {
 
       setSuccess('Locker berhasil dibuat!');
       
-      // Reset form dan generate code baru
+      // Reset form (tanpa generate code otomatis)
       setFormData({ name: '', code: '', description: '' });
-      await generateCode();
+      setCodeStatus({ checking: false, available: null, message: '' });
       
       // Reload lockers
       await loadLockers();
@@ -175,9 +175,8 @@ export default function AddLocker() {
         queryClient.invalidateQueries({ queryKey: queryKeys.stats(user.id) });
       }
       
-      // Collapse form
+      // Clear success message setelah 2 detik (tanpa collapse form)
       setTimeout(() => {
-        setIsFormOpen(false);
         setSuccess('');
       }, 2000);
     } catch (err) {
@@ -435,6 +434,7 @@ export default function AddLocker() {
                 </div>
               ) : (
                 <motion.div 
+                  key={`lockers-${lockers.length}`}
                   className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
                   initial="hidden"
                   animate="visible"
@@ -446,7 +446,7 @@ export default function AddLocker() {
                     },
                   }}
                 >
-                  {lockers.map((locker) => (
+                  {lockers.map((locker, index) => (
                     <motion.div
                       key={locker.id}
                       variants={{
@@ -455,6 +455,8 @@ export default function AddLocker() {
                       }}
                       transition={{ duration: 0.3 }}
                       whileHover={{ y: -4 }}
+                      initial="hidden"
+                      animate="visible"
                     >
                       <LockerCard
                         id={locker.id}
