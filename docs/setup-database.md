@@ -256,90 +256,57 @@ npx prisma db seed
 2. Pilih project Anda
 3. Klik **Storage** di sidebar
 
-### B. Buat Storage Buckets
+### B. Buat Storage Bucket
 
-#### Bucket 1: `qr-codes`
-
-1. Klik **New bucket**
-2. Isi form:
-   - **Name:** `qr-codes`
-   - **Public bucket:** ✅ (centang)
-   - **File size limit:** 1 MB
-   - **Allowed MIME types:** `image/png, image/jpeg`
-3. Klik **Create bucket**
-
-#### Bucket 2: `profile-images`
+#### Bucket: `image`
 
 1. Klik **New bucket**
 2. Isi form:
-   - **Name:** `profile-images`
+   - **Name:** `image`
    - **Public bucket:** ✅ (centang)
    - **File size limit:** 2 MB
-   - **Allowed MIME types:** `image/png, image/jpeg, image/jpg`
+   - **Allowed MIME types:** `image/jpeg, image/jpg, image/png, image/webp`
 3. Klik **Create bucket**
+
+> **Catatan:** Aplikasi ini menggunakan satu bucket `image` dengan struktur folder:
+> - `public/profile-picture/` - untuk menyimpan foto profil user
 
 ### C. Set Storage Policies
 
-#### Policies untuk `qr-codes`:
+#### Policies untuk bucket `image`:
 
-Masuk ke **Storage > qr-codes > Policies**, lalu tambahkan:
+Masuk ke **Storage > image > Policies**, lalu tambahkan:
 
-**Policy 1: Upload QR Codes**
+**Policy 1: Upload Images**
 ```sql
-CREATE POLICY "Users can upload QR codes"
+CREATE POLICY "Authenticated users can upload images"
 ON storage.objects FOR INSERT
 TO authenticated
-WITH CHECK (bucket_id = 'qr-codes');
+WITH CHECK (bucket_id = 'image');
 ```
 
-**Policy 2: Read QR Codes**
+**Policy 2: Read Images**
 ```sql
-CREATE POLICY "QR codes are publicly accessible"
+CREATE POLICY "Images are publicly accessible"
 ON storage.objects FOR SELECT
 TO public
-USING (bucket_id = 'qr-codes');
+USING (bucket_id = 'image');
 ```
 
-**Policy 3: Delete QR Codes**
+**Policy 3: Update Images**
 ```sql
-CREATE POLICY "Users can delete their QR codes"
-ON storage.objects FOR DELETE
-TO authenticated
-USING (bucket_id = 'qr-codes');
-```
-
-#### Policies untuk `profile-images`:
-
-**Policy 1: Upload Profile Images**
-```sql
-CREATE POLICY "Users can upload profile images"
-ON storage.objects FOR INSERT
-TO authenticated
-WITH CHECK (bucket_id = 'profile-images');
-```
-
-**Policy 2: Read Profile Images**
-```sql
-CREATE POLICY "Profile images are publicly accessible"
-ON storage.objects FOR SELECT
-TO public
-USING (bucket_id = 'profile-images');
-```
-
-**Policy 3: Update Profile Images**
-```sql
-CREATE POLICY "Users can update their profile images"
+CREATE POLICY "Authenticated users can update images"
 ON storage.objects FOR UPDATE
 TO authenticated
-USING (bucket_id = 'profile-images');
+USING (bucket_id = 'image');
 ```
 
-**Policy 4: Delete Profile Images**
+**Policy 4: Delete Images**
 ```sql
-CREATE POLICY "Users can delete their profile images"
+CREATE POLICY "Authenticated users can delete images"
 ON storage.objects FOR DELETE
 TO authenticated
-USING (bucket_id = 'profile-images');
+USING (bucket_id = 'image');
 ```
 
 ---
