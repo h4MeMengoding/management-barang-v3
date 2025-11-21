@@ -7,7 +7,7 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import Sidebar from '@/components/Sidebar';
 import { getCurrentUser, saveUserSession } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
-import { uploadProfilePicture, getProfilePictureUrl } from '@/lib/supabase-storage';
+import { getProfilePictureUrl } from '@/lib/supabase-storage';
 
 export default function ProfileSettings() {
   const router = useRouter();
@@ -83,40 +83,30 @@ export default function ProfileSettings() {
     setSuccess('');
 
     try {
-      // Upload to Supabase Storage
-      const { url, error: uploadError } = await uploadProfilePicture(file, user.id);
+      // Upload to API route (which uses service role key)
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('userId', user.id);
 
-      if (uploadError) {
-        setError(uploadError);
-        return;
-      }
-
-      // Update profile picture URL in database
-      const response = await fetch('/api/auth/profile', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId: user.id,
-          profilePicture: url,
-        }),
+      const response = await fetch('/api/upload/profile-picture', {
+        method: 'POST',
+        body: formData,
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Gagal memperbarui foto profil');
+        throw new Error(data.error || 'Gagal upload foto profil');
       }
 
-      // Update session first
+      // Update session with new user data
       saveUserSession(data.user);
       
-      // Then update local state
-      setProfileImage(url);
+      // Update local state
+      setProfileImage(data.url);
       
       // Broadcast event to update other components (like Sidebar)
-      window.dispatchEvent(new CustomEvent('profilePictureUpdated', { detail: url }));
+      window.dispatchEvent(new CustomEvent('profilePictureUpdated', { detail: data.url }));
       
       setSuccess('Foto profil berhasil diperbarui!');
       

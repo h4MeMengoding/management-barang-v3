@@ -9,9 +9,12 @@ export interface User {
   updatedAt: string;
 }
 
-export const saveUserSession = (user: User): void => {
+export const saveUserSession = (user: User, token?: string): void => {
   if (typeof window !== 'undefined') {
     localStorage.setItem('user', JSON.stringify(user));
+    if (token) {
+      localStorage.setItem('token', token);
+    }
   }
 };
 
@@ -23,9 +26,17 @@ export const getUserSession = (): User | null => {
   return null;
 };
 
+export const getAuthToken = (): string | null => {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('token');
+  }
+  return null;
+};
+
 export const clearUserSession = (): void => {
   if (typeof window !== 'undefined') {
     localStorage.removeItem('user');
+    localStorage.removeItem('token');
   }
 };
 

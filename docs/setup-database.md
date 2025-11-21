@@ -40,12 +40,19 @@ DIRECT_URL="postgresql://postgres.xxx:password@aws-1-ap-southeast-1.pooler.supab
 # Supabase
 NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Catatan:**
 - `DATABASE_URL` menggunakan port `6543` dengan pgbouncer (untuk pooling)
 - `DIRECT_URL` menggunakan port `5432` (koneksi langsung)
+- `SUPABASE_SERVICE_ROLE_KEY` diperlukan untuk upload file dari server-side
 - Ganti `xxx` dan `password` dengan credential Anda
+
+**Cara mendapatkan Service Role Key:**
+1. Buka Supabase Dashboard → Project Settings → API
+2. Copy **service_role key** (bukan anon key!)
+3. ⚠️ **PENTING:** Jangan expose key ini di client-side!
 
 ---
 

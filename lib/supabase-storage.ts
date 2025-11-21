@@ -4,20 +4,38 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-export const supabaseStorage = createClient(supabaseUrl, supabaseAnonKey);
-
 const BUCKET_NAME = 'image';
 const PROFILE_FOLDER = 'public/profile-picture';
+
+/**
+ * Get authenticated Supabase client with user session
+ * This function should be called from client-side with user's auth token
+ */
+function getAuthenticatedClient(accessToken?: string) {
+  const client = createClient(supabaseUrl, supabaseAnonKey);
+  
+  if (accessToken) {
+    // Set auth header with access token
+    client.auth.setSession({
+      access_token: accessToken,
+      refresh_token: ''
+    } as any);
+  }
+  
+  return client;
+}
 
 /**
  * Upload profile picture to Supabase Storage
  * @param file - File object to upload
  * @param userId - User ID for unique filename
+ * @param accessToken - Optional access token for authentication
  * @returns Public URL of uploaded image
  */
 export async function uploadProfilePicture(
   file: File,
-  userId: string
+  userId: string,
+  accessToken?: string
 ): Promise<{ url: string; error?: string }> {
   try {
     // Validate file type
@@ -38,11 +56,14 @@ export async function uploadProfilePicture(
     const fileName = `${userId}-${timestamp}.${fileExt}`;
     const filePath = `${PROFILE_FOLDER}/${fileName}`;
 
+    // Get authenticated client
+    const supabaseClient = getAuthenticatedClient(accessToken);
+
     // Delete old profile picture if exists
-    await deleteOldProfilePicture(userId);
+    await deleteOldProfilePicture(userId, accessToken);
 
     // Upload file to Supabase Storage
-    const { data, error } = await supabaseStorage.storage
+    const { data, error } = await supabaseClient.storage
       .from(BUCKET_NAME)
       .upload(filePath, file, {
         cacheControl: '3600',
@@ -55,7 +76,7 @@ export async function uploadProfilePicture(
     }
 
     // Get public URL
-    const { data: publicUrlData } = supabaseStorage.storage
+    const { data: publicUrlData } = supabaseClient.storage
       .from(BUCKET_NAME)
       .getPublicUrl(filePath);
 
@@ -69,11 +90,14 @@ export async function uploadProfilePicture(
 /**
  * Delete old profile pictures for a user
  * @param userId - User ID
+ * @param accessToken - Optional access token for authentication
  */
-export async function deleteOldProfilePicture(userId: string): Promise<void> {
+export async function deleteOldProfilePicture(userId: string, accessToken?: string): Promise<void> {
   try {
+    const supabaseClient = getAuthenticatedClient(accessToken);
+    
     // List all files in user's profile folder
-    const { data: files, error: listError } = await supabaseStorage.storage
+    const { data: files, error: listError } = await supabaseClient.storage
       .from(BUCKET_NAME)
       .list(PROFILE_FOLDER, {
         search: userId,
@@ -86,7 +110,7 @@ export async function deleteOldProfilePicture(userId: string): Promise<void> {
     // Delete all old files
     const filesToDelete = files.map((file) => `${PROFILE_FOLDER}/${file.name}`);
     
-    const { error: deleteError } = await supabaseStorage.storage
+    const { error: deleteError } = await supabaseClient.storage
       .from(BUCKET_NAME)
       .remove(filesToDelete);
 
@@ -101,9 +125,12 @@ export async function deleteOldProfilePicture(userId: string): Promise<void> {
 /**
  * Delete specific profile picture by URL
  * @param url - Public URL of the image
+ * @param accessToken - Optional access token for authentication
  */
-export async function deleteProfilePictureByUrl(url: string): Promise<boolean> {
+export async function deleteProfilePictureByUrl(url: string, accessToken?: string): Promise<boolean> {
   try {
+    const supabaseClient = getAuthenticatedClient(accessToken);
+    
     // Extract file path from URL
     const urlParts = url.split(`${BUCKET_NAME}/`);
     if (urlParts.length < 2) {
@@ -112,7 +139,7 @@ export async function deleteProfilePictureByUrl(url: string): Promise<boolean> {
 
     const filePath = urlParts[1];
 
-    const { error } = await supabaseStorage.storage
+    const { error } = await supabaseClient.storage
       .from(BUCKET_NAME)
       .remove([filePath]);
 
@@ -131,11 +158,14 @@ export async function deleteProfilePictureByUrl(url: string): Promise<boolean> {
 /**
  * Get profile picture URL from storage
  * @param userId - User ID
+ * @param accessToken - Optional access token for authentication
  * @returns Public URL or null
  */
-export async function getProfilePictureUrl(userId: string): Promise<string | null> {
+export async function getProfilePictureUrl(userId: string, accessToken?: string): Promise<string | null> {
   try {
-    const { data: files, error } = await supabaseStorage.storage
+    const supabaseClient = getAuthenticatedClient(accessToken);
+    
+    const { data: files, error } = await supabaseClient.storage
       .from(BUCKET_NAME)
       .list(PROFILE_FOLDER, {
         search: userId,
@@ -148,7 +178,7 @@ export async function getProfilePictureUrl(userId: string): Promise<string | nul
     }
 
     const filePath = `${PROFILE_FOLDER}/${files[0].name}`;
-    const { data: publicUrlData } = supabaseStorage.storage
+    const { data: publicUrlData } = supabaseClient.storage
       .from(BUCKET_NAME)
       .getPublicUrl(filePath);
 
