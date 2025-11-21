@@ -468,6 +468,7 @@ export default function LockerDetail() {
       <Sidebar />
       
       <main className="w-full px-4 pt-4 pb-20 md:px-6 md:py-6 lg:px-8 lg:pb-8">
+        <div className="max-w-7xl mx-auto">
         <Header />
 
         {/* Back Button */}
@@ -831,6 +832,7 @@ export default function LockerDetail() {
               )}
             </Card>
           </div>
+        </div>
         </div>
       </main>
     </div>

@@ -260,6 +260,7 @@ export default function AddLocker() {
         <Sidebar />
         
         <main className="w-full px-4 pt-4 pb-20 md:px-6 md:py-6 lg:px-8 lg:pb-8">
+          <div className="max-w-7xl mx-auto">
           <Header />
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -469,6 +470,7 @@ export default function AddLocker() {
             </Card>
           </div>
         </div>
+          </div>
       </main>
     </div>
     </ProtectedRoute>

@@ -218,7 +218,7 @@ export default function ProfileSettings() {
       <div className="min-h-screen bg-[#F5F1E8] lg:pl-24">
         <Sidebar />
         
-        <div className="lg:pr-6 py-6 px-4">
+        <main className="w-full px-4 pt-4 pb-20 md:px-6 md:py-6 lg:px-8 lg:pb-8">
           <div className="max-w-4xl mx-auto">
             {/* Header */}
             <div className="mb-6">
@@ -445,7 +445,7 @@ export default function ProfileSettings() {
           </div>
             </div>
           </div>
-        </div>
+        </main>
       </div>
     </ProtectedRoute>
   );
