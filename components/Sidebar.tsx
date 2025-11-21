@@ -5,23 +5,35 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { LayoutGrid, PlusSquare, Package, FolderTree, QrCode, ScanLine, Settings, HelpCircle, LogOut, User } from 'lucide-react';
+import { LayoutGrid, PlusSquare, Package, FolderTree, QrCode, ScanLine, Settings, HelpCircle, LogOut, User, Users } from 'lucide-react';
 import { clearUserSession, getCurrentUser } from '@/lib/auth';
 
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [userInitial, setUserInitial] = useState('U');
+  const [userName, setUserName] = useState('User');
+  const [userEmail, setUserEmail] = useState('');
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [animateMobileNav, setAnimateMobileNav] = useState(false);
 
   useEffect(() => {
     const user = getCurrentUser();
     if (user && user.name) {
       setUserInitial(user.name.charAt(0).toUpperCase());
+      setUserName(user.name);
     } else if (user && user.email) {
       setUserInitial(user.email.charAt(0).toUpperCase());
+    }
+    
+    if (user && user.email) {
+      setUserEmail(user.email);
+    }
+    
+    // Check if user is admin
+    if (user && user.role === 'admin') {
+      setIsAdmin(true);
     }
     
     // Load profile picture
@@ -164,10 +176,40 @@ export default function Sidebar() {
 
       {/* Settings & Help at bottom */}
       <div className="mt-auto flex flex-col gap-2">
+        {isAdmin && (
+          <div className="relative group">
+            <Link
+              href="/manage-users"
+              className={`w-11 h-11 rounded-xl flex items-center justify-center transition-colors ${
+                pathname === '/manage-users'
+                  ? 'bg-gray-900 text-white'
+                  : 'text-gray-400 hover:bg-gray-100'
+              }`}
+            >
+              <Users size={20} />
+            </Link>
+            <div className="hidden lg:flex absolute left-full top-1/2 -translate-y-1/2 ml-3 pointer-events-none">
+              <div className="relative">
+                <div className="bg-white text-gray-900 text-sm font-medium px-3 py-2 rounded-lg shadow-lg border border-gray-200 opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150 ease-out whitespace-nowrap z-50">
+                  Kelola User
+                </div>
+                <div className="absolute left-[-6px] top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-t border-l border-gray-200 rotate-45 opacity-0 group-hover:opacity-100 transition-all duration-150 ease-out" />
+              </div>
+            </div>
+          </div>
+        )}
+        
         <div className="relative group">
-          <button className="w-11 h-11 rounded-xl flex items-center justify-center text-gray-400 hover:bg-gray-100">
+          <Link
+            href="/settings"
+            className={`w-11 h-11 rounded-xl flex items-center justify-center transition-colors ${
+              pathname === '/settings'
+                ? 'bg-gray-900 text-white'
+                : 'text-gray-400 hover:bg-gray-100'
+            }`}
+          >
             <Settings size={20} />
-          </button>
+          </Link>
           <div className="hidden lg:flex absolute left-full top-1/2 -translate-y-1/2 ml-3 pointer-events-none">
             <div className="relative">
               <div className="bg-white text-gray-900 text-sm font-medium px-3 py-2 rounded-lg shadow-lg border border-gray-200 opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150 ease-out whitespace-nowrap z-50">
@@ -194,57 +236,42 @@ export default function Sidebar() {
       </div>
 
       {/* User Avatar at bottom */}
-      <div className="relative">
-        <div className="relative group">
-          <button 
-            onClick={() => setShowProfileMenu(!showProfileMenu)}
-            className="w-11 h-11 rounded-full bg-emerald-500 overflow-hidden hover:ring-2 hover:ring-emerald-400 transition-all"
-          >
-            {profilePicture ? (
-              <Image
-                src={profilePicture}
-                alt="Profile"
-                width={44}
-                height={44}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-white font-semibold text-sm">
-                {userInitial}
-              </div>
-            )}
-          </button>
-
-          <div className="hidden lg:flex absolute left-full top-1/2 -translate-y-1/2 ml-3 pointer-events-none">
-            <div className="relative">
-              <div className="bg-white text-gray-900 text-sm font-medium px-3 py-2 rounded-lg shadow-lg border border-gray-200 opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150 ease-out whitespace-nowrap z-50">
-                Profile
-              </div>
-              <div className="absolute left-[-6px] top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-t border-l border-gray-200 rotate-45 opacity-0 group-hover:opacity-100 transition-all duration-150 ease-out" />
+      <div className="relative group">
+        <button 
+          className="w-11 h-11 rounded-full bg-emerald-500 overflow-hidden hover:ring-2 hover:ring-emerald-400 transition-all"
+        >
+          {profilePicture ? (
+            <Image
+              src={profilePicture}
+              alt="Profile"
+              width={44}
+              height={44}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-white font-semibold text-sm">
+              {userInitial}
             </div>
-          </div>
-        </div>
+          )}
+        </button>
 
-        {/* Profile Dropdown Menu */}
-        {showProfileMenu && (
-          <div className="absolute bottom-0 left-16 ml-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50">
-            <Link
-              href="/profile"
-              onClick={() => setShowProfileMenu(false)}
-              className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors text-gray-700"
-            >
-              <User size={18} />
-              <span className="text-sm font-medium">Profile Settings</span>
-            </Link>
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors text-red-600"
-            >
-              <LogOut size={18} />
-              <span className="text-sm font-medium">Logout</span>
-            </button>
+        {/* Profile Dropdown Menu - Shows on Hover */}
+        <div className="absolute bottom-0 left-16 ml-2 w-64 bg-white rounded-xl shadow-lg border border-gray-200 py-3 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+          {/* User Info */}
+          <div className="px-4 py-3 border-b border-gray-200">
+            <p className="text-sm font-semibold text-gray-900 truncate">{userName}</p>
+            <p className="text-xs text-gray-500 truncate">{userEmail}</p>
           </div>
-        )}
+          
+          {/* Logout Button */}
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-red-50 transition-colors text-red-600 mt-1"
+          >
+            <LogOut size={18} />
+            <span className="text-sm font-medium">Logout</span>
+          </button>
+        </div>
       </div>
       </div>
 
