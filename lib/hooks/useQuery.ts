@@ -7,12 +7,15 @@ import { getCurrentUser } from '@/lib/auth';
 interface Category {
   id: string;
   name: string;
+  createdAt: string;
+  totalQuantity?: number;
 }
 
 interface Locker {
   id: string;
   name: string;
   code: string;
+  createdAt: string;
 }
 
 interface Item {

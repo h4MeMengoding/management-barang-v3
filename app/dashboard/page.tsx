@@ -7,7 +7,8 @@ import StatCard from '@/components/StatCard';
 import ReportBarang from '@/components/ReportBarang';
 import ReportLoker from '@/components/ReportLoker';
 import BarangBaru from '@/components/BarangBaru';
-import MaintenanceRequests from '@/components/MaintenanceRequests';
+import LokerBaru from '@/components/LokerBaru';
+import KategoriBaru from '@/components/KategoriBaru';
 import { motion } from 'framer-motion';
 import { Container, Package, FolderTree } from 'lucide-react';
 import { useMemo } from 'react';
@@ -189,15 +190,16 @@ export default function Dashboard() {
           <ReportLoker />
         </motion.div>
 
-        {/* Barang Baru & Maintenance Requests */}
+        {/* Barang Baru, Loker Baru & Kategori Baru */}
         <motion.div 
-          className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6"
+          className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 mb-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.4 }}
         >
           <BarangBaru />
-          <MaintenanceRequests />
+          <LokerBaru />
+          <KategoriBaru />
         </motion.div>
         </div>
       </main>
