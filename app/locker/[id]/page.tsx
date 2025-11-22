@@ -339,7 +339,7 @@ export default function LockerDetail() {
       // Support batch creation for multiple items
       if (isMultipleItems) {
         const createPromises = parsedItemNames.map(itemName => {
-          const quantity = itemQuantities[itemName] || 0;
+          const quantity = itemQuantities[itemName] || 1;
           return fetch('/api/items', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -403,7 +403,6 @@ export default function LockerDetail() {
 
       setTimeout(() => {
         setFormSuccess('');
-        setViewMode('qr');
       }, 2000);
     } catch (err: any) {
       setFormError(err.message);
@@ -706,7 +705,7 @@ export default function LockerDetail() {
                                   </button>
                                   <input
                                     type="number"
-                                    value={itemQuantities[itemName] || 0}
+                                    value={itemQuantities[itemName] || 1}
                                     onChange={(e) => handleIndividualQuantityChange(itemName, parseInt(e.target.value) || 0)}
                                     required
                                     min="0"
