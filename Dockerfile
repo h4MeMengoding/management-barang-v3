@@ -75,4 +75,4 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 # Run prisma db push before starting the server
-CMD npx prisma db push --skip-generate && node server.js
+CMD ["node", "server.js"]
