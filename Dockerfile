@@ -28,6 +28,7 @@ ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
 # Set dummy environment variables for build time (Supabase)
 ENV NEXT_PUBLIC_SUPABASE_URL="https://dummy.supabase.co"
 ENV NEXT_PUBLIC_SUPABASE_ANON_KEY="dummy-key"
+ENV SUPABASE_SERVICE_ROLE_KEY="dummy-key"
 
 RUN npx prisma generate
 
