@@ -228,7 +228,9 @@ export function useLockers() {
     queryFn: async () => {
       if (!user) throw new Error('User not authenticated');
       
-      const response = await fetch(`/api/lockers?userId=${user.id}`);
+      const response = await fetch(`/api/lockers?userId=${user.id}`, {
+        cache: 'no-store',
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch lockers');
       }
@@ -236,8 +238,12 @@ export function useLockers() {
       return data.lockers as Locker[];
     },
     enabled: !!user,
-    // Refetch every 30 seconds
-    refetchInterval: 30000,
+    // Remove staleTime to always consider data potentially stale
+    staleTime: 0,
+    // Refetch on window focus
+    refetchOnWindowFocus: true,
+    // Refetch on mount
+    refetchOnMount: true,
   });
 }
 
@@ -305,14 +311,20 @@ export function useStats() {
     queryFn: async () => {
       if (!user) throw new Error('User not authenticated');
       
-      const response = await fetch(`/api/stats?userId=${user.id}`);
+      const response = await fetch(`/api/stats?userId=${user.id}`, {
+        cache: 'no-store',
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch stats');
       }
       return response.json();
     },
     enabled: !!user,
-    // Stats can be stale for 2 minutes
-    staleTime: 2 * 60 * 1000,
+    // Remove staleTime to always consider data potentially stale
+    staleTime: 0,
+    // Refetch on window focus
+    refetchOnWindowFocus: true,
+    // Refetch on mount
+    refetchOnMount: true,
   });
 }

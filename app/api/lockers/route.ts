@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import QRCode from 'qrcode';
 
+// Force dynamic rendering (no static optimization)
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 // Generate unique locker code
 function generateLockerCode(): string {
   const suffix = String.fromCharCode(65 + Math.floor(Math.random() * 26)); // A-Z
@@ -104,7 +108,12 @@ export async function GET(request: NextRequest) {
         items: undefined, // Remove items array from response
       }));
 
-      return NextResponse.json({ lockers: lockersWithCount }, { status: 200 });
+      return NextResponse.json({ lockers: lockersWithCount }, { 
+        status: 200,
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate',
+        },
+      });
     }
 
     // Get all lockers
@@ -200,7 +209,12 @@ export async function POST(request: NextRequest) {
         message: 'Locker berhasil dibuat',
         locker,
       },
-      { status: 201 }
+      { 
+        status: 201,
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate',
+        },
+      }
     );
   } catch (error) {
     console.error('Create locker error:', error);
