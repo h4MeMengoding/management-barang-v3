@@ -39,10 +39,10 @@ export default function ThemeToggle() {
 
             {/* Menu */}
             <motion.div
-              className="absolute right-0 top-12 w-40 bg-[var(--surface-1)] rounded-xl shadow-lg border border-[var(--border)] py-2 z-50"
-              initial={{ opacity: 0, y: -10, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -10, scale: 0.95 }}
+              className="absolute left-full ml-3 top-0 w-40 bg-[var(--surface-1)] rounded-xl shadow-lg border border-[var(--border)] py-2 z-50"
+              initial={{ opacity: 0, x: -10, scale: 0.95 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: -10, scale: 0.95 }}
               transition={{ duration: 0.2 }}
             >
               {themes.map((t) => {

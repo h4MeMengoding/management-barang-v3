@@ -241,7 +241,7 @@ export default function ScanQRCode() {
 
   return (
     <ProtectedRoute>
-    <div className="min-h-screen bg-[#F5F1E8] lg:pl-24">
+    <div className="min-h-screen bg-[var(--background)] lg:pl-24">
       <Sidebar />
       
       <main className="w-full px-4 pt-4 pb-20 md:px-6 md:py-6 lg:px-8 lg:pb-8">
@@ -260,16 +260,16 @@ export default function ScanQRCode() {
               exit={{ opacity: 0 }}
             >
               <motion.div 
-                className="bg-white rounded-xl p-6 shadow-xl"
+                className="bg-[var(--surface-1)] rounded-xl p-6 shadow-xl"
                 initial={{ scale: 0.9, y: 20 }}
                 animate={{ scale: 1, y: 0 }}
                 exit={{ scale: 0.9, y: 20 }}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-emerald-600 rounded-full animate-bounce"></div>
-                  <div className="w-2 h-2 bg-emerald-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                  <div className="w-2 h-2 bg-emerald-600 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
-                  <p className="text-gray-900 font-medium ml-2">Mencari loker...</p>
+                  <div className="w-2 h-2 bg-[var(--color-primary)] rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-[var(--color-primary)] rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                  <div className="w-2 h-2 bg-[var(--color-primary)] rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                  <p className="text-[var(--text-primary)] font-medium ml-2">Mencari loker...</p>
                 </div>
               </motion.div>
             </motion.div>
@@ -288,14 +288,14 @@ export default function ScanQRCode() {
               <Card>
                 <div className="text-center">
                   <motion.div 
-                    className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-4"
+                    className="w-16 h-16 rounded-full bg-[var(--color-primary)]/10 flex items-center justify-center mx-auto mb-4"
                     animate={{ scale: [1, 1.1, 1] }}
                     transition={{ duration: 2, repeat: Infinity }}
                   >
-                    <ScanLine size={32} className="text-emerald-600" />
+                    <ScanLine size={32} className="text-[var(--color-primary)]" />
                   </motion.div>
-                  <h2 className="text-xl font-bold text-gray-900 mb-2">Scan QR Code</h2>
-                  <p className="text-gray-600 mb-4">Scan QR code loker untuk melihat informasi</p>
+                  <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">Scan QR Code</h2>
+                  <p className="text-[var(--text-secondary)] mb-4">Scan QR code loker untuk melihat informasi</p>
                   
                   <div className="space-y-3">
                     <motion.button
@@ -308,7 +308,7 @@ export default function ScanQRCode() {
                     </motion.button>
                     
                     {/* Alternative: Upload from Gallery (iOS Fallback) */}
-                    <div className="text-sm text-gray-500">atau</div>
+                    <div className="text-sm text-[var(--text-secondary)]">atau</div>
                     
                     <label className="block">
                       <input
@@ -326,7 +326,7 @@ export default function ScanQRCode() {
                       />
                       <motion.div
                         onClick={() => document.getElementById('mobile-qr-upload')?.click()}
-                        className="w-full px-6 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium cursor-pointer"
+                        className="w-full px-6 py-2 bg-[var(--surface-2)] text-[var(--text-primary)] rounded-lg font-medium cursor-pointer"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
@@ -334,7 +334,7 @@ export default function ScanQRCode() {
                       </motion.div>
                     </label>
                     
-                    <p className="text-xs text-gray-500 mt-3">
+                    <p className="text-xs text-[var(--text-secondary)] mt-3">
                       💡 Jika kamera tidak berfungsi, gunakan opsi upload
                     </p>
                   </div>
@@ -360,7 +360,7 @@ export default function ScanQRCode() {
                 <h1 className="text-white font-bold text-lg tracking-wider">SCAN QR CODE</h1>
                 
                 {/* iOS Native Camera Button */}
-                <label className="w-12 h-12 rounded-xl bg-emerald-600/90 backdrop-blur-sm flex items-center justify-center text-white shadow-lg cursor-pointer">
+                <label className="w-12 h-12 rounded-xl bg-[var(--color-primary)]/90 backdrop-blur-sm flex items-center justify-center text-white shadow-lg cursor-pointer">
                   <input
                     type="file"
                     accept="image/*"
@@ -409,10 +409,10 @@ export default function ScanQRCode() {
                 {/* Scan box di tengah */}
                 <div className="relative w-72 h-72 z-10">
                   {/* Corner borders */}
-                  <div className="absolute top-0 left-0 w-12 h-12 border-t-4 border-l-4 border-emerald-400 rounded-tl-2xl"></div>
-                  <div className="absolute top-0 right-0 w-12 h-12 border-t-4 border-r-4 border-emerald-400 rounded-tr-2xl"></div>
-                  <div className="absolute bottom-0 left-0 w-12 h-12 border-b-4 border-l-4 border-emerald-400 rounded-bl-2xl"></div>
-                  <div className="absolute bottom-0 right-0 w-12 h-12 border-b-4 border-r-4 border-emerald-400 rounded-br-2xl"></div>
+                  <div className="absolute top-0 left-0 w-12 h-12 border-t-4 border-l-4 border-[var(--color-primary)] rounded-tl-2xl"></div>
+                  <div className="absolute top-0 right-0 w-12 h-12 border-t-4 border-r-4 border-[var(--color-primary)] rounded-tr-2xl"></div>
+                  <div className="absolute bottom-0 left-0 w-12 h-12 border-b-4 border-l-4 border-[var(--color-primary)] rounded-bl-2xl"></div>
+                  <div className="absolute bottom-0 right-0 w-12 h-12 border-b-4 border-r-4 border-[var(--color-primary)] rounded-br-2xl"></div>
                   
                   {/* Scanning line */}
                   <div className="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-emerald-500 to-transparent shadow-lg shadow-emerald-500/50 animate-scan-line" style={{ top: '30%' }}></div>
@@ -425,19 +425,19 @@ export default function ScanQRCode() {
                 
                 {/* Scanning indicator */}
                 <div className="flex items-center justify-center gap-2 mb-4">
-                  <div className={`w-2 h-2 rounded-full ${scanCount > 0 ? 'bg-emerald-400' : 'bg-gray-400'} animate-pulse`}></div>
-                  <p className="text-xs text-gray-300">
+                  <div className={`w-2 h-2 rounded-full ${scanCount > 0 ? 'bg-[var(--color-primary)]' : 'bg-[var(--text-tertiary)]'} animate-pulse`}></div>
+                  <p className="text-xs text-white/80">
                     {scanCount > 0 ? `Scanning... (${scanCount} frames)` : 'Memulai...'}
                   </p>
                 </div>
                 
                 {/* iOS PWA Hint */}
-                <p className="text-xs text-gray-400 mb-4">
+                <p className="text-xs text-white/60 mb-4">
                   💡 iOS: Tidak terdeteksi? Tap icon kamera di kanan atas
                 </p>
                 
                 <div className="flex items-center justify-center">
-                  <button className="w-16 h-16 rounded-full bg-emerald-600 flex items-center justify-center text-white shadow-xl shadow-emerald-500/30">
+                  <button className="w-16 h-16 rounded-full bg-[var(--color-primary)] flex items-center justify-center text-white shadow-xl shadow-emerald-500/30">
                     <ScanLine size={32} />
                   </button>
                 </div>
@@ -447,24 +447,24 @@ export default function ScanQRCode() {
             <div className="min-h-screen flex items-center justify-center p-4">
               <Card>
                 <div className="text-center">
-                  <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-4">
-                    <ScanLine size={32} className="text-emerald-600" />
+                  <div className="w-16 h-16 rounded-full bg-[var(--color-primary)]/10 flex items-center justify-center mx-auto mb-4">
+                    <ScanLine size={32} className="text-[var(--color-primary)]" />
                   </div>
-                  <h2 className="text-xl font-bold text-gray-900 mb-2">QR Code Terdeteksi</h2>
-                  <p className="text-gray-600 mb-4">Kode: {scannedData}</p>
+                  <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">QR Code Terdeteksi</h2>
+                  <p className="text-[var(--text-secondary)] mb-4">Kode: {scannedData}</p>
                   <div className="flex gap-3">
                     <button
                       onClick={() => {
                         setScannedData(null);
                         startScanner();
                       }}
-                      className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium"
+                      className="flex-1 px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg font-medium"
                     >
                       Scan Lagi
                     </button>
                     <button
                       onClick={() => setScannedData(null)}
-                      className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium"
+                      className="flex-1 px-4 py-2 bg-[var(--surface-2)] text-[var(--text-primary)] rounded-lg font-medium"
                     >
                       Tutup
                     </button>
@@ -479,20 +479,20 @@ export default function ScanQRCode() {
                   <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
                     <X size={32} className="text-red-600" />
                   </div>
-                  <h2 className="text-xl font-bold text-gray-900 mb-2">Kamera Tidak Tersedia</h2>
-                  <p className="text-gray-600 mb-4">
+                  <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">Kamera Tidak Tersedia</h2>
+                  <p className="text-[var(--text-secondary)] mb-4">
                     {errorMessage || 'Izinkan akses kamera untuk melakukan scan'}
                   </p>
                   <div className="space-y-3">
                     <button
                       onClick={startScanner}
-                      className="w-full px-6 py-2 bg-emerald-600 text-white rounded-lg font-medium"
+                      className="w-full px-6 py-2 bg-[var(--color-primary)] text-white rounded-lg font-medium"
                     >
                       Coba Lagi
                     </button>
                     
                     {/* Alternative Upload */}
-                    <div className="text-sm text-gray-500">atau</div>
+                    <div className="text-sm text-[var(--text-secondary)]">atau</div>
                     
                     <label className="block">
                       <input
@@ -511,7 +511,7 @@ export default function ScanQRCode() {
                       />
                       <motion.div
                         onClick={() => document.getElementById('error-qr-upload')?.click()}
-                        className="w-full px-6 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium cursor-pointer"
+                        className="w-full px-6 py-2 bg-[var(--surface-2)] text-[var(--text-primary)] rounded-lg font-medium cursor-pointer"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
@@ -520,9 +520,9 @@ export default function ScanQRCode() {
                     </label>
                     
                     {/* iOS PWA Help */}
-                    <div className="p-4 bg-gray-50 rounded-lg text-left">
-                      <p className="text-sm font-semibold text-gray-700 mb-2">Tips untuk iOS:</p>
-                      <ol className="text-xs text-gray-600 space-y-1 list-decimal list-inside">
+                    <div className="p-4 bg-[var(--surface-2)] rounded-lg text-left">
+                      <p className="text-sm font-semibold text-[var(--text-primary)] mb-2">Tips untuk iOS:</p>
+                      <ol className="text-xs text-[var(--text-secondary)] space-y-1 list-decimal list-inside">
                         <li>Pastikan Safari memiliki akses kamera di Settings</li>
                         <li>Buka kembali app dari home screen</li>
                         <li>Izinkan akses kamera saat diminta</li>
@@ -544,32 +544,32 @@ export default function ScanQRCode() {
               <div className="lg:sticky lg:top-6">
                 <Card>
                   <div className="flex items-center gap-3 mb-5">
-                    <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                      <ScanLine size={24} className="text-emerald-600" />
+                    <div className="w-12 h-12 rounded-xl bg-[var(--color-primary)]/10 flex items-center justify-center flex-shrink-0">
+                      <ScanLine size={24} className="text-[var(--color-primary)]" />
                     </div>
                     <div>
-                      <h2 className="text-lg font-bold text-gray-900">Upload QR Code</h2>
-                      <p className="text-xs text-gray-500 mt-0.5">Upload gambar QR code</p>
+                      <h2 className="text-lg font-bold text-[var(--text-primary)]">Upload QR Code</h2>
+                      <p className="text-xs text-[var(--text-secondary)] mt-0.5">Upload gambar QR code</p>
                     </div>
                   </div>
 
                   <div className="space-y-5">
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
                         Pilih File QR Code <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="file"
                         accept="image/*"
                         onChange={handleFileUpload}
-                        className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
+                        className="w-full px-4 py-3 rounded-lg border border-[var(--border)] bg-[var(--surface-1)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] outline-none transition-colors text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[var(--color-primary)]/10 file:text-[var(--color-primary)] hover:file:bg-[var(--color-primary)]/20"
                       />
-                      <p className="text-xs text-gray-500 mt-2">Format: JPG, PNG, atau JPEG</p>
+                      <p className="text-xs text-[var(--text-secondary)] mt-2">Format: JPG, PNG, atau JPEG</p>
                     </div>
 
-                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                      <h3 className="text-sm font-semibold text-gray-700 mb-2">Cara Upload:</h3>
-                      <ol className="text-xs text-gray-600 space-y-1 list-decimal list-inside">
+                    <div className="p-4 bg-[var(--surface-2)] rounded-lg border border-[var(--border)]">
+                      <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-2">Cara Upload:</h3>
+                      <ol className="text-xs text-[var(--text-secondary)] space-y-1 list-decimal list-inside">
                         <li>Pilih gambar QR code dari perangkat</li>
                         <li>Klik tombol "Upload & Scan"</li>
                         <li>Hasil scan akan muncul di sebelah kanan</li>
@@ -579,7 +579,7 @@ export default function ScanQRCode() {
                     <button
                       onClick={handleScanFromFile}
                       disabled={!selectedFile}
-                      className="w-full px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm disabled:bg-gray-300 disabled:cursor-not-allowed"
+                      className="w-full px-6 py-3 bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm disabled:bg-[var(--surface-3)] disabled:cursor-not-allowed"
                     >
                       <ScanLine size={20} />
                       Upload & Scan
@@ -597,8 +597,8 @@ export default function ScanQRCode() {
               <Card>
                 <div className="flex items-center justify-between mb-5">
                   <div>
-                    <h2 className="text-xl font-bold text-gray-900">Hasil Scan</h2>
-                    <p className="text-sm text-gray-500 mt-1">Informasi QR code yang di-upload</p>
+                    <h2 className="text-xl font-bold text-[var(--text-primary)]">Hasil Scan</h2>
+                    <p className="text-sm text-[var(--text-secondary)] mt-1">Informasi QR code yang di-upload</p>
                   </div>
                 </div>
 
@@ -607,27 +607,27 @@ export default function ScanQRCode() {
                     {/* Preview Image */}
                     {uploadedImageUrl && (
                       <div className="flex justify-center">
-                        <div className="relative w-64 h-64 rounded-lg overflow-hidden border-2 border-emerald-200">
+                        <div className="relative w-64 h-64 rounded-lg overflow-hidden border-2 border-[var(--color-primary)]/30">
                           <img
                             src={uploadedImageUrl}
                             alt="QR Code"
-                            className="w-full h-full object-contain bg-gray-50"
+                            className="w-full h-full object-contain bg-[var(--surface-2)]"
                           />
                         </div>
                       </div>
                     )}
 
                     {/* Result */}
-                    <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-6">
+                    <div className="bg-[var(--color-primary)]/10 border border-[var(--color-primary)]/30 rounded-lg p-6">
                       <div className="flex items-start gap-4">
-                        <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                          <ScanLine size={24} className="text-emerald-600" />
+                        <div className="w-12 h-12 rounded-full bg-[var(--color-primary)]/10 flex items-center justify-center flex-shrink-0">
+                          <ScanLine size={24} className="text-[var(--color-primary)]" />
                         </div>
                         <div className="flex-1">
-                          <h3 className="text-lg font-bold text-gray-900 mb-2">QR Code Terdeteksi!</h3>
-                          <div className="bg-white rounded-lg p-4 border border-emerald-200">
-                            <p className="text-sm text-gray-600 mb-1">Kode:</p>
-                            <p className="text-base font-mono font-semibold text-gray-900 break-all">{scannedData}</p>
+                          <h3 className="text-lg font-bold text-[var(--text-primary)] mb-2">QR Code Terdeteksi!</h3>
+                          <div className="bg-[var(--surface-1)] rounded-lg p-4 border border-[var(--color-primary)]/30">
+                            <p className="text-sm text-[var(--text-secondary)] mb-1">Kode:</p>
+                            <p className="text-base font-mono font-semibold text-[var(--text-primary)] break-all">{scannedData}</p>
                           </div>
                         </div>
                       </div>
@@ -641,7 +641,7 @@ export default function ScanQRCode() {
                           setSelectedFile(null);
                           setUploadedImageUrl(null);
                         }}
-                        className="flex-1 px-6 py-3 bg-emerald-600 text-white rounded-lg font-semibold hover:bg-emerald-700 transition-colors"
+                        className="flex-1 px-6 py-3 bg-[var(--color-primary)] text-white rounded-lg font-semibold hover:bg-[var(--color-primary-dark)] transition-colors"
                       >
                         Scan Lagi
                       </button>
@@ -650,7 +650,7 @@ export default function ScanQRCode() {
                           navigator.clipboard.writeText(scannedData);
                           alert('Kode berhasil disalin!');
                         }}
-                        className="flex-1 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition-colors"
+                        className="flex-1 px-6 py-3 bg-[var(--surface-2)] text-[var(--text-primary)] rounded-lg font-semibold hover:bg-[var(--surface-3)] transition-colors"
                       >
                         Salin Kode
                       </button>
@@ -658,11 +658,11 @@ export default function ScanQRCode() {
                   </div>
                 ) : (
                   <div className="py-16 text-center">
-                    <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
-                      <ScanLine size={40} className="text-gray-400" />
+                    <div className="w-20 h-20 rounded-full bg-[var(--surface-2)] flex items-center justify-center mx-auto mb-4">
+                      <ScanLine size={40} className="text-[var(--text-tertiary)]" />
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Belum Ada Hasil</h3>
-                    <p className="text-gray-600">Upload gambar QR code untuk melihat hasil scan</p>
+                    <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">Belum Ada Hasil</h3>
+                    <p className="text-[var(--text-secondary)]">Upload gambar QR code untuk melihat hasil scan</p>
                   </div>
                 )}
               </Card>

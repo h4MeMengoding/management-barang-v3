@@ -421,7 +421,7 @@ export default function LockerDetail() {
   if (isLoading) {
     return (
       <ProtectedRoute>
-        <div className="min-h-screen bg-[#F5F1E8] lg:pl-24">
+        <div className="min-h-screen bg-[var(--background)] lg:pl-24">
           <Sidebar />
           <main className="w-full px-4 pt-4 pb-20 md:px-6 md:py-6 lg:px-8 lg:pb-8">
             <Header />
@@ -435,15 +435,15 @@ export default function LockerDetail() {
   if (error || !locker) {
     return (
       <ProtectedRoute>
-        <div className="min-h-screen bg-[#F5F1E8] lg:pl-24">
+        <div className="min-h-screen bg-[var(--background)] lg:pl-24">
           <Sidebar />
           <main className="w-full px-4 pt-4 pb-20 md:px-6 md:py-6 lg:px-8 lg:pb-8">
             <Header />
             <div className="text-center py-12">
-              <p className="text-red-600 mb-4">{error || 'Loker tidak ditemukan'}</p>
+              <p className="text-red-600 dark:text-red-400 mb-4">{error || 'Loker tidak ditemukan'}</p>
               <button
                 onClick={() => router.push('/manage-locker')}
-                className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
+                className="px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg hover:bg-[var(--color-primary-dark)]"
               >
                 Kembali ke Daftar Loker
               </button>
@@ -463,7 +463,7 @@ export default function LockerDetail() {
 
   return (
     <ProtectedRoute>
-    <div className="min-h-screen bg-[#F5F1E8] lg:pl-24">
+    <div className="min-h-screen bg-[var(--background)] lg:pl-24">
       <Sidebar />
       
       <main className="w-full px-4 pt-4 pb-20 md:px-6 md:py-6 lg:px-8 lg:pb-8">
@@ -473,7 +473,7 @@ export default function LockerDetail() {
         {/* Back Button */}
         <button
           onClick={() => router.back()}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"
+          className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] mb-6 transition-colors"
         >
           <ArrowLeft size={20} />
           <span className="text-sm font-medium">Kembali</span>
@@ -490,8 +490,8 @@ export default function LockerDetail() {
                     onClick={() => setViewMode('qr')}
                     className={`flex-1 py-2 px-4 rounded-lg font-semibold text-sm transition-colors ${
                       viewMode === 'qr'
-                        ? 'bg-emerald-600 text-white'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        ? 'bg-[var(--color-primary)] text-white'
+                        : 'bg-[var(--surface-2)] text-[var(--text-secondary)] hover:bg-[var(--surface-3)]'
                     }`}
                   >
                     <QrCode size={16} className="inline mr-2" />
@@ -501,8 +501,8 @@ export default function LockerDetail() {
                     onClick={() => setViewMode('form')}
                     className={`flex-1 py-2 px-4 rounded-lg font-semibold text-sm transition-colors ${
                       viewMode === 'form'
-                        ? 'bg-emerald-600 text-white'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        ? 'bg-[var(--color-primary)] text-white'
+                        : 'bg-[var(--surface-2)] text-[var(--text-secondary)] hover:bg-[var(--surface-3)]'
                     }`}
                   >
                     <Plus size={16} className="inline mr-2" />
@@ -514,7 +514,7 @@ export default function LockerDetail() {
                   <>
                     {/* QR Code Section */}
                     <div className="flex flex-col items-center mb-6">
-                      <div className="bg-white border-2 border-gray-200 rounded-xl p-5">
+                      <div className="bg-white dark:bg-[var(--surface-2)] border-2 border-[var(--border)] rounded-xl p-5">
                         {locker.qrCodeUrl ? (
                           <img 
                             src={locker.qrCodeUrl} 
@@ -522,15 +522,15 @@ export default function LockerDetail() {
                             className="w-48 h-48 rounded-lg"
                           />
                         ) : (
-                          <div className="w-48 h-48 bg-gray-100 rounded-lg flex items-center justify-center">
-                            <QrCode size={120} className="text-gray-400" />
+                          <div className="w-48 h-48 bg-[var(--surface-2)] rounded-lg flex items-center justify-center">
+                            <QrCode size={120} className="text-[var(--text-tertiary)]" />
                           </div>
                         )}
                       </div>
                       <button
                         onClick={handleDownloadQR}
                         disabled={!locker.qrCodeUrl}
-                        className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-900 hover:bg-gray-800 text-white font-semibold rounded-lg transition-colors shadow-sm text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[var(--surface-3)] hover:bg-[var(--text-tertiary)] text-[var(--text-primary)] font-semibold rounded-lg transition-colors shadow-sm text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <Download size={16} />
                         Download QR
@@ -540,41 +540,41 @@ export default function LockerDetail() {
                     {/* Locker Info */}
                     <div className="space-y-4">
                       <div>
-                        <h1 className="text-2xl font-bold text-gray-900">{locker.name}</h1>
-                        <p className="text-sm text-gray-500 mt-1">Kode: <span className="font-semibold text-gray-700">{locker.code}</span></p>
+                        <h1 className="text-2xl font-bold text-[var(--text-primary)]">{locker.name}</h1>
+                        <p className="text-sm text-[var(--text-secondary)] mt-1">Kode: <span className="font-semibold text-[var(--text-primary)]">{locker.code}</span></p>
                       </div>
 
                       {locker.description && (
-                        <p className="text-sm text-gray-600 leading-relaxed pb-4 border-b border-gray-100">
+                        <p className="text-sm text-[var(--text-secondary)] leading-relaxed pb-4 border-b border-[var(--divider)]">
                           {locker.description}
                         </p>
                       )}
                       
-                      <div className="space-y-3 pb-4 border-b border-gray-100">
+                      <div className="space-y-3 pb-4 border-b border-[var(--divider)]">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600">Status:</span>
+                          <span className="text-sm text-[var(--text-secondary)]">Status:</span>
                           <div className="flex items-center gap-2">
-                            <div className={`w-2 h-2 rounded-full ${status === 'terisi' ? 'bg-emerald-500' : 'bg-gray-400'}`}></div>
-                            <span className="text-sm font-semibold text-gray-900 capitalize">{status}</span>
+                            <div className={`w-2 h-2 rounded-full ${status === 'terisi' ? 'bg-[var(--color-primary)]' : 'bg-[var(--text-tertiary)]'}`}></div>
+                            <span className="text-sm font-semibold text-[var(--text-primary)] capitalize">{status}</span>
                           </div>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600">Total Barang:</span>
-                          <span className="text-sm font-semibold text-gray-900">{itemCount}</span>
+                          <span className="text-sm text-[var(--text-secondary)]">Total Barang:</span>
+                          <span className="text-sm font-semibold text-[var(--text-primary)]">{itemCount}</span>
                         </div>
                       </div>
 
                       <div className="space-y-2">
                         <button
                           onClick={handleEdit}
-                          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg transition-colors shadow-sm"
+                          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white font-semibold rounded-lg transition-colors shadow-sm"
                         >
                           <Edit2 size={18} />
                           Edit Loker
                         </button>
                         <button
                           onClick={handleDelete}
-                          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-red-400 hover:bg-red-500 text-white font-semibold rounded-lg transition-colors shadow-sm"
+                          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-red-500 dark:bg-red-600 hover:bg-red-600 dark:hover:bg-red-700 text-white font-semibold rounded-lg transition-colors shadow-sm"
                         >
                           <Trash2 size={18} />
                           Hapus Loker
@@ -587,18 +587,18 @@ export default function LockerDetail() {
                     {/* Add Item Form */}
                     <div className="space-y-4">
                       <div>
-                        <h2 className="text-xl font-bold text-gray-900 mb-1">Tambah Barang Baru</h2>
-                        <p className="text-sm text-gray-500">Ke loker: <span className="font-semibold text-emerald-600">{locker.name}</span></p>
+                        <h2 className="text-xl font-bold text-[var(--text-primary)] mb-1">Tambah Barang Baru</h2>
+                        <p className="text-sm text-[var(--text-secondary)]">Ke loker: <span className="font-semibold text-[var(--color-primary)]">{locker.name}</span></p>
                       </div>
 
                       {formError && (
-                        <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+                        <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 text-red-700 dark:text-red-400 rounded-lg text-sm">
                           {formError}
                         </div>
                       )}
 
                       {formSuccess && (
-                        <div className="p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">
+                        <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/30 text-green-700 dark:text-green-400 rounded-lg text-sm">
                           {formSuccess}
                         </div>
                       )}
@@ -606,7 +606,7 @@ export default function LockerDetail() {
                       <form onSubmit={handleFormSubmit} className="space-y-4">
                         {/* Name Input */}
                         <div>
-                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
                             Nama Barang <span className="text-red-500">*</span>
                           </label>
                           <input
@@ -615,14 +615,14 @@ export default function LockerDetail() {
                             value={formData.name}
                             onChange={handleFormChange}
                             required
-                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm placeholder:text-gray-400 text-gray-900"
+                            className="w-full px-4 py-2.5 border border-[var(--border)] bg-[var(--surface-1)] rounded-lg focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent text-sm placeholder:text-[var(--text-tertiary)] text-[var(--text-primary)]"
                             placeholder="Masukkan nama barang (wajib)"
                           />
-                          <p className="mt-1.5 text-xs text-gray-500">
+                          <p className="mt-1.5 text-xs text-[var(--text-secondary)]">
                             💡 <span className="font-medium">Tips:</span> Pisahkan dengan koma (,) untuk menambahkan beberapa barang sekaligus
                           </p>
                           {isMultipleItems && (
-                            <p className="mt-1 text-xs text-emerald-600 font-medium">
+                            <p className="mt-1 text-xs text-[var(--color-primary)] font-medium">
                               ✓ Terdeteksi {parsedItemNames.length} barang. Isi jumlah untuk setiap barang di bawah.
                             </p>
                           )}
@@ -630,7 +630,7 @@ export default function LockerDetail() {
 
                         {/* Category Dropdown */}
                         <div className="relative" ref={categoryDropdownRef}>
-                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
                             Kategori <span className="text-red-500">*</span>
                           </label>
                           <div className="relative">
@@ -643,28 +643,28 @@ export default function LockerDetail() {
                               }}
                               onFocus={() => setShowCategoryDropdown(true)}
                               onKeyDown={handleCategoryKeyDown}
-                              className="w-full px-4 py-2.5 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm placeholder:text-gray-400 text-gray-900"
+                              className="w-full px-4 py-2.5 pr-10 border border-[var(--border)] bg-[var(--surface-1)] rounded-lg focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent text-sm placeholder:text-[var(--text-tertiary)] text-[var(--text-primary)]"
                               placeholder="Cari atau buat kategori baru"
                             />
                             <ChevronDown 
                               size={20} 
-                              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] pointer-events-none"
                             />
                           </div>
 
                           {showCategoryDropdown && (
-                            <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                            <div className="absolute z-10 w-full mt-1 bg-[var(--surface-1)] border border-[var(--border)] rounded-lg shadow-lg max-h-60 overflow-y-auto">
                               {filteredCategories.length > 0 ? (
                                 filteredCategories.map(cat => (
                                   <button
                                     key={cat.id}
                                     type="button"
                                     onClick={() => handleCategorySelect(cat)}
-                                    className="w-full px-4 py-2.5 text-left hover:bg-gray-50 text-sm transition-colors flex items-center justify-between group plac"
+                                    className="w-full px-4 py-2.5 text-left hover:bg-[var(--surface-2)] text-sm transition-colors flex items-center justify-between group plac"
                                   >
-                                    <span className="text-gray-900">{cat.name}</span>
+                                    <span className="text-[var(--text-primary)]">{cat.name}</span>
                                     {formData.categoryId === cat.id && (
-                                      <Check size={16} className="text-emerald-600" />
+                                      <Check size={16} className="text-[var(--color-primary)]" />
                                     )}
                                   </button>
                                 ))
@@ -675,7 +675,7 @@ export default function LockerDetail() {
                                   type="button"
                                   onClick={handleAddNewCategory}
                                   disabled={isAddingNewCategory}
-                                  className="w-full px-4 py-2.5 text-left bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold text-sm transition-colors border-t border-emerald-200"
+                                  className="w-full px-4 py-2.5 text-left bg-[var(--color-primary)]/10 hover:bg-[var(--color-primary)]/20 text-[var(--color-primary)] font-semibold text-sm transition-colors border-t border-[var(--border)]"
                                 >
                                   {isAddingNewCategory ? 'Menambahkan...' : `+ Buat kategori "${categorySearchInput}"`}
                                 </button>
@@ -687,21 +687,21 @@ export default function LockerDetail() {
                         {/* Quantity Input - Conditional based on single vs multiple items */}
                         {isMultipleItems ? (
                           <div className="space-y-3">
-                            <label className="block text-sm font-semibold text-gray-700">
+                            <label className="block text-sm font-semibold text-[var(--text-primary)]">
                               Jumlah Barang <span className="text-red-500">*</span>
                             </label>
                             {parsedItemNames.map((itemName, index) => (
                               <div key={index}>
-                                <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                                <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
                                   {itemName}
                                 </label>
                                 <div className="flex items-center gap-2">
                                   <button
                                     type="button"
                                     onClick={() => decrementIndividualQuantity(itemName)}
-                                    className="w-10 h-10 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                                    className="w-10 h-10 flex items-center justify-center bg-[var(--surface-2)] hover:bg-[var(--surface-3)] rounded-lg transition-colors"
                                   >
-                                    <Minus size={18} className="text-gray-700" />
+                                    <Minus size={18} className="text-[var(--text-primary)]" />
                                   </button>
                                   <input
                                     type="number"
@@ -709,12 +709,12 @@ export default function LockerDetail() {
                                     onChange={(e) => handleIndividualQuantityChange(itemName, parseInt(e.target.value) || 0)}
                                     required
                                     min="0"
-                                    className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm text-center font-semibold text-gray-900"
+                                    className="flex-1 px-4 py-2.5 border border-[var(--border)] bg-[var(--surface-1)] rounded-lg focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent text-sm text-center font-semibold text-[var(--text-primary)]"
                                   />
                                   <button
                                     type="button"
                                     onClick={() => incrementIndividualQuantity(itemName)}
-                                    className="w-10 h-10 flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors"
+                                    className="w-10 h-10 flex items-center justify-center bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white rounded-lg transition-colors"
                                   >
                                     <Plus size={18} />
                                   </button>
@@ -724,16 +724,16 @@ export default function LockerDetail() {
                           </div>
                         ) : (
                           <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
                               Jumlah Barang <span className="text-red-500">*</span>
                             </label>
                             <div className="flex items-center gap-3">
                               <button
                                 type="button"
                                 onClick={decrementQuantity}
-                                className="w-10 h-10 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                                className="w-10 h-10 flex items-center justify-center bg-[var(--surface-2)] hover:bg-[var(--surface-3)] rounded-lg transition-colors"
                               >
-                                <Minus size={18} className="text-gray-700" />
+                                <Minus size={18} className="text-[var(--text-primary)]" />
                               </button>
                               <input
                                 type="number"
@@ -742,12 +742,12 @@ export default function LockerDetail() {
                                 onChange={handleQuantityChange}
                                 min="0"
                                 required
-                                className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm text-center font-semibold text-gray-900"
+                                className="flex-1 px-4 py-2.5 border border-[var(--border)] bg-[var(--surface-1)] rounded-lg focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent text-sm text-center font-semibold text-[var(--text-primary)]"
                               />
                               <button
                                 type="button"
                                 onClick={incrementQuantity}
-                                className="w-10 h-10 flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors"
+                                className="w-10 h-10 flex items-center justify-center bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white rounded-lg transition-colors"
                               >
                                 <Plus size={18} />
                               </button>
@@ -757,7 +757,7 @@ export default function LockerDetail() {
 
                         {/* Description */}
                         <div>
-                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
                             Deskripsi (Opsional)
                           </label>
                           <textarea
@@ -765,7 +765,7 @@ export default function LockerDetail() {
                             value={formData.description}
                             onChange={handleFormChange}
                             rows={3}
-                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm resize-none placeholder:text-gray-400 text-gray-900"
+                            className="w-full px-4 py-2.5 border border-[var(--border)] bg-[var(--surface-1)] rounded-lg focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent text-sm resize-none placeholder:text-[var(--text-tertiary)] text-[var(--text-primary)]"
                             placeholder="Masukkan deskripsi barang (opsional)"
                           />
                         </div>
@@ -774,7 +774,7 @@ export default function LockerDetail() {
                         <button
                           type="submit"
                           disabled={isSubmitting}
-                          className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 text-white font-bold rounded-lg transition-colors shadow-sm disabled:cursor-not-allowed"
+                          className="w-full py-3 bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] disabled:bg-[var(--text-tertiary)] text-white font-bold rounded-lg transition-colors shadow-sm disabled:cursor-not-allowed"
                         >
                           {isSubmitting ? 'Menambahkan...' : 'Tambah Barang'}
                         </button>
@@ -790,8 +790,8 @@ export default function LockerDetail() {
           <div className="lg:col-span-2">
             <Card>
                 <div className="flex items-center justify-between mb-5">
-                <h2 className="text-xl font-bold text-gray-900">Daftar Barang</h2>
-                <span className="px-3 py-1 bg-gray-100 rounded-full text-sm font-semibold text-gray-700">
+                <h2 className="text-xl font-bold text-[var(--text-primary)]">Daftar Barang</h2>
+                <span className="px-3 py-1 bg-[var(--surface-2)] rounded-full text-sm font-semibold text-[var(--text-primary)]">
                   {nf.format(totalQuantity)} Barang • {typesCount} Jenis
                 </span>
               </div>
@@ -799,8 +799,8 @@ export default function LockerDetail() {
               {isLoadingItems ? (
                 <ItemsListSkeleton />
               ) : items.length === 0 ? (
-                <div className="text-center py-12 text-gray-500">
-                  <Package size={48} className="mx-auto mb-3 text-gray-300" />
+                <div className="text-center py-12 text-[var(--text-secondary)]">
+                  <Package size={48} className="mx-auto mb-3 text-[var(--text-tertiary)]" />
                   <p>Belum ada barang di loker ini</p>
                 </div>
               ) : (
@@ -808,20 +808,20 @@ export default function LockerDetail() {
                   {items.map((item) => (
                     <div 
                       key={item.id} 
-                      className="p-4 rounded-lg border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all bg-white"
+                      className="p-4 rounded-lg border border-[var(--border)] hover:border-[var(--color-primary)]/30 hover:shadow-sm transition-all bg-[var(--surface-2)]"
                     >
                       <div className="flex items-start gap-3">
-                        <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                          <Package size={24} className="text-emerald-600" />
+                        <div className="w-12 h-12 rounded-xl bg-[var(--color-primary)]/10 flex items-center justify-center flex-shrink-0">
+                          <Package size={24} className="text-[var(--color-primary)]" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 mb-1">
+                          <h3 className="text-sm font-semibold text-[var(--text-primary)] line-clamp-2 mb-1">
                             <span className="inline">{item.name}</span>
-                            <span className="ml-2 text-sm font-medium text-emerald-600">×{item.quantity}</span>
+                            <span className="ml-2 text-sm font-medium text-[var(--color-primary)]">×{item.quantity}</span>
                           </h3>
-                          <p className="text-xs text-gray-500 mb-2">{item.category.name}</p>
+                          <p className="text-xs text-[var(--text-secondary)] mb-2">{item.category.name}</p>
                           <div className="flex items-center justify-between">
-                            <span className="text-xs text-gray-400">{formatDate(item.createdAt)}</span>
+                            <span className="text-xs text-[var(--text-tertiary)]">{formatDate(item.createdAt)}</span>
                           </div>
                         </div>
                       </div>

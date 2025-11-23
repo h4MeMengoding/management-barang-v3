@@ -475,7 +475,7 @@ export default function AddItem() {
 
   return (
     <ProtectedRoute>
-    <div className="min-h-screen bg-[#F5F1E8] lg:pl-24">
+    <div className="min-h-screen bg-[var(--body-bg)] lg:pl-24">
       <Sidebar />
       
       <main className="w-full px-4 pt-4 pb-20 md:px-6 md:py-6 lg:px-8 lg:pb-8">
@@ -484,13 +484,13 @@ export default function AddItem() {
 
         {/* Success/Error Messages */}
         {success && (
-          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-            <p className="text-green-800 text-sm font-medium">{success}</p>
+          <div className="mb-6 p-4 bg-[var(--color-success)]/10 border border-[var(--color-success)]/30 rounded-lg">
+            <p className="text-[var(--color-success)] text-sm font-medium">{success}</p>
           </div>
         )}
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-800 text-sm font-medium">{error}</p>
+          <div className="mb-6 p-4 bg-[var(--color-danger)]/10 border border-[var(--color-danger)]/30 rounded-lg">
+            <p className="text-[var(--color-danger)] text-sm font-medium">{error}</p>
           </div>
         )}
         
@@ -504,22 +504,22 @@ export default function AddItem() {
                   className="w-full flex items-center justify-between gap-3 hover:opacity-80 transition-opacity"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                      <Plus size={24} className="text-emerald-600" />
+                    <div className="w-12 h-12 rounded-xl bg-[var(--color-primary)]/10 flex items-center justify-center flex-shrink-0">
+                      <Plus size={24} className="text-[var(--color-primary)]" />
                     </div>
                     <div className="text-left">
-                      <h2 className="text-lg font-bold text-gray-900">
+                      <h2 className="text-lg font-bold text-[var(--text-primary)]">
                         {editingItem ? 'Edit Barang' : 'Tambah Barang'}
                       </h2>
-                      <p className="text-xs text-gray-500 mt-0.5">
+                      <p className="text-xs text-[var(--text-secondary)] mt-0.5">
                         {editingItem ? 'Perbarui barang' : 'Buat barang baru'}
                       </p>
                     </div>
                   </div>
                   {isFormOpen ? (
-                    <ChevronUp size={24} className="text-gray-600 flex-shrink-0" />
+                    <ChevronUp size={24} className="text-[var(--text-tertiary)] flex-shrink-0" />
                   ) : (
-                    <ChevronDown size={24} className="text-gray-600 flex-shrink-0" />
+                    <ChevronDown size={24} className="text-[var(--text-tertiary)] flex-shrink-0" />
                   )}
                 </button>
 
@@ -532,10 +532,10 @@ export default function AddItem() {
                     transition={{ duration: 0.3, ease: 'easeInOut' }}
                     style={{ overflow: 'hidden' }}
                     onSubmit={handleSubmit} 
-                    className="space-y-5 mt-5 pt-5 border-t border-gray-100"
+                    className="space-y-5 mt-5 pt-5 border-t border-[var(--divider)]"
                   >
                     <div>
-                      <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
+                      <label htmlFor="name" className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
                         Nama Barang <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -546,54 +546,54 @@ export default function AddItem() {
                         onChange={handleChange}
                         required
                         placeholder="Nama barang (wajib)"
-                        className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors text-sm"
+                        className="w-full px-4 py-3 rounded-lg border border-[var(--border)] bg-[var(--surface-1)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] outline-none transition-colors text-sm"
                       />
                       {!editingItem && (
-                        <p className="mt-1.5 text-xs text-gray-500">
+                        <p className="mt-1.5 text-xs text-[var(--text-secondary)]">
                           💡 <span className="font-medium">Tips:</span> Pisahkan dengan koma (,) untuk menambahkan beberapa barang sekaligus
                         </p>
                       )}
                       {isMultipleItems && !editingItem && (
-                        <p className="mt-1.5 text-xs text-emerald-600 font-medium">
+                        <p className="mt-1.5 text-xs text-[var(--color-success)] font-medium">
                           ✓ Terdeteksi {parsedItemNames.length} barang. Isi jumlah untuk setiap barang di bawah.
                         </p>
                       )}
                     </div>
 
                     <div className="relative" ref={categoryDropdownRef}>
-                      <label htmlFor="categoryInput" className="block text-sm font-semibold text-gray-700 mb-2">
+                      <label htmlFor="categoryInput" className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
                         Kategori Barang <span className="text-red-500">*</span>
                       </label>
                       <button
                         type="button"
                         onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
                         className={`w-full px-4 py-3 rounded-lg border ${
-                          formData.categoryId ? 'border-emerald-500' : 'border-gray-300'
-                        } bg-white text-left focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors text-sm flex items-center justify-between`}
+                          formData.categoryId ? 'border-[var(--color-primary)]' : 'border-[var(--border)]'
+                        } bg-[var(--surface-1)] text-left focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] outline-none transition-colors text-sm flex items-center justify-between`}
                       >
-                        <span className={formData.categoryInput ? 'text-gray-900' : 'text-gray-400'}>
+                        <span className={formData.categoryInput ? 'text-[var(--text-primary)]' : 'text-[var(--text-tertiary)]'}>
                           {formData.categoryInput || 'Pilih Kategori'}
                         </span>
                         <ChevronDown 
                           size={18} 
-                          className={`text-gray-600 transition-transform ${showCategoryDropdown ? 'rotate-180' : ''}`} 
+                          className={`text-[var(--text-tertiary)] transition-transform ${showCategoryDropdown ? 'rotate-180' : ''}`} 
                         />
                       </button>
                       
                       {showCategoryDropdown && (
-                        <div className="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-hidden">
+                        <div className="absolute z-20 w-full mt-1 bg-[var(--surface-1)] border border-[var(--border)] rounded-lg shadow-lg max-h-60 overflow-hidden">
                           {/* Search input */}
-                          <div className="p-3 border-b border-gray-200">
+                          <div className="p-3 border-b border-[var(--divider)]">
                             <input
                               type="text"
                               value={categorySearchInput}
                               onChange={(e) => setCategorySearchInput(e.target.value)}
                               onKeyDown={handleCategoryKeyDown}
                               placeholder="Cari atau tambah kategori baru..."
-                              className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors text-sm"
+                              className="w-full px-3 py-2 rounded-lg border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] outline-none transition-colors text-sm"
                               autoFocus
                             />
-                            <p className="text-xs text-gray-500 mt-1.5">
+                            <p className="text-xs text-[var(--text-secondary)] mt-1.5">
                               Tekan Enter untuk menambah kategori baru
                             </p>
                           </div>
@@ -606,11 +606,11 @@ export default function AddItem() {
                                   type="button"
                                   onClick={handleAddNewCategory}
                                   disabled={isAddingNewCategory}
-                                  className="w-full px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-2 disabled:opacity-50"
+                                  className="w-full px-3 py-2 bg-[var(--color-primary)]/10 hover:bg-[var(--color-primary)]/20 text-[var(--color-primary)] rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-2 disabled:opacity-50"
                                 >
                                   {isAddingNewCategory ? (
                                     <>
-                                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-emerald-600"></div>
+                                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[var(--color-primary)]"></div>
                                       Menambahkan...
                                     </>
                                   ) : (
@@ -622,7 +622,7 @@ export default function AddItem() {
                                 </button>
                               </div>
                             ) : filteredCategories.length === 0 ? (
-                              <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                              <div className="px-4 py-3 text-sm text-[var(--text-secondary)] text-center">
                                 Belum ada kategori
                               </div>
                             ) : (
@@ -631,11 +631,11 @@ export default function AddItem() {
                                   key={category.id}
                                   type="button"
                                   onClick={() => handleCategorySelect(category)}
-                                  className="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 transition-colors flex items-center justify-between group"
+                                  className="w-full px-4 py-2.5 text-left text-sm hover:bg-[var(--surface-2)] transition-colors flex items-center justify-between group"
                                 >
-                                  <span className="font-medium text-gray-900">{category.name}</span>
+                                  <span className="font-medium text-[var(--text-primary)]">{category.name}</span>
                                   {formData.categoryId === category.id && (
-                                    <Check size={16} className="text-emerald-600" />
+                                    <Check size={16} className="text-[var(--color-primary)]" />
                                   )}
                                 </button>
                               ))
@@ -648,21 +648,21 @@ export default function AddItem() {
                     {/* Quantity Input - Conditional based on single vs multiple items */}
                     {!editingItem && isMultipleItems ? (
                       <div className="space-y-3">
-                        <label className="block text-sm font-semibold text-gray-700">
+                        <label className="block text-sm font-semibold text-[var(--text-primary)]">
                           Jumlah Barang <span className="text-red-500">*</span>
                         </label>
                         {parsedItemNames.map((itemName, index) => (
                           <div key={index}>
-                            <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                            <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
                               {itemName}
                             </label>
                             <div className="flex items-center gap-2">
                               <button
                                 type="button"
                                 onClick={() => decrementIndividualQuantity(itemName)}
-                                className="w-10 h-10 flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors"
+                                className="w-10 h-10 flex items-center justify-center bg-[var(--surface-2)] hover:bg-[var(--surface-3)] rounded-lg transition-colors"
                               >
-                                <Minus size={18} className="text-gray-700" />
+                                <Minus size={18} className="text-[var(--text-primary)]" />
                               </button>
                               <input
                                 type="number"
@@ -670,12 +670,12 @@ export default function AddItem() {
                                 onChange={(e) => handleIndividualQuantityChange(itemName, parseInt(e.target.value) || 0)}
                                 required
                                 min="0"
-                                className="flex-1 px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 text-center font-semibold focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors text-sm"
+                                className="flex-1 px-4 py-3 rounded-lg border border-[var(--border)] bg-[var(--surface-1)] text-[var(--text-primary)] text-center font-semibold focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] outline-none transition-colors text-sm"
                               />
                               <button
                                 type="button"
                                 onClick={() => incrementIndividualQuantity(itemName)}
-                                className="w-10 h-10 flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors"
+                                className="w-10 h-10 flex items-center justify-center bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] rounded-lg transition-colors"
                               >
                                 <Plus size={18} className="text-white" />
                               </button>
@@ -685,16 +685,16 @@ export default function AddItem() {
                       </div>
                     ) : (
                       <div>
-                        <label htmlFor="quantity" className="block text-sm font-semibold text-gray-700 mb-2">
+                        <label htmlFor="quantity" className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
                           Jumlah Barang <span className="text-red-500">*</span>
                         </label>
                         <div className="flex items-center gap-2">
                           <button
                             type="button"
                             onClick={decrementQuantity}
-                            className="w-10 h-10 flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors"
+                            className="w-10 h-10 flex items-center justify-center bg-[var(--surface-2)] hover:bg-[var(--surface-3)] rounded-lg transition-colors"
                           >
-                            <Minus size={18} className="text-gray-700" />
+                            <Minus size={18} className="text-[var(--text-primary)]" />
                           </button>
                           <input
                             type="number"
@@ -704,12 +704,12 @@ export default function AddItem() {
                             onChange={handleQuantityChange}
                             required
                             min="0"
-                            className="flex-1 px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 text-center font-semibold focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors text-sm"
+                            className="flex-1 px-4 py-3 rounded-lg border border-[var(--border)] bg-[var(--surface-1)] text-[var(--text-primary)] text-center font-semibold focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] outline-none transition-colors text-sm"
                           />
                           <button
                             type="button"
                             onClick={incrementQuantity}
-                            className="w-10 h-10 flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors"
+                            className="w-10 h-10 flex items-center justify-center bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] rounded-lg transition-colors"
                           >
                             <Plus size={18} className="text-white" />
                           </button>
@@ -718,17 +718,17 @@ export default function AddItem() {
                     )}
 
                     <div className="relative" ref={lockerDropdownRef}>
-                      <label htmlFor="lockerId" className="block text-sm font-semibold text-gray-700 mb-2">
+                      <label htmlFor="lockerId" className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
                         Loker <span className="text-red-500">*</span>
                       </label>
                       <button
                         type="button"
                         onClick={() => setShowLockerDropdown(!showLockerDropdown)}
                         className={`w-full px-4 py-3 rounded-lg border ${
-                          formData.lockerId ? 'border-emerald-500' : 'border-gray-300'
-                        } bg-white text-left focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors text-sm flex items-center justify-between`}
+                          formData.lockerId ? 'border-[var(--color-primary)]' : 'border-[var(--border)]'
+                        } bg-[var(--surface-1)] text-left focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] outline-none transition-colors text-sm flex items-center justify-between`}
                       >
-                        <span className={formData.lockerName ? 'text-gray-900' : 'text-gray-400'}>
+                        <span className={formData.lockerName ? 'text-[var(--text-primary)]' : 'text-[var(--text-tertiary)]'}>
                           {formData.lockerName || 'Pilih Loker'}
                         </span>
                         <ChevronDown 
@@ -738,9 +738,9 @@ export default function AddItem() {
                       </button>
                       
                       {showLockerDropdown && (
-                        <div className="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                        <div className="absolute z-20 w-full mt-1 bg-[var(--surface-1)] border border-[var(--border)] rounded-lg shadow-lg max-h-60 overflow-y-auto">
                           {lockers.length === 0 ? (
-                            <div className="px-4 py-3 text-sm text-amber-600">
+                            <div className="px-4 py-3 text-sm text-[var(--color-warning)]">
                               Belum ada loker. Silakan buat loker terlebih dahulu.
                             </div>
                           ) : (
@@ -749,14 +749,14 @@ export default function AddItem() {
                                 key={locker.id}
                                 type="button"
                                 onClick={() => handleLockerSelect(locker)}
-                                className="w-full px-4 py-3 text-left text-sm hover:bg-gray-50 transition-colors flex items-center justify-between group"
+                                className="w-full px-4 py-3 text-left text-sm hover:bg-[var(--surface-2)] transition-colors flex items-center justify-between group"
                               >
                                 <div>
-                                  <div className="font-medium text-gray-900">{locker.name}</div>
-                                  <div className="text-xs text-gray-500">{locker.code}</div>
+                                  <div className="font-medium text-[var(--text-primary)]">{locker.name}</div>
+                                  <div className="text-xs text-[var(--text-secondary)]">{locker.code}</div>
                                 </div>
                                 {formData.lockerId === locker.id && (
-                                  <Check size={16} className="text-emerald-600" />
+                                  <Check size={16} className="text-[var(--color-primary)]" />
                                 )}
                               </button>
                             ))
@@ -766,7 +766,7 @@ export default function AddItem() {
                     </div>
 
                     <div>
-                      <label htmlFor="description" className="block text-sm font-semibold text-gray-700 mb-2">
+                      <label htmlFor="description" className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
                         Deskripsi
                       </label>
                       <textarea
@@ -776,7 +776,7 @@ export default function AddItem() {
                         onChange={handleChange}
                         rows={4}
                         placeholder="Deskripsi barang (opsional)"
-                        className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors resize-none text-sm"
+                        className="w-full px-4 py-3 rounded-lg border border-[var(--border)] bg-[var(--surface-1)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] outline-none transition-colors resize-none text-sm"
                       />
                     </div>
 
@@ -784,7 +784,7 @@ export default function AddItem() {
                       <button
                         type="submit"
                         disabled={isLoading || lockers.length === 0}
-                        className="flex-1 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex-1 px-6 py-3 bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {isLoading ? (
                           <>
@@ -802,7 +802,7 @@ export default function AddItem() {
                         <button
                           type="button"
                           onClick={handleCancelEdit}
-                          className="px-4 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-lg transition-colors"
+                          className="px-4 py-3 bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--text-primary)] font-semibold rounded-lg transition-colors"
                         >
                           Batal
                         </button>
@@ -820,11 +820,11 @@ export default function AddItem() {
             <Card>
               <div className="flex items-center justify-between mb-5">
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">Daftar Barang</h2>
-                  <p className="text-sm text-gray-500 mt-1">Kelola semua barang</p>
+                  <h2 className="text-xl font-bold text-[var(--text-primary)]">Daftar Barang</h2>
+                  <p className="text-sm text-[var(--text-secondary)] mt-1">Kelola semua barang</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="px-3 py-1.5 bg-emerald-100 rounded-full text-sm font-semibold text-emerald-700">
+                  <span className="px-3 py-1.5 bg-[var(--color-primary)]/10 rounded-full text-sm font-semibold text-[var(--color-primary)]">
                     {items.length} Barang
                   </span>
                 </div>
@@ -833,17 +833,17 @@ export default function AddItem() {
               {isLoadingItems ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {Array.from({ length: 6 }).map((_, i) => (
-                    <div key={i} className="p-4 rounded-lg border border-gray-100 bg-white animate-pulse">
+                    <div key={i} className="p-4 rounded-lg border border-[var(--border)] bg-[var(--surface-1)] animate-pulse">
                       <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-gray-200 flex-shrink-0" />
+                        <div className="w-10 h-10 rounded-lg bg-[var(--surface-2)] flex-shrink-0" />
                         <div className="flex-1 min-w-0 space-y-2">
-                          <div className="h-4 bg-gray-200 rounded w-3/4" />
-                          <div className="h-3 bg-gray-200 rounded w-1/3" />
+                          <div className="h-4 bg-[var(--surface-2)] rounded w-3/4" />
+                          <div className="h-3 bg-[var(--surface-2)] rounded w-1/3" />
                           <div className="flex items-center justify-between mt-2">
-                            <div className="h-3 bg-gray-200 rounded w-1/4" />
-                            <div className="h-3 bg-gray-200 rounded w-1/4" />
+                            <div className="h-3 bg-[var(--surface-2)] rounded w-1/4" />
+                            <div className="h-3 bg-[var(--surface-2)] rounded w-1/4" />
                           </div>
-                          <div className="h-3 bg-gray-200 rounded w-1/2 mt-2" />
+                          <div className="h-3 bg-[var(--surface-2)] rounded w-1/2 mt-2" />
                         </div>
                       </div>
                     </div>
@@ -851,8 +851,8 @@ export default function AddItem() {
                 </div>
               ) : items.length === 0 ? (
                 <div className="text-center py-12">
-                  <Package size={48} className="mx-auto mb-3 text-gray-300" />
-                  <p className="text-gray-500">Belum ada barang. Tambahkan barang pertama Anda!</p>
+                  <Package size={48} className="mx-auto mb-3 text-[var(--text-tertiary)]" />
+                  <p className="text-[var(--text-secondary)]">Belum ada barang. Tambahkan barang pertama Anda!</p>
                 </div>
               ) : (
                 <motion.div 
@@ -870,7 +870,7 @@ export default function AddItem() {
                   {items.map((item) => (
                     <motion.div
                       key={item.id}
-                      className="p-4 rounded-lg border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all bg-white relative"
+                      className="p-4 rounded-lg border border-[var(--border)] hover:border-[var(--color-primary)]/30 hover:shadow-sm transition-all bg-[var(--surface-1)] relative"
                       variants={{
                         hidden: { opacity: 0, y: 20 },
                         visible: { opacity: 1, y: 0 },
@@ -879,34 +879,34 @@ export default function AddItem() {
                       whileHover={{ y: -2 }}
                     >
                       <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                          <Package size={20} className="text-emerald-600" />
+                        <div className="w-10 h-10 rounded-lg bg-[var(--color-primary)]/10 flex items-center justify-center flex-shrink-0">
+                          <Package size={20} className="text-[var(--color-primary)]" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2">
                             <div className="flex-1 min-w-0">
-                              <h3 className="font-semibold text-gray-900 text-sm truncate">{item.name}</h3>
-                              <p className="text-xs text-gray-500 mt-0.5">{item.category.name}</p>
+                              <h3 className="font-semibold text-[var(--text-primary)] text-sm truncate">{item.name}</h3>
+                              <p className="text-xs text-[var(--text-secondary)] mt-0.5">{item.category.name}</p>
                             </div>
                             <motion.button
                               onClick={() => toggleActions(item.id)}
-                              className="p-1 hover:bg-gray-100 rounded transition-colors flex-shrink-0"
+                              className="p-1 hover:bg-[var(--surface-2)] rounded transition-colors flex-shrink-0"
                               whileTap={{ scale: 0.9 }}
                             >
-                              <MoreVertical size={16} className="text-gray-600" />
+                              <MoreVertical size={16} className="text-[var(--text-tertiary)]" />
                             </motion.button>
                           </div>
                           <div className="flex items-center justify-between mt-2">
-                            <span className="text-xs text-gray-600">Qty: {item.quantity}</span>
-                            <span className="text-xs text-gray-400">{formatDate(item.createdAt)}</span>
+                            <span className="text-xs text-[var(--text-secondary)]">Qty: {item.quantity}</span>
+                            <span className="text-xs text-[var(--text-tertiary)]">{formatDate(item.createdAt)}</span>
                           </div>
-                          <p className="text-xs text-gray-500 mt-1 truncate">{item.locker.name} ({item.locker.code})</p>
+                          <p className="text-xs text-[var(--text-secondary)] mt-1 truncate">{item.locker.name} ({item.locker.code})</p>
                         </div>
                       </div>
                       <AnimatePresence>
                         {activeCardId === item.id && (
                           <motion.div 
-                            className="absolute left-0 right-0 top-full mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-3 z-10"
+                            className="absolute left-0 right-0 top-full mt-2 bg-[var(--surface-1)] rounded-lg shadow-lg border border-[var(--border)] p-3 z-10"
                             initial={{ opacity: 0, y: -10, scale: 0.95 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: -10, scale: 0.95 }}
@@ -915,14 +915,14 @@ export default function AddItem() {
                             <div className="flex items-center gap-2">
                               <button 
                                 onClick={() => handleEdit(item)}
-                                className="flex-1 px-3 py-2 text-xs font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center gap-1"
+                                className="flex-1 px-3 py-2 text-xs font-medium text-[var(--color-info)] hover:bg-[var(--color-info)]/10 rounded-lg transition-colors flex items-center justify-center gap-1"
                               >
                                 <Edit2 size={14} />
                                 Edit
                               </button>
                               <button 
                                 onClick={() => handleDelete(item.id)}
-                                className="flex-1 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center gap-1"
+                                className="flex-1 px-3 py-2 text-xs font-medium text-[var(--color-danger)] hover:bg-[var(--color-danger)]/10 rounded-lg transition-colors flex items-center justify-center gap-1"
                               >
                                 <Trash2 size={14} />
                                 Hapus

@@ -166,6 +166,8 @@ export default function Header() {
         return 'Kelola Barang';
       case '/manage-categories':
         return 'Kelola Kategori';
+      case '/manage-users':
+        return 'Kelola User';
       case '/scan-qr':
         return 'Scan QR Code';
       default:
@@ -190,6 +192,8 @@ export default function Header() {
         return 'Kelola dan tambahkan barang ke dalam loker';
       case '/manage-categories':
         return 'Kelola kategori barang';
+      case '/manage-users':
+        return 'Kelola akun pengguna dan hak akses';
       case '/scan-qr':
         return 'Scan QR Code untuk mengakses loker';
       default:

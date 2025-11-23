@@ -49,11 +49,11 @@ export default function KategoriBaru() {
           recentCategories.map((cat) => (
             <BarangBaruItem
               key={cat.id}
-              icon={<FolderTree size={20} className="text-[var(--color-info)]" />}
+              icon={<FolderTree size={20} className="text-[var(--color-primary)]" />}
               name={cat.name}
               date={formatDate(cat.createdAt)}
               quantity={`${cat.totalQuantity || 0} items`}
-              bgColor="bg-[var(--color-info)]/10"
+              bgColor="bg-[var(--color-primary)]/10"
             />
           ))
         )}

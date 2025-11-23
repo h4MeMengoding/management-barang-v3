@@ -26,9 +26,10 @@ export default function ReportLoker() {
   }, [lokerData]);
 
   const palette = [
-    '#86EFAC', '#FDE047', '#BAE6FD', '#C7D2FE', '#FCA5A5', '#FDBA74', '#A7F3D0', '#DDD6FE',
-    '#FED7AA', '#BFDBFE', '#D1FAE5', '#FEF3C7', '#E9D5FF', '#FBCFE8', '#CCFBF1', '#FCE7F3',
-    '#FEF9C3', '#E0E7FF', '#FECACA', '#BAE6FD'
+    '#10B981', '#34D399', '#6EE7B7', '#A7F3D0', '#D1FAE5',
+    '#059669', '#047857', '#065F46', '#064E3B', '#022C22',
+    '#86EFAC', '#5EEAD4', '#2DD4BF', '#14B8A6', '#0D9488',
+    '#0F766E', '#115E59', '#134E4A', '#0E7490', '#0891B2'
   ];
 
   const CustomTooltip = ({ active, payload }: any) => {

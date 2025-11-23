@@ -255,7 +255,7 @@ export default function AddLocker() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-[#F5F1E8] lg:pl-24">
+      <div className="min-h-screen bg-[var(--body-bg)] lg:pl-24">
         <Sidebar />
         
         <main className="w-full px-4 pt-4 pb-20 md:px-6 md:py-6 lg:px-8 lg:pb-8">
@@ -272,18 +272,18 @@ export default function AddLocker() {
                     className="w-full flex items-center justify-between gap-3 hover:opacity-80 transition-opacity"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                        <Plus size={24} className="text-emerald-600" />
+                      <div className="w-12 h-12 rounded-xl bg-[var(--color-primary)]/10 flex items-center justify-center flex-shrink-0">
+                        <Plus size={24} className="text-[var(--color-primary)]" />
                       </div>
                       <div className="text-left">
-                        <h2 className="text-lg font-bold text-gray-900">Tambah Loker</h2>
-                        <p className="text-xs text-gray-500 mt-0.5">Buat loker baru</p>
+                        <h2 className="text-lg font-bold text-[var(--text-primary)]">Tambah Loker</h2>
+                        <p className="text-xs text-[var(--text-secondary)] mt-0.5">Buat loker baru</p>
                       </div>
                     </div>
                     {isFormOpen ? (
-                      <ChevronUp size={24} className="text-gray-600 flex-shrink-0" />
+                      <ChevronUp size={24} className="text-[var(--text-tertiary)] flex-shrink-0" />
                     ) : (
-                      <ChevronDown size={24} className="text-gray-600 flex-shrink-0" />
+                      <ChevronDown size={24} className="text-[var(--text-tertiary)] flex-shrink-0" />
                     )}
                   </button>
 
@@ -291,7 +291,7 @@ export default function AddLocker() {
                     {isFormOpen && (
                       <motion.form 
                         onSubmit={handleSubmit} 
-                        className="space-y-5 mt-5 pt-5 border-t border-gray-100"
+                        className="space-y-5 mt-5 pt-5 border-t border-[var(--divider)]"
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
@@ -300,18 +300,18 @@ export default function AddLocker() {
                       >
                       {/* Success/Error Messages */}
                       {success && (
-                        <div className="p-3 rounded-lg bg-green-50 border border-green-200">
-                          <p className="text-sm text-green-600">{success}</p>
+                        <div className="p-3 rounded-lg bg-[var(--color-success)]/10 border border-[var(--color-success)]/30">
+                          <p className="text-sm text-[var(--color-success)]">{success}</p>
                         </div>
                       )}
                       {error && (
-                        <div className="p-3 rounded-lg bg-red-50 border border-red-200">
-                          <p className="text-sm text-red-600">{error}</p>
+                        <div className="p-3 rounded-lg bg-[var(--color-danger)]/10 border border-[var(--color-danger)]/30">
+                          <p className="text-sm text-[var(--color-danger)]">{error}</p>
                         </div>
                       )}
 
                       <div>
-                        <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
+                        <label htmlFor="name" className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
                           Label Loker <span className="text-red-500">*</span>
                         </label>
                         <input
@@ -323,12 +323,12 @@ export default function AddLocker() {
                           placeholder="Contoh: Lemari 1"
                           required
                           disabled={isLoading}
-                          className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors text-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
+                          className="w-full px-4 py-3 rounded-lg border border-[var(--border)] bg-[var(--surface-1)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] outline-none transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                         />
                       </div>
 
                       <div>
-                        <label htmlFor="code" className="block text-sm font-semibold text-gray-700 mb-2">
+                        <label htmlFor="code" className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
                           Kode Loker <span className="text-red-500">*</span>
                         </label>
                         <div className="flex gap-2">
@@ -341,31 +341,31 @@ export default function AddLocker() {
                             placeholder="A123"
                             required
                             disabled={isLoading}
-                            className="flex-1 px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors text-sm font-mono disabled:cursor-not-allowed"
+                            className="flex-1 px-4 py-3 rounded-lg border border-[var(--border)] bg-[var(--surface-1)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] outline-none transition-colors text-sm font-mono disabled:cursor-not-allowed"
                           />
                           <button
                             type="button"
                             onClick={generateCode}
                             disabled={isLoading || isGeneratingCode}
-                            className="px-4 py-3 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="px-4 py-3 bg-[var(--color-primary)]/10 hover:bg-[var(--color-primary)]/20 text-[var(--color-primary)] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             title="Generate kode baru"
                           >
                             <RefreshCw size={18} className={isGeneratingCode ? 'animate-spin' : ''} />
                           </button>
                         </div>
-                        <p className="text-xs text-gray-500 mt-1">Masukkan kode (format: 1 huruf + 3 angka, contoh: A001). Bisa juga generate menggunakan tombol.</p>
+                        <p className="text-xs text-[var(--text-secondary)] mt-1">Masukkan kode (format: 1 huruf + 3 angka, contoh: A001). Bisa juga generate menggunakan tombol.</p>
                         <div className="mt-2">
                           {codeStatus.checking && (
-                            <p className="text-xs text-gray-500">Memeriksa kode...</p>
+                            <p className="text-xs text-[var(--text-secondary)]">Memeriksa kode...</p>
                           )}
                           {!codeStatus.checking && codeStatus.message && (
-                            <p className={`text-xs ${codeStatus.available === true ? 'text-emerald-600' : codeStatus.available === false ? 'text-red-600' : 'text-gray-500'}`}>{codeStatus.message}</p>
+                            <p className={`text-xs ${codeStatus.available === true ? 'text-[var(--color-success)]' : codeStatus.available === false ? 'text-[var(--color-danger)]' : 'text-[var(--text-secondary)]'}`}>{codeStatus.message}</p>
                           )}
                         </div>
                       </div>
 
                       <div>
-                        <label htmlFor="description" className="block text-sm font-semibold text-gray-700 mb-2">
+                        <label htmlFor="description" className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
                           Deskripsi
                         </label>
                         <textarea
@@ -376,14 +376,14 @@ export default function AddLocker() {
                           placeholder="Deskripsi loker (opsional)"
                           rows={4}
                           disabled={isLoading}
-                          className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors resize-none text-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
+                          className="w-full px-4 py-3 rounded-lg border border-[var(--border)] bg-[var(--surface-1)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] outline-none transition-colors resize-none text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                         />
                       </div>
 
                       <button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm disabled:bg-emerald-400 disabled:cursor-not-allowed"
+                        className="w-full px-6 py-3 bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <Plus size={20} />
                         {isLoading ? 'Membuat...' : 'Tambah Loker'}
@@ -400,11 +400,11 @@ export default function AddLocker() {
             <Card>
               <div className="flex items-center justify-between mb-5">
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">Daftar Loker</h2>
-                  <p className="text-sm text-gray-500 mt-1">Kelola semua loker penyimpanan</p>
+                  <h2 className="text-xl font-bold text-[var(--text-primary)]">Daftar Loker</h2>
+                  <p className="text-sm text-[var(--text-secondary)] mt-1">Kelola semua loker penyimpanan</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="px-3 py-1.5 bg-emerald-100 rounded-full text-sm font-semibold text-emerald-700">
+                  <span className="px-3 py-1.5 bg-[var(--color-primary)]/10 rounded-full text-sm font-semibold text-[var(--color-primary)]">
                     {lockers.length} Loker
                   </span>
                 </div>
@@ -413,24 +413,24 @@ export default function AddLocker() {
               {isLoadingLockers ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {Array.from({ length: 6 }).map((_, i) => (
-                    <div key={i} className="bg-white rounded-xl p-4 lg:p-5 shadow-sm border border-gray-100 animate-pulse">
+                    <div key={i} className="bg-[var(--surface-1)] rounded-xl p-4 lg:p-5 shadow-sm border border-[var(--border)] animate-pulse">
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-start gap-3 flex-1 min-w-0">
-                          <div className="w-12 h-12 rounded-xl bg-gray-200 flex items-center justify-center flex-shrink-0" />
+                          <div className="w-12 h-12 rounded-xl bg-[var(--surface-2)] flex items-center justify-center flex-shrink-0" />
                           <div className="flex-1 min-w-0 space-y-2">
-                            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                            <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                            <div className="h-3 bg-gray-200 rounded w-1/3"></div>
+                            <div className="h-4 bg-[var(--surface-2)] rounded w-3/4"></div>
+                            <div className="h-3 bg-[var(--surface-2)] rounded w-1/2"></div>
+                            <div className="h-3 bg-[var(--surface-2)] rounded w-1/3"></div>
                           </div>
                         </div>
-                        <div className="w-20 h-6 bg-gray-200 rounded-full" />
+                        <div className="w-20 h-6 bg-[var(--surface-2)] rounded-full" />
                       </div>
                     </div>
                   ))}
                 </div>
               ) : lockers.length === 0 ? (
                 <div className="text-center py-12">
-                  <p className="text-gray-500">Belum ada loker. Tambahkan loker pertama Anda!</p>
+                  <p className="text-[var(--text-secondary)]">Belum ada loker. Tambahkan loker pertama Anda!</p>
                 </div>
               ) : (
                 <motion.div 

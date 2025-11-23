@@ -49,11 +49,11 @@ export default function LokerBaru() {
           recentLockers.map((locker) => (
             <BarangBaruItem
               key={locker.id}
-              icon={<Container size={20} className="text-[var(--color-secondary)]" />}
+              icon={<Container size={20} className="text-[var(--color-primary)]" />}
               name={locker.name}
               date={formatDate(locker.createdAt)}
               quantity={locker.code}
-              bgColor="bg-[var(--color-secondary)]/10"
+              bgColor="bg-[var(--color-primary)]/10"
             />
           ))
         )}

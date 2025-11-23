@@ -219,18 +219,18 @@ export default function Sidebar() {
               href="/manage-users"
               className={`w-11 h-11 rounded-xl flex items-center justify-center transition-colors ${
                 pathname === '/manage-users'
-                  ? 'bg-gray-900 text-white'
-                  : 'text-gray-400 hover:bg-gray-100'
+                  ? 'bg-[var(--color-primary)] text-white'
+                  : 'text-[var(--text-tertiary)] hover:bg-[var(--surface-2)]'
               }`}
             >
               <Users size={20} />
             </Link>
             <div className="hidden lg:flex absolute left-full top-1/2 -translate-y-1/2 ml-3 pointer-events-none">
               <div className="relative">
-                <div className="bg-white text-gray-900 text-sm font-medium px-3 py-2 rounded-lg shadow-lg border border-gray-200 opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150 ease-out whitespace-nowrap z-50">
+                <div className="bg-[var(--surface-1)] text-[var(--text-primary)] text-sm font-medium px-3 py-2 rounded-lg shadow-lg border border-[var(--border)] opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150 ease-out whitespace-nowrap z-50">
                   Kelola User
                 </div>
-                <div className="absolute left-[-6px] top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-t border-l border-gray-200 rotate-45 opacity-0 group-hover:opacity-100 transition-all duration-150 ease-out" />
+                <div className="absolute left-[-6px] top-1/2 -translate-y-1/2 w-3 h-3 bg-[var(--surface-1)] border-t border-l border-[var(--border)] rotate-45 opacity-0 group-hover:opacity-100 transition-all duration-150 ease-out" />
               </div>
             </div>
           </div>
@@ -296,17 +296,17 @@ export default function Sidebar() {
         </button>
 
         {/* Profile Dropdown Menu - Shows on Hover */}
-        <div className="absolute bottom-0 left-16 ml-2 w-64 bg-white rounded-xl shadow-lg border border-gray-200 py-3 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+        <div className="absolute bottom-0 left-16 ml-2 w-64 bg-[var(--surface-1)] rounded-xl shadow-lg border border-[var(--border)] py-3 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
           {/* User Info */}
-          <div className="px-4 py-3 border-b border-gray-200">
-            <p className="text-sm font-semibold text-gray-900 truncate">{userName}</p>
-            <p className="text-xs text-gray-500 truncate">{userEmail}</p>
+          <div className="px-4 py-3 border-b border-[var(--border)]">
+            <p className="text-sm font-semibold text-[var(--text-primary)] truncate">{userName}</p>
+            <p className="text-xs text-[var(--text-secondary)] truncate">{userEmail}</p>
           </div>
           
           {/* Logout Button */}
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-red-50 transition-colors text-red-600 mt-1"
+            className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-red-600 dark:text-red-400 mt-1"
           >
             <LogOut size={18} />
             <span className="text-sm font-medium">Logout</span>

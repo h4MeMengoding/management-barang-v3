@@ -52,14 +52,14 @@
    ============================================ */
 :root.dark {
   /* Background System - Dark Mode - Ultra Modern with Emerald Accent */
-  --background: #0A0F0D;
+  --background: #081210;
   --foreground: #F5F5F5;
-  --body-bg: #0A0F0D;
-  --surface-1: #141918;
-  --surface-2: #1A211E;
-  --surface-3: #232B27;
-  --border: #2A332E;
-  --divider: #1A1F1C;
+  --body-bg: #081210;
+  --surface-1: #0F1A17;
+  --surface-2: #152420;
+  --surface-3: #1C2D28;
+  --border: #1F3730;
+  --divider: #14201C;
 
   /* Primary Color - Emerald with Glow Effect */
   --color-primary: #10B981;
@@ -82,36 +82,36 @@
   --text-primary: #F5F5F5;
   --text-secondary: #A8A8A8;
   --text-tertiary: #6B6B6B;
-  --text-inverse: #0A0F0D;
+  --text-inverse: #081210;
 
   /* Additional UI Colors */
-  --color-muted: #141918;
+  --color-muted: #0F1A17;
   --color-accent: #F59E0B;
 
   /* Overlay & Shadow - Enhanced Depth */
-  --overlay: rgba(10, 15, 13, 0.85);
+  --overlay: rgba(8, 18, 16, 0.85);
   --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.4);
   --shadow-strong: 0 8px 24px rgba(0, 0, 0, 0.6);
   --glow-primary: 0 0 20px rgba(16, 185, 129, 0.3);
   --glow-secondary: 0 0 20px rgba(168, 85, 247, 0.3);
   
   /* Emerald Tint for Cards */
-  --card-border: rgba(16, 185, 129, 0.1);
-  --card-hover-bg: rgba(16, 185, 129, 0.05);
+  --card-border: rgba(16, 185, 129, 0.15);
+  --card-hover-bg: rgba(16, 185, 129, 0.08);
 }
 
 /* System Dark Mode Preference */
 @media (prefers-color-scheme: dark) {
   :root:not(.light) {
     /* Background System - Dark Mode - Ultra Modern with Emerald Accent */
-    --background: #0A0F0D;
+    --background: #081210;
     --foreground: #F5F5F5;
-    --body-bg: #0A0F0D;
-    --surface-1: #141918;
-    --surface-2: #1A211E;
-    --surface-3: #232B27;
-    --border: #2A332E;
-    --divider: #1A1F1C;
+    --body-bg: #081210;
+    --surface-1: #0F1A17;
+    --surface-2: #152420;
+    --surface-3: #1C2D28;
+    --border: #1F3730;
+    --divider: #14201C;
 
     /* Primary Color - Emerald with Glow Effect */
     --color-primary: #10B981;
@@ -134,22 +134,22 @@
     --text-primary: #F5F5F5;
     --text-secondary: #A8A8A8;
     --text-tertiary: #6B6B6B;
-    --text-inverse: #0A0F0D;
+    --text-inverse: #081210;
 
     /* Additional UI Colors */
-    --color-muted: #141918;
+    --color-muted: #0F1A17;
     --color-accent: #F59E0B;
 
     /* Overlay & Shadow - Enhanced Depth */
-    --overlay: rgba(10, 15, 13, 0.85);
+    --overlay: rgba(8, 18, 16, 0.85);
     --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.4);
     --shadow-strong: 0 8px 24px rgba(0, 0, 0, 0.6);
     --glow-primary: 0 0 20px rgba(16, 185, 129, 0.3);
     --glow-secondary: 0 0 20px rgba(168, 85, 247, 0.3);
     
     /* Emerald Tint for Cards */
-    --card-border: rgba(16, 185, 129, 0.1);
-    --card-hover-bg: rgba(16, 185, 129, 0.05);
+    --card-border: rgba(16, 185, 129, 0.15);
+    --card-hover-bg: rgba(16, 185, 129, 0.08);
   }
 }
 
