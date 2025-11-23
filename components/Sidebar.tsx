@@ -146,7 +146,16 @@ export default function Sidebar() {
   return (
     <>
       {/* Desktop Sidebar */}
-      <div className="hidden lg:flex fixed left-3 lg:left-6 top-3 lg:top-6 bottom-3 lg:bottom-6 w-16 lg:w-[72px] bg-white rounded-2xl lg:rounded-3xl shadow-lg flex-col items-center py-4 lg:py-5 gap-2 lg:gap-3 z-50">
+      <div 
+        className="hidden lg:flex fixed left-3 lg:left-6 top-3 lg:top-6 bottom-3 lg:bottom-6 w-16 lg:w-[72px] bg-white rounded-2xl lg:rounded-3xl shadow-lg flex-col items-center py-4 lg:py-5 gap-2 lg:gap-3"
+        style={{ 
+          position: 'fixed',
+          zIndex: 9999,
+          willChange: 'transform',
+          backfaceVisibility: 'hidden',
+          WebkitBackfaceVisibility: 'hidden'
+        }}
+      >
       {/* Logo */}
       <div className="w-11 h-11 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-2xl flex items-center justify-center mb-3">
         <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
@@ -418,7 +427,7 @@ export default function Sidebar() {
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="text-white">
             <path d="M6 2L6 10M6 2L3 5M6 2L9 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-          <span>Scroll Keatas Membuka Menu</span>
+          <span>Menu</span>
         </div>
       </motion.div>
     </>
