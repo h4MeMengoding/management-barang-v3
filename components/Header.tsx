@@ -252,12 +252,12 @@ export default function Header() {
                   transition={{ duration: 0.2 }}
                 >
                   <Link
-                    href="/profile"
+                    href="/settings"
                     onClick={() => setShowProfileMenu(false)}
                     className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors text-gray-700"
                   >
                     <User size={18} />
-                    <span className="text-sm font-medium">Profile Settings</span>
+                    <span className="text-sm font-medium">Settings</span>
                   </Link>
                   <button
                     onClick={handleLogout}
