@@ -40,6 +40,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-title" content="Manajemen Barang" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -52,7 +53,7 @@ export default function RootLayout({
         <link rel="shortcut icon" href="/favicon/favicon.ico" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased touch-pan-x touch-pan-y`}
       >
         <QueryProvider>
           <Suspense fallback={null}>
