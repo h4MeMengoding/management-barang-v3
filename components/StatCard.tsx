@@ -24,7 +24,8 @@ export default function StatCard({
   return (
     <div className="bg-[var(--surface-1)] rounded-2xl shadow-sm p-5 lg:p-6">
       {loading ? (
-        <div className="animate-pulse">\n          <div className="flex items-start justify-between mb-3 lg:mb-4">
+        <div className="animate-pulse">
+          <div className="flex items-start justify-between mb-3 lg:mb-4">
             <div className="flex items-center gap-2 lg:gap-3">
               <div className={`${iconBgColor} p-2.5 lg:p-3 rounded-xl flex items-center justify-center`}></div>
               <div className="w-24 h-4 bg-[var(--surface-2)] rounded"></div>

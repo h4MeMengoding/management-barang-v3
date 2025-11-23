@@ -51,93 +51,105 @@
    DARK MODE - CUSTOM THEME
    ============================================ */
 :root.dark {
-  /* Background System - Dark Mode - Improved Comfort */
-  --background: #1C1C1E;
-  --foreground: #E4E4E7;
-  --body-bg: #1C1C1E;
-  --surface-1: #27272A;
-  --surface-2: #313136;
-  --surface-3: #3C3C42;
-  --border: #44444B;
-  --divider: #2D2D32;
+  /* Background System - Dark Mode - Ultra Modern with Emerald Accent */
+  --background: #0A0F0D;
+  --foreground: #F5F5F5;
+  --body-bg: #0A0F0D;
+  --surface-1: #141918;
+  --surface-2: #1A211E;
+  --surface-3: #232B27;
+  --border: #2A332E;
+  --divider: #1A1F1C;
 
-  /* Primary Color - Emerald (Consistent with Light Mode) */
+  /* Primary Color - Emerald with Glow Effect */
   --color-primary: #10B981;
   --color-primary-light: #34D399;
   --color-primary-dark: #059669;
   --color-primary-rgb: 16, 185, 129;
 
-  /* Secondary Color - Soft Coral Pink */
-  --color-secondary: #FB7185;
-  --color-secondary-light: #FDA4AF;
-  --color-secondary-dark: #F43F5E;
+  /* Secondary Color - Electric Purple */
+  --color-secondary: #A855F7;
+  --color-secondary-light: #C084FC;
+  --color-secondary-dark: #9333EA;
 
-  /* Semantic Colors - Balanced & Pleasant */
-  --color-success: #4ADE80;
-  --color-warning: #FBBF24;
-  --color-danger: #F87171;
-  --color-info: #60A5FA;
+  /* Semantic Colors - Premium Vibrant */
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-danger: #F43F5E;
+  --color-info: #06B6D4;
 
-  /* Text Colors - Optimized Readability */
-  --text-primary: #E4E4E7;
-  --text-secondary: #A1A1AA;
-  --text-tertiary: #71717A;
-  --text-inverse: #1C1C1E;
+  /* Text Colors - Premium Contrast */
+  --text-primary: #F5F5F5;
+  --text-secondary: #A8A8A8;
+  --text-tertiary: #6B6B6B;
+  --text-inverse: #0A0F0D;
 
   /* Additional UI Colors */
-  --color-muted: #27272A;
-  --color-accent: #FBBF24;
+  --color-muted: #141918;
+  --color-accent: #F59E0B;
 
-  /* Overlay & Shadow - Dark Mode */
-  --overlay: rgba(0, 0, 0, 0.7);
-  --shadow-soft: rgba(0, 0, 0, 0.35);
-  --shadow-strong: rgba(0, 0, 0, 0.55);
+  /* Overlay & Shadow - Enhanced Depth */
+  --overlay: rgba(10, 15, 13, 0.85);
+  --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-strong: 0 8px 24px rgba(0, 0, 0, 0.6);
+  --glow-primary: 0 0 20px rgba(16, 185, 129, 0.3);
+  --glow-secondary: 0 0 20px rgba(168, 85, 247, 0.3);
+  
+  /* Emerald Tint for Cards */
+  --card-border: rgba(16, 185, 129, 0.1);
+  --card-hover-bg: rgba(16, 185, 129, 0.05);
 }
 
 /* System Dark Mode Preference */
 @media (prefers-color-scheme: dark) {
   :root:not(.light) {
-    /* Background System - Dark Mode - Improved Comfort */
-    --background: #1C1C1E;
-    --foreground: #E4E4E7;
-    --body-bg: #1C1C1E;
-    --surface-1: #27272A;
-    --surface-2: #313136;
-    --surface-3: #3C3C42;
-    --border: #44444B;
-    --divider: #2D2D32;
+    /* Background System - Dark Mode - Ultra Modern with Emerald Accent */
+    --background: #0A0F0D;
+    --foreground: #F5F5F5;
+    --body-bg: #0A0F0D;
+    --surface-1: #141918;
+    --surface-2: #1A211E;
+    --surface-3: #232B27;
+    --border: #2A332E;
+    --divider: #1A1F1C;
 
-    /* Primary Color - Emerald (Consistent with Light Mode) */
+    /* Primary Color - Emerald with Glow Effect */
     --color-primary: #10B981;
     --color-primary-light: #34D399;
     --color-primary-dark: #059669;
     --color-primary-rgb: 16, 185, 129;
 
-    /* Secondary Color - Soft Coral Pink */
-    --color-secondary: #FB7185;
-    --color-secondary-light: #FDA4AF;
-    --color-secondary-dark: #F43F5E;
+    /* Secondary Color - Electric Purple */
+    --color-secondary: #A855F7;
+    --color-secondary-light: #C084FC;
+    --color-secondary-dark: #9333EA;
 
-    /* Semantic Colors - Balanced & Pleasant */
-    --color-success: #4ADE80;
-    --color-warning: #FBBF24;
-    --color-danger: #F87171;
-    --color-info: #60A5FA;
+    /* Semantic Colors - Premium Vibrant */
+    --color-success: #10B981;
+    --color-warning: #F59E0B;
+    --color-danger: #F43F5E;
+    --color-info: #06B6D4;
 
-    /* Text Colors - Optimized Readability */
-    --text-primary: #E4E4E7;
-    --text-secondary: #A1A1AA;
-    --text-tertiary: #71717A;
-    --text-inverse: #1C1C1E;
+    /* Text Colors - Premium Contrast */
+    --text-primary: #F5F5F5;
+    --text-secondary: #A8A8A8;
+    --text-tertiary: #6B6B6B;
+    --text-inverse: #0A0F0D;
 
     /* Additional UI Colors */
-    --color-muted: #27272A;
-    --color-accent: #FBBF24;
+    --color-muted: #141918;
+    --color-accent: #F59E0B;
 
-    /* Overlay & Shadow - Dark Mode */
-    --overlay: rgba(0, 0, 0, 0.7);
-    --shadow-soft: rgba(0, 0, 0, 0.35);
-    --shadow-strong: rgba(0, 0, 0, 0.55);
+    /* Overlay & Shadow - Enhanced Depth */
+    --overlay: rgba(10, 15, 13, 0.85);
+    --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.4);
+    --shadow-strong: 0 8px 24px rgba(0, 0, 0, 0.6);
+    --glow-primary: 0 0 20px rgba(16, 185, 129, 0.3);
+    --glow-secondary: 0 0 20px rgba(168, 85, 247, 0.3);
+    
+    /* Emerald Tint for Cards */
+    --card-border: rgba(16, 185, 129, 0.1);
+    --card-hover-bg: rgba(16, 185, 129, 0.05);
   }
 }
 

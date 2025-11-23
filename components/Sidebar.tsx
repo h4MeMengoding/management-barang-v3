@@ -158,7 +158,17 @@ export default function Sidebar() {
         }}
       >
       {/* Logo */}
-      <div className="w-11 h-11 bg-gradient-to-br from-[var(--color-primary-light)] to-[var(--color-primary-dark)] rounded-2xl flex items-center justify-center mb-3">\n        <svg width="28" height="28" viewBox="0 0 32 32" fill="none">\n          <circle cx="16" cy="16" r="3" fill="white"/>\n          <circle cx="16" cy="8" r="2" fill="white"/>\n          <circle cx="16" cy="24" r="2" fill="white"/>\n          <circle cx="24" cy="12" r="2" fill="white"/>\n          <circle cx="8" cy="12" r="2" fill="white"/>\n          <circle cx="24" cy="20" r="2" fill="white"/>\n          <circle cx="8" cy="20" r="2" fill="white"/>\n        </svg>\n      </div>
+      <div className="w-11 h-11 bg-gradient-to-br from-[var(--color-primary-light)] to-[var(--color-primary-dark)] rounded-2xl flex items-center justify-center mb-3">
+        <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+          <circle cx="16" cy="16" r="3" fill="white"/>
+          <circle cx="16" cy="8" r="2" fill="white"/>
+          <circle cx="16" cy="24" r="2" fill="white"/>
+          <circle cx="24" cy="12" r="2" fill="white"/>
+          <circle cx="8" cy="12" r="2" fill="white"/>
+          <circle cx="24" cy="20" r="2" fill="white"/>
+          <circle cx="8" cy="20" r="2" fill="white"/>
+        </svg>
+      </div>
 
       {/* Menu Items */}
       <div className="flex flex-col gap-2">
