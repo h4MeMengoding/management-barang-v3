@@ -28,8 +28,8 @@ body {
   -webkit-user-select: none;
   -webkit-touch-callout: none;
   -webkit-text-size-adjust: none;
-  /* NO padding on body - let background extend to status bar */
-  /* Content containers will handle safe-area padding instead */
+  /* Add padding for status bar area */
+  padding-top: env(safe-area-inset-top);
   min-height: 100vh;
   min-height: -webkit-fill-available;
 }
@@ -68,11 +68,7 @@ input, textarea, [contenteditable] {
   padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* iOS PWA: Add safe area padding to main content containers */
-main, .main-content {
-  padding-top: max(env(safe-area-inset-top), 1rem);
-  padding-bottom: env(safe-area-inset-bottom);
-}
+/* iOS PWA: Safe area handled by body padding */
 
 /* For pages that use full viewport */
 .pwa-safe-top {
