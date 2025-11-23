@@ -206,8 +206,7 @@ export default function Header() {
   return (
     <>
       {/* Mobile Header - Page Title | Search Icon & Profile */}
-      <div className="lg:hidden sticky top-0 z-40 -mx-4 -mt-4 px-4 pt-4 pb-3 mb-4 bg-[#FFFFFF] backdrop-blur-sm transition-shadow duration-200 shadow-sm">
-        <div className="flex items-center justify-between gap-3">
+      <div className="lg:hidden flex items-center justify-between mb-4 gap-3">
         {/* Left: Page Title */}
         <h1 className="text-xl font-bold text-gray-900 flex-1 min-w-0 truncate tracking-tight">
           {getPageTitle()}
@@ -217,7 +216,7 @@ export default function Header() {
         <div className="flex items-center gap-2 flex-shrink-0">
           <button
             onClick={() => setShowSearch(!showSearch)}
-            className="w-10 h-10 rounded-full bg-gray-50 border border-gray-200 flex items-center justify-center hover:bg-gray-100 transition-colors flex-shrink-0"
+            className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors flex-shrink-0"
           >
             <Search size={20} className="text-gray-700" />
           </button>
@@ -272,14 +271,13 @@ export default function Header() {
             </AnimatePresence>
           </div>
         </div>
-        </div>
       </div>
 
       {/* Mobile Search Bar (Expandable) */}
       <AnimatePresence>
         {showSearch && (
           <motion.div
-            className="lg:hidden mb-4 sticky top-[72px] z-30 -mx-4 px-4 bg-[#FFFFFF] pb-3 shadow-sm"
+            className="lg:hidden mb-4"
             ref={mobileSearchRef}
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
