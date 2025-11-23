@@ -19,6 +19,18 @@
   }
 }
 
+/* Fix iOS overscroll black area */
+html {
+  -ms-content-zooming: none;
+  -ms-touch-action: pan-x pan-y;
+  touch-action: pan-x pan-y;
+  background: var(--background);
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  position: fixed;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
@@ -26,26 +38,21 @@ body {
   /* Prevent zoom on touch devices */
   touch-action: pan-x pan-y;
   -webkit-user-select: none;
+  user-select: none;
   -webkit-touch-callout: none;
   -webkit-text-size-adjust: none;
   /* Add padding for status bar area */
   padding-top: env(safe-area-inset-top);
-  min-height: 100vh;
-  min-height: -webkit-fill-available;
+  /* Full viewport height with overscroll fix */
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  position: relative;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Additional zoom prevention */
-html {
-  -ms-content-zooming: none;
-  -ms-touch-action: pan-x pan-y;
-  touch-action: pan-x pan-y;
-  /* Ensure background extends to status bar on iOS */
-  background: var(--background);
-  min-height: 100vh;
-  min-height: -webkit-fill-available;
-}
-
-/* Disable double tap zoom */
 * {
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
