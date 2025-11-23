@@ -1,8 +1,144 @@
 @import "tailwindcss";
 
+/* ============================================
+   LIGHT MODE - DEFAULT THEME
+   ============================================ */
 :root {
+  /* Background System */
   --background: #F5F1E8;
   --foreground: #171717;
+  --body-bg: #F5F1E8;
+  --surface-1: #FFFFFF;
+  --surface-2: #F9F9F9;
+  --surface-3: #F3F3F3;
+  --border: #E5E5E5;
+  --divider: #EEEEEE;
+
+  /* Primary Color - Emerald (#009966) for Light Mode */
+  --color-primary: #009966;
+  --color-primary-light: #10b981;
+  --color-primary-dark: #047857;
+  --color-primary-rgb: 0, 153, 102;
+
+  /* Secondary Color */
+  --color-secondary: #FF6CCF;
+  --color-secondary-light: #FF8CDA;
+  --color-secondary-dark: #D94FAE;
+
+  /* Semantic Colors */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-info: #3b82f6;
+
+  /* Text Colors */
+  --text-primary: #1F2937;
+  --text-secondary: #6B7280;
+  --text-tertiary: #9CA3AF;
+  --text-inverse: #FFFFFF;
+
+  /* Additional UI Colors */
+  --color-muted: #F3F4F6;
+  --color-accent: #F59E0B;
+
+  /* Overlay & Shadow */
+  --overlay: rgba(0, 0, 0, 0.4);
+  --shadow-soft: rgba(0, 0, 0, 0.08);
+  --shadow-strong: rgba(0, 0, 0, 0.15);
+}
+
+/* ============================================
+   DARK MODE - CUSTOM THEME
+   ============================================ */
+:root.dark {
+  /* Background System - Dark Mode - Improved Comfort */
+  --background: #1C1C1E;
+  --foreground: #E4E4E7;
+  --body-bg: #1C1C1E;
+  --surface-1: #27272A;
+  --surface-2: #313136;
+  --surface-3: #3C3C42;
+  --border: #44444B;
+  --divider: #2D2D32;
+
+  /* Primary Color - Emerald (Consistent with Light Mode) */
+  --color-primary: #10B981;
+  --color-primary-light: #34D399;
+  --color-primary-dark: #059669;
+  --color-primary-rgb: 16, 185, 129;
+
+  /* Secondary Color - Soft Coral Pink */
+  --color-secondary: #FB7185;
+  --color-secondary-light: #FDA4AF;
+  --color-secondary-dark: #F43F5E;
+
+  /* Semantic Colors - Balanced & Pleasant */
+  --color-success: #4ADE80;
+  --color-warning: #FBBF24;
+  --color-danger: #F87171;
+  --color-info: #60A5FA;
+
+  /* Text Colors - Optimized Readability */
+  --text-primary: #E4E4E7;
+  --text-secondary: #A1A1AA;
+  --text-tertiary: #71717A;
+  --text-inverse: #1C1C1E;
+
+  /* Additional UI Colors */
+  --color-muted: #27272A;
+  --color-accent: #FBBF24;
+
+  /* Overlay & Shadow - Dark Mode */
+  --overlay: rgba(0, 0, 0, 0.7);
+  --shadow-soft: rgba(0, 0, 0, 0.35);
+  --shadow-strong: rgba(0, 0, 0, 0.55);
+}
+
+/* System Dark Mode Preference */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    /* Background System - Dark Mode - Improved Comfort */
+    --background: #1C1C1E;
+    --foreground: #E4E4E7;
+    --body-bg: #1C1C1E;
+    --surface-1: #27272A;
+    --surface-2: #313136;
+    --surface-3: #3C3C42;
+    --border: #44444B;
+    --divider: #2D2D32;
+
+    /* Primary Color - Emerald (Consistent with Light Mode) */
+    --color-primary: #10B981;
+    --color-primary-light: #34D399;
+    --color-primary-dark: #059669;
+    --color-primary-rgb: 16, 185, 129;
+
+    /* Secondary Color - Soft Coral Pink */
+    --color-secondary: #FB7185;
+    --color-secondary-light: #FDA4AF;
+    --color-secondary-dark: #F43F5E;
+
+    /* Semantic Colors - Balanced & Pleasant */
+    --color-success: #4ADE80;
+    --color-warning: #FBBF24;
+    --color-danger: #F87171;
+    --color-info: #60A5FA;
+
+    /* Text Colors - Optimized Readability */
+    --text-primary: #E4E4E7;
+    --text-secondary: #A1A1AA;
+    --text-tertiary: #71717A;
+    --text-inverse: #1C1C1E;
+
+    /* Additional UI Colors */
+    --color-muted: #27272A;
+    --color-accent: #FBBF24;
+
+    /* Overlay & Shadow - Dark Mode */
+    --overlay: rgba(0, 0, 0, 0.7);
+    --shadow-soft: rgba(0, 0, 0, 0.35);
+    --shadow-strong: rgba(0, 0, 0, 0.55);
+  }
 }
 
 @theme inline {
@@ -10,13 +146,19 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Custom Color Tokens for Tailwind */
+  --color-body: var(--body-bg);
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-border: var(--border);
+  --color-divider: var(--divider);
+  
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-text-inverse: var(--text-inverse);
 }
 
 /* Fix iOS overscroll black area - Critical for PWA */
@@ -39,8 +181,8 @@ html {
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--body-bg);
+  color: var(--text-primary);
   font-family: Arial, Helvetica, sans-serif;
   /* Prevent zoom on touch devices */
   touch-action: pan-x pan-y;
@@ -63,6 +205,8 @@ body {
   -webkit-transform: none !important;
   /* Smooth scrolling */
   -webkit-overflow-scrolling: touch;
+  /* Smooth theme transition */
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Additional zoom prevention */
@@ -105,7 +249,7 @@ input, textarea, [contenteditable] {
 }
 
 #nprogress .bar {
-  background: linear-gradient(90deg, #10b981, #059669) !important;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-primary-dark)) !important;
   position: fixed;
   z-index: 9999;
   top: 0;
@@ -120,7 +264,7 @@ input, textarea, [contenteditable] {
   right: 0px;
   width: 100px;
   height: 100%;
-  box-shadow: 0 0 10px #10b981, 0 0 5px #10b981;
+  box-shadow: 0 0 10px var(--color-primary), 0 0 5px var(--color-primary);
   opacity: 1;
   transform: rotate(3deg) translate(0px, -4px);
 }

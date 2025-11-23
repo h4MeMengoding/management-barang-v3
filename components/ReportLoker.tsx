@@ -34,9 +34,9 @@ export default function ReportLoker() {
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white border border-gray-200 px-3 py-2 rounded-lg shadow-lg">
-          <p className="text-sm font-medium text-gray-900">{payload[0].name}</p>
-          <p className="text-xs text-gray-600">{payload[0].value} items</p>
+        <div className="bg-[var(--surface-1)] border border-[var(--border)] px-3 py-2 rounded-lg shadow-lg">
+          <p className="text-sm font-medium text-[var(--text-primary)]">{payload[0].name}</p>
+          <p className="text-xs text-[var(--text-secondary)]">{payload[0].value} items</p>
         </div>
       );
     }
@@ -46,8 +46,8 @@ export default function ReportLoker() {
   return (
     <Card>
       <div className="flex items-center justify-between mb-4 lg:mb-6">
-        <h3 className="text-lg lg:text-xl font-semibold text-gray-900">Report Loker</h3>
-        <button className="text-xs lg:text-sm text-gray-600 hover:text-gray-900">
+        <h3 className="text-lg lg:text-xl font-semibold text-[var(--text-primary)]">Report Loker</h3>
+        <button className="text-xs lg:text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
           See Details
         </button>
       </div>
@@ -56,17 +56,17 @@ export default function ReportLoker() {
         {isLoading ? (
           <div className="w-full py-6">
             <div className="flex items-center gap-6 w-full animate-pulse">
-              <div className="w-40 h-40 bg-gray-200 rounded-full flex-shrink-0" />
+              <div className="w-40 h-40 bg-[var(--surface-2)] rounded-full flex-shrink-0" />
               <div className="flex-1 space-y-3">
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="h-3 bg-gray-200 rounded w-[90%]" />
+                  <div key={i} className="h-3 bg-[var(--surface-2)] rounded w-[90%]" />
                 ))}
               </div>
             </div>
           </div>
         ) : lokerData.length === 0 ? (
           <div className="w-full text-center py-12">
-            <p className="text-gray-500 text-sm">Belum ada data distribusi loker</p>
+            <p className="text-[var(--text-secondary)] text-sm">Belum ada data distribusi loker</p>
           </div>
         ) : (
           <>
@@ -74,8 +74,8 @@ export default function ReportLoker() {
               <ResponsiveContainer width="100%" height="100%">
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                   <div className="text-center">
-                    <p className="text-xl lg:text-2xl font-bold text-gray-900">{total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}</p>
-                    <p className="text-xs text-gray-500">Total</p>
+                    <p className="text-xl lg:text-2xl font-bold text-[var(--text-primary)]">{total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}</p>
+                    <p className="text-xs text-[var(--text-tertiary)]">Total</p>
                   </div>
                 </div>
                 <PieChart>
@@ -104,7 +104,7 @@ export default function ReportLoker() {
                     className="w-2.5 h-2.5 rounded-full flex-shrink-0"
                     style={{ backgroundColor: palette[index % palette.length] }}
                   />
-                  <span className="text-xs text-gray-600 truncate">{entry.name}</span>
+                  <span className="text-xs text-[var(--text-secondary)] truncate">{entry.name}</span>
                 </div>
               ))}
             </div>

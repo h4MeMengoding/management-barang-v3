@@ -208,7 +208,7 @@ export default function Header() {
       {/* Mobile Header - Page Title | Search Icon & Profile */}
       <div className="lg:hidden flex items-center justify-between mb-4 gap-3">
         {/* Left: Page Title */}
-        <h1 className="text-xl font-bold text-gray-900 flex-1 min-w-0 truncate tracking-tight">
+        <h1 className="text-xl font-bold text-[var(--text-primary)] flex-1 min-w-0 truncate tracking-tight">
           {getPageTitle()}
         </h1>
 
@@ -216,15 +216,15 @@ export default function Header() {
         <div className="flex items-center gap-2 flex-shrink-0">
           <button
             onClick={() => setShowSearch(!showSearch)}
-            className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors flex-shrink-0"
+            className="w-10 h-10 rounded-full bg-[var(--surface-1)] border border-[var(--border)] flex items-center justify-center hover:bg-[var(--surface-2)] transition-colors flex-shrink-0"
           >
-            <Search size={20} className="text-gray-700" />
+            <Search size={20} className="text-[var(--text-primary)]" />
           </button>
 
           <div className="relative flex-shrink-0">
             <button
               onClick={() => setShowProfileMenu(!showProfileMenu)}
-              className="w-10 h-10 rounded-full bg-emerald-500 overflow-hidden hover:ring-2 hover:ring-emerald-400 transition-all flex items-center justify-center"
+              className="w-10 h-10 rounded-full bg-[var(--color-primary)] overflow-hidden hover:ring-2 hover:ring-[var(--color-primary-light)] transition-all flex items-center justify-center"
             >
               {profilePicture ? (
                 <Image
@@ -245,7 +245,7 @@ export default function Header() {
             <AnimatePresence>
               {showProfileMenu && (
                 <motion.div
-                  className="absolute top-12 right-0 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50"
+                  className="absolute top-12 right-0 w-48 bg-[var(--surface-1)] rounded-xl shadow-lg border border-[var(--border)] py-2 z-50"
                   initial={{ opacity: 0, y: -10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -10, scale: 0.95 }}
@@ -254,14 +254,14 @@ export default function Header() {
                   <Link
                     href="/settings"
                     onClick={() => setShowProfileMenu(false)}
-                    className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors text-gray-700"
+                    className="flex items-center gap-3 px-4 py-2.5 hover:bg-[var(--surface-2)] transition-colors text-[var(--text-primary)]"
                   >
                     <User size={18} />
                     <span className="text-sm font-medium">Settings</span>
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors text-red-600"
+                    className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-[var(--surface-2)] transition-colors text-[var(--color-danger)]"
                   >
                     <LogOut size={18} />
                     <span className="text-sm font-medium">Logout</span>
@@ -290,18 +290,18 @@ export default function Header() {
                 placeholder="Cari sesuatu..."
                 value={searchQuery}
                 onChange={(e) => handleSearch(e.target.value)}
-                className="w-full pl-4 pr-12 py-3 rounded-full bg-white border border-gray-200 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-300"
+                className="w-full pl-4 pr-12 py-3 rounded-full bg-[var(--surface-1)] border border-[var(--border)] text-sm text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/50"
                 autoFocus
               />
-              <button className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 bg-gray-900 rounded-full flex items-center justify-center text-white hover:bg-gray-800 transition-colors">
+              <button className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 bg-[var(--color-primary)] rounded-full flex items-center justify-center text-white hover:bg-[var(--color-primary-dark)] transition-colors">
                 <Search size={16} />
               </button>
 
               {/* Mobile Search Results Dropdown */}
               {showResults && searchResults && (
-                <div className="absolute top-full mt-2 left-0 right-0 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50 max-h-96 overflow-y-auto">
+                <div className="absolute top-full mt-2 left-0 right-0 bg-[var(--surface-1)] rounded-xl shadow-lg border border-[var(--border)] py-2 z-50 max-h-96 overflow-y-auto">
                   {searchResults.items.length === 0 && searchResults.lockers.length === 0 && searchResults.categories.length === 0 ? (
-                    <div className="px-4 py-8 text-center text-gray-500 text-sm">
+                    <div className="px-4 py-8 text-center text-[var(--text-secondary)] text-sm">
                       Tidak ada hasil ditemukan
                     </div>
                   ) : (
@@ -309,19 +309,19 @@ export default function Header() {
                       {/* Items Section */}
                       {searchResults.items.length > 0 && (
                         <div className="mb-2">
-                          <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase">Barang</div>
+                          <div className="px-4 py-2 text-xs font-semibold text-[var(--text-tertiary)] uppercase">Barang</div>
                           {searchResults.items.map((item: any) => (
                             <div
                               key={item.id}
-                              className="px-4 py-3 hover:bg-gray-50 transition-colors cursor-default"
+                              className="px-4 py-3 hover:bg-[var(--surface-2)] transition-colors cursor-default"
                             >
                               <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                                  <Package size={16} className="text-emerald-600" />
+                                <div className="w-8 h-8 rounded-lg bg-[var(--color-primary)]/10 flex items-center justify-center flex-shrink-0">
+                                  <Package size={16} className="text-[var(--color-primary)]" />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-sm font-medium text-gray-900 truncate">{item.name}</p>
-                                  <p className="text-xs text-gray-500">{item.locker.code} - {item.locker.name}</p>
+                                  <p className="text-sm font-medium text-[var(--text-primary)] truncate">{item.name}</p>
+                                  <p className="text-xs text-[var(--text-secondary)]">{item.locker.code} - {item.locker.name}</p>
                                 </div>
                               </div>
                             </div>
@@ -332,20 +332,20 @@ export default function Header() {
                       {/* Lockers Section */}
                       {searchResults.lockers.length > 0 && (
                         <div className="mb-2">
-                          <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase">Loker</div>
+                          <div className="px-4 py-2 text-xs font-semibold text-[var(--text-tertiary)] uppercase">Loker</div>
                           {searchResults.lockers.map((locker: any) => (
                             <button
                               key={locker.id}
                               onClick={() => handleResultClick('locker', locker.id)}
-                              className="w-full px-4 py-3 hover:bg-gray-50 transition-colors text-left"
+                              className="w-full px-4 py-3 hover:bg-[var(--surface-2)] transition-colors text-left"
                             >
                               <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-                                  <Archive size={16} className="text-blue-600" />
+                                <div className="w-8 h-8 rounded-lg bg-[var(--color-info)]/10 flex items-center justify-center flex-shrink-0">
+                                  <Archive size={16} className="text-[var(--color-info)]" />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-sm font-medium text-gray-900 truncate">{locker.name}</p>
-                                  <p className="text-xs text-gray-500">Kode: {locker.code}</p>
+                                  <p className="text-sm font-medium text-[var(--text-primary)] truncate">{locker.name}</p>
+                                  <p className="text-xs text-[var(--text-secondary)]">Kode: {locker.code}</p>
                                 </div>
                               </div>
                             </button>
@@ -356,19 +356,19 @@ export default function Header() {
                       {/* Categories Section */}
                       {searchResults.categories.length > 0 && (
                         <div>
-                          <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase">Kategori</div>
+                          <div className="px-4 py-2 text-xs font-semibold text-[var(--text-tertiary)] uppercase">Kategori</div>
                           {searchResults.categories.map((category: any) => (
                             <button
                               key={category.id}
                               onClick={() => handleResultClick('category', category.id)}
-                              className="w-full px-4 py-3 hover:bg-gray-50 transition-colors text-left"
+                              className="w-full px-4 py-3 hover:bg-[var(--surface-2)] transition-colors text-left"
                             >
                               <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
-                                  <FolderTree size={16} className="text-purple-600" />
+                                <div className="w-8 h-8 rounded-lg bg-[var(--color-secondary)]/10 flex items-center justify-center flex-shrink-0">
+                                  <FolderTree size={16} className="text-[var(--color-secondary)]" />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-sm font-medium text-gray-900 truncate">{category.name}</p>
+                                  <p className="text-sm font-medium text-[var(--text-primary)] truncate">{category.name}</p>
                                 </div>
                               </div>
                             </button>
@@ -392,10 +392,10 @@ export default function Header() {
         transition={{ duration: 0.4 }}
       >
         <div className="flex-1 min-w-0">
-          <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
+          <h1 className="text-2xl lg:text-3xl font-bold text-[var(--text-primary)]">
             {pathname === '/dashboard' ? `Halo, ${userName ?? 'User'}` : getPageTitle()}
           </h1>
-          <p className="text-sm lg:text-base text-gray-500 mt-1">
+          <p className="text-sm lg:text-base text-[var(--text-secondary)] mt-1">
             {pathname === '/dashboard'
               ? `Selamat ${timeGreeting}, berikut ringkasan barang Anda.`
               : getPageDescription()}
@@ -410,9 +410,9 @@ export default function Header() {
               placeholder="Cari sesuatu..."
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
-              className="w-64 xl:w-80 pl-4 pr-12 py-2.5 lg:py-3 rounded-full bg-white border border-gray-200 text-sm lg:text-base text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-300"
+              className="w-64 xl:w-80 pl-4 pr-12 py-2.5 lg:py-3 rounded-full bg-[var(--surface-1)] border border-[var(--border)] text-sm lg:text-base text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/50"
             />
-            <button className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 lg:w-10 lg:h-10 bg-gray-900 rounded-full flex items-center justify-center text-white hover:bg-gray-800 transition-colors">
+            <button className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 lg:w-10 lg:h-10 bg-[var(--color-primary)] rounded-full flex items-center justify-center text-white hover:bg-[var(--color-primary-dark)] transition-colors">
               <Search size={18} />
             </button>
 

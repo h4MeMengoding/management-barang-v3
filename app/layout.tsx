@@ -5,6 +5,7 @@ import ProgressBar from "@/components/ProgressBar";
 import RegisterSW from '@/components/RegisterSW';
 import { Suspense } from "react";
 import QueryProvider from '@/components/QueryProvider';
+import { ThemeProvider } from '@/components/ThemeProvider';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,14 +39,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" style={{ background: '#F5F1E8' }}>
+    <html lang="en" suppressHydrationWarning>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-visual" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-title" content="Manajemen Barang" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="theme-color" content="#F5F1E8" media="(prefers-color-scheme: light)" />
-        <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
+        <meta name="theme-color" content="#1C1C1E" media="(prefers-color-scheme: dark)" />
         <meta name="msapplication-TileColor" content="#F5F1E8" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="format-detection" content="telephone=no" />
@@ -58,15 +59,16 @@ export default function RootLayout({
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased touch-pan-x touch-pan-y`}
-        style={{ background: '#F5F1E8' }}
       >
-        <QueryProvider>
-          <Suspense fallback={null}>
-            <ProgressBar />
-            <RegisterSW />
-          </Suspense>
-          {children}
-        </QueryProvider>
+        <ThemeProvider>
+          <QueryProvider>
+            <Suspense fallback={null}>
+              <ProgressBar />
+              <RegisterSW />
+            </Suspense>
+            {children}
+          </QueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

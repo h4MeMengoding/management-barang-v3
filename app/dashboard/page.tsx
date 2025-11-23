@@ -100,7 +100,7 @@ export default function Dashboard() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-[#F5F1E8] lg:pl-24">
+      <div className="min-h-screen bg-[var(--body-bg)] lg:pl-24">
         {/* Sidebar */}
         <Sidebar />
 
@@ -131,13 +131,13 @@ export default function Dashboard() {
             transition={{ duration: 0.4 }}
           >
             <StatCard
-              icon={<Container size={24} className="text-emerald-600" />}
+              icon={<Container size={24} className="text-[var(--color-primary)]" />}
               title="Total Loker"
               value={lokerStats.total}
               change={lokerStats.change}
               changeType={lokerStats.changeType}
               previousValue={lokerStats.previous}
-              iconBgColor="bg-emerald-100"
+              iconBgColor="bg-[var(--color-primary)]/10"
               loading={isLoadingStats}
             />
           </motion.div>
@@ -149,13 +149,13 @@ export default function Dashboard() {
             transition={{ duration: 0.4 }}
           >
             <StatCard
-              icon={<Package size={24} className="text-emerald-600" />}
+              icon={<Package size={24} className="text-[var(--color-primary)]" />}
               title="Total Barang"
               value={barangStats.total}
               change={barangStats.change}
               changeType={barangStats.changeType}
               previousValue={barangStats.previous}
-              iconBgColor="bg-emerald-100"
+              iconBgColor="bg-[var(--color-primary)]/10"
               loading={isLoadingStats}
             />
           </motion.div>
@@ -167,13 +167,13 @@ export default function Dashboard() {
             transition={{ duration: 0.4 }}
           >
             <StatCard
-              icon={<FolderTree size={24} className="text-emerald-600" />}
+              icon={<FolderTree size={24} className="text-[var(--color-primary)]" />}
               title="Total Kategori Barang"
               value={kategoriStats.total}
               change={kategoriStats.change}
               changeType={kategoriStats.changeType}
               previousValue={kategoriStats.previous}
-              iconBgColor="bg-emerald-100"
+              iconBgColor="bg-[var(--color-primary)]/10"
               loading={isLoadingStats}
             />
           </motion.div>

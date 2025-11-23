@@ -22,11 +22,11 @@ export default function BarangBaruItem({
           {icon}
         </div>
         <div className="min-w-0 flex-1">
-          <h4 className="text-xs lg:text-sm font-medium text-gray-900 truncate">{name}</h4>
-          <p className="text-[10px] lg:text-xs text-gray-500">{date}</p>
+          <h4 className="text-xs lg:text-sm font-medium text-[var(--text-primary)] truncate">{name}</h4>
+          <p className="text-[10px] lg:text-xs text-[var(--text-tertiary)]">{date}</p>
         </div>
       </div>
-      <span className="text-sm lg:text-base font-semibold text-gray-900 ml-2 flex-shrink-0">{quantity}</span>
+      <span className="text-sm lg:text-base font-semibold text-[var(--text-primary)] ml-2 flex-shrink-0">{quantity}</span>
     </div>
   );
 }

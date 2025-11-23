@@ -45,9 +45,9 @@ export default function ReportBarang() {
         'Sep': 'September', 'Oct': 'October', 'Nov': 'November', 'Dec': 'December'
       };
       return (
-        <div className="bg-gray-800 text-white px-3 py-2 rounded-lg shadow-lg">
+        <div className="bg-[var(--surface-3)] text-[var(--text-primary)] px-3 py-2 rounded-lg shadow-lg border border-[var(--border)]">
           <p className="text-sm font-medium">{payload[0].value.toLocaleString()} barang</p>
-          <p className="text-xs text-gray-400">{monthNames[payload[0].payload.name]}, {new Date().getFullYear()}</p>
+          <p className="text-xs text-[var(--text-tertiary)]">{monthNames[payload[0].payload.name]}, {new Date().getFullYear()}</p>
         </div>
       );
     }
@@ -57,8 +57,8 @@ export default function ReportBarang() {
   return (
     <Card>
       <div className="flex items-center justify-between mb-4 lg:mb-6">
-        <h3 className="text-lg lg:text-xl font-semibold text-gray-900">Report Barang</h3>
-        <button className="flex items-center gap-1.5 lg:gap-2 px-3 lg:px-4 py-2 bg-gray-100 rounded-lg text-xs lg:text-sm font-medium text-gray-700 hover:bg-gray-200 transition-colors">
+        <h3 className="text-lg lg:text-xl font-semibold text-[var(--text-primary)]">Report Barang</h3>
+        <button className="flex items-center gap-1.5 lg:gap-2 px-3 lg:px-4 py-2 bg-[var(--surface-2)] rounded-lg text-xs lg:text-sm font-medium text-[var(--text-primary)] hover:bg-[var(--surface-3)] transition-colors">
           <CalendarDays size={16} />
           {period}
           <ChevronDown size={16} />
@@ -68,39 +68,39 @@ export default function ReportBarang() {
       <div className="w-full h-64">
         {isLoading ? (
           <div className="w-full h-full animate-pulse p-4">
-            <div className="h-4 bg-gray-200 rounded w-40 mb-4"></div>
+            <div className="h-4 bg-[var(--surface-2)] rounded w-40 mb-4"></div>
             <div className="flex items-end gap-3 h-44">
               {['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map((m, idx) => (
-                <div key={idx} className="flex-1 h-20 bg-gray-200 rounded" />
+                <div key={idx} className="flex-1 h-20 bg-[var(--surface-2)] rounded" />
               ))}
             </div>
           </div>
         ) : barangData.length === 0 ? (
           <div className="w-full h-full flex items-center justify-center">
-            <p className="text-gray-500 text-sm">Belum ada data barang</p>
+            <p className="text-[var(--text-secondary)] text-sm">Belum ada data barang</p>
           </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={barangData} margin={{ top: 20, right: 10, left: -20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
               <XAxis 
                 dataKey="name" 
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: '#9CA3AF', fontSize: 12 }}
+                tick={{ fill: 'var(--text-tertiary)', fontSize: 12 }}
               />
               <YAxis 
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: '#9CA3AF', fontSize: 12 }}
+                tick={{ fill: 'var(--text-tertiary)', fontSize: 12 }}
                 domain={[0, yDomainMax]}
               />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
               <Bar 
                 dataKey="value" 
-                fill="#10B981"
+                fill="var(--color-primary)"
                 radius={[8, 8, 0, 0]}
-                activeBar={{ fill: '#047857' }}
+                activeBar={{ fill: 'var(--color-primary-dark)' }}
                 maxBarSize={50}
               />
             </BarChart>

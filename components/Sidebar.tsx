@@ -7,6 +7,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { LayoutGrid, PlusSquare, Package, FolderTree, QrCode, ScanLine, Settings, HelpCircle, LogOut, User, Users } from 'lucide-react';
 import { clearUserSession, getCurrentUser } from '@/lib/auth';
+import ThemeToggle from './ThemeToggle';
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -147,7 +148,7 @@ export default function Sidebar() {
     <>
       {/* Desktop Sidebar */}
       <div 
-        className="hidden lg:flex fixed left-3 lg:left-6 top-3 lg:top-6 bottom-3 lg:bottom-6 w-16 lg:w-[72px] bg-white rounded-2xl lg:rounded-3xl shadow-lg flex-col items-center py-4 lg:py-5 gap-2 lg:gap-3"
+        className="hidden lg:flex fixed left-3 lg:left-6 top-3 lg:top-6 bottom-3 lg:bottom-6 w-16 lg:w-[72px] bg-[var(--surface-1)] rounded-2xl lg:rounded-3xl shadow-lg flex-col items-center py-4 lg:py-5 gap-2 lg:gap-3"
         style={{ 
           position: 'fixed',
           zIndex: 9999,
@@ -157,17 +158,7 @@ export default function Sidebar() {
         }}
       >
       {/* Logo */}
-      <div className="w-11 h-11 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-2xl flex items-center justify-center mb-3">
-        <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
-          <circle cx="16" cy="16" r="3" fill="white"/>
-          <circle cx="16" cy="8" r="2" fill="white"/>
-          <circle cx="16" cy="24" r="2" fill="white"/>
-          <circle cx="24" cy="12" r="2" fill="white"/>
-          <circle cx="8" cy="12" r="2" fill="white"/>
-          <circle cx="24" cy="20" r="2" fill="white"/>
-          <circle cx="8" cy="20" r="2" fill="white"/>
-        </svg>
-      </div>
+      <div className="w-11 h-11 bg-gradient-to-br from-[var(--color-primary-light)] to-[var(--color-primary-dark)] rounded-2xl flex items-center justify-center mb-3">\n        <svg width="28" height="28" viewBox="0 0 32 32" fill="none">\n          <circle cx="16" cy="16" r="3" fill="white"/>\n          <circle cx="16" cy="8" r="2" fill="white"/>\n          <circle cx="16" cy="24" r="2" fill="white"/>\n          <circle cx="24" cy="12" r="2" fill="white"/>\n          <circle cx="8" cy="12" r="2" fill="white"/>\n          <circle cx="24" cy="20" r="2" fill="white"/>\n          <circle cx="8" cy="20" r="2" fill="white"/>\n        </svg>\n      </div>
 
       {/* Menu Items */}
       <div className="flex flex-col gap-2">
@@ -183,8 +174,8 @@ export default function Sidebar() {
               href={item.href}
               className={`w-11 h-11 rounded-xl flex items-center justify-center transition-colors ${
                 pathname === item.href
-                  ? 'bg-gray-900 text-white'
-                  : 'text-gray-400 hover:bg-gray-100'
+                  ? 'bg-[var(--color-primary)] text-white'
+                  : 'text-[var(--text-tertiary)] hover:bg-[var(--surface-2)]'
               }`}
             >
               <motion.div
@@ -199,11 +190,11 @@ export default function Sidebar() {
             {/* Floating tooltip for desktop */}
             <div className="hidden lg:flex absolute left-full top-1/2 -translate-y-1/2 ml-3 pointer-events-none">
               <div className="relative">
-                <div className="bg-white text-gray-900 text-sm font-medium px-3 py-2 rounded-lg shadow-lg border border-gray-200 opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150 ease-out whitespace-nowrap z-50">
+                <div className="bg-[var(--surface-1)] text-[var(--text-primary)] text-sm font-medium px-3 py-2 rounded-lg shadow-lg border border-[var(--border)] opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150 ease-out whitespace-nowrap z-50">
                   {item.label}
                 </div>
                 {/* small diamond arrow */}
-                <div className="absolute left-[-6px] top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-t border-l border-gray-200 rotate-45 opacity-0 group-hover:opacity-100 transition-all duration-150 ease-out" />
+                <div className="absolute left-[-6px] top-1/2 -translate-y-1/2 w-3 h-3 bg-[var(--surface-1)] border-t border-l border-[var(--border)] rotate-45 opacity-0 group-hover:opacity-100 transition-all duration-150 ease-out" />
               </div>
             </div>
           </motion.div>
@@ -240,32 +231,35 @@ export default function Sidebar() {
             href="/settings"
             className={`w-11 h-11 rounded-xl flex items-center justify-center transition-colors ${
               pathname === '/settings'
-                ? 'bg-gray-900 text-white'
-                : 'text-gray-400 hover:bg-gray-100'
+                ? 'bg-[var(--color-primary)] text-white'
+                : 'text-[var(--text-tertiary)] hover:bg-[var(--surface-2)]'
             }`}
           >
             <Settings size={20} />
           </Link>
           <div className="hidden lg:flex absolute left-full top-1/2 -translate-y-1/2 ml-3 pointer-events-none">
             <div className="relative">
-              <div className="bg-white text-gray-900 text-sm font-medium px-3 py-2 rounded-lg shadow-lg border border-gray-200 opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150 ease-out whitespace-nowrap z-50">
+              <div className="bg-[var(--surface-1)] text-[var(--text-primary)] text-sm font-medium px-3 py-2 rounded-lg shadow-lg border border-[var(--border)] opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150 ease-out whitespace-nowrap z-50">
                 Settings
               </div>
-              <div className="absolute left-[-6px] top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-t border-l border-gray-200 rotate-45 opacity-0 group-hover:opacity-100 transition-all duration-150 ease-out" />
+              <div className="absolute left-[-6px] top-1/2 -translate-y-1/2 w-3 h-3 bg-[var(--surface-1)] border-t border-l border-[var(--border)] rotate-45 opacity-0 group-hover:opacity-100 transition-all duration-150 ease-out" />
             </div>
           </div>
         </div>
 
+        {/* Theme Toggle */}
+        <ThemeToggle />
+
         <div className="relative group">
-          <button className="w-11 h-11 rounded-xl flex items-center justify-center text-gray-400 hover:bg-gray-100">
+          <button className="w-11 h-11 rounded-xl flex items-center justify-center text-[var(--text-tertiary)] hover:bg-[var(--surface-2)]">
             <HelpCircle size={20} />
           </button>
           <div className="hidden lg:flex absolute left-full top-1/2 -translate-y-1/2 ml-3 pointer-events-none">
             <div className="relative">
-              <div className="bg-white text-gray-900 text-sm font-medium px-3 py-2 rounded-lg shadow-lg border border-gray-200 opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150 ease-out whitespace-nowrap z-50">
+              <div className="bg-[var(--surface-1)] text-[var(--text-primary)] text-sm font-medium px-3 py-2 rounded-lg shadow-lg border border-[var(--border)] opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150 ease-out whitespace-nowrap z-50">
                 Help
               </div>
-              <div className="absolute left-[-6px] top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-t border-l border-gray-200 rotate-45 opacity-0 group-hover:opacity-100 transition-all duration-150 ease-out" />
+              <div className="absolute left-[-6px] top-1/2 -translate-y-1/2 w-3 h-3 bg-[var(--surface-1)] border-t border-l border-[var(--border)] rotate-45 opacity-0 group-hover:opacity-100 transition-all duration-150 ease-out" />
             </div>
           </div>
         </div>
@@ -274,7 +268,7 @@ export default function Sidebar() {
       {/* User Avatar at bottom */}
       <div className="relative group">
         <button 
-          className="w-11 h-11 rounded-full bg-emerald-500 overflow-hidden hover:ring-2 hover:ring-emerald-400 transition-all"
+          className="w-11 h-11 rounded-full bg-[var(--color-primary)] overflow-hidden hover:ring-2 hover:ring-[var(--color-primary-light)] transition-all"
         >
           {profilePicture ? (
             <Image
@@ -321,7 +315,7 @@ export default function Sidebar() {
         }}
         transition={{ duration: 0.3, ease: 'easeInOut' }}
       >
-        <div className="relative bg-white rounded-full shadow-2xl border border-gray-200 px-2 py-2.5 max-w-[280px] mx-auto">
+        <div className="relative bg-[var(--surface-1)] rounded-full shadow-2xl border border-[var(--border)] px-2 py-2.5 max-w-[280px] mx-auto">
           <div className="flex items-center justify-between gap-1 relative">
             {/* Left Menu Items */}
             {mobileMenuLeft.map((item, index) => (
@@ -332,13 +326,13 @@ export default function Sidebar() {
                       layoutId="mobile-indicator"
                       initial={false}
                       transition={{ duration: 0.28, ease: 'easeInOut' }}
-                      className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none bg-emerald-600"
+                      className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none bg-[var(--color-primary)]"
                       style={{ width: 44, height: 44, zIndex: 10 }}
                     />
                   )}
 
                   <div className={`p-2.5 rounded-full relative z-20 transition-all ${
-                    pathname === item.href ? 'text-white' : 'text-gray-400'
+                    pathname === item.href ? 'text-white' : 'text-[var(--text-tertiary)]'
                   }`}>
                     <motion.div
                       whileTap={{ scale: 0.9 }}
@@ -359,7 +353,7 @@ export default function Sidebar() {
                     layoutId="mobile-indicator"
                     initial={false}
                     transition={{ duration: 0.28, ease: 'easeInOut' }}
-                    className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none bg-emerald-600"
+                    className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none bg-[var(--color-primary)]"
                     style={{ width: 60, height: 60, zIndex: 10 }}
                   />
                 )}
@@ -367,8 +361,8 @@ export default function Sidebar() {
                 <div
                   className={`p-4 rounded-full transition-all shadow-lg -mt-8 relative z-20 ${
                     pathname === '/scan-qr'
-                      ? 'bg-emerald-600 text-white scale-110'
-                      : 'bg-emerald-500 text-white'
+                      ? 'bg-[var(--color-primary)] text-white scale-110'
+                      : 'bg-[var(--color-primary-light)] text-white'
                   }`}
                 >
                   <motion.div
@@ -390,13 +384,13 @@ export default function Sidebar() {
                       layoutId="mobile-indicator"
                       initial={false}
                       transition={{ duration: 0.28, ease: 'easeInOut' }}
-                      className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none bg-emerald-600"
+                      className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none bg-[var(--color-primary)]"
                       style={{ width: 44, height: 44, zIndex: 10 }}
                     />
                   )}
 
                   <div className={`p-2.5 rounded-full relative z-20 transition-all ${
-                    pathname === item.href ? 'text-white' : 'text-gray-400'
+                    pathname === item.href ? 'text-white' : 'text-[var(--text-tertiary)]'
                   }`}>
                     <motion.div
                       whileTap={{ scale: 0.9 }}
