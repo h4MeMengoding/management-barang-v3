@@ -17,6 +17,8 @@ export default function Sidebar() {
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [animateMobileNav, setAnimateMobileNav] = useState(false);
+  const [showMobileNav, setShowMobileNav] = useState(true);
+  const lastScrollY = useRef(0);
 
   useEffect(() => {
     const user = getCurrentUser();
@@ -70,6 +72,31 @@ export default function Sidebar() {
     }
   }, []);
 
+  // Handle scroll to show/hide mobile nav
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      if (currentScrollY > lastScrollY.current && currentScrollY > 50) {
+        // Scrolling down
+        setShowMobileNav(false);
+      } else {
+        // Scrolling up
+        setShowMobileNav(true);
+      }
+      
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
   const handleLogout = () => {
     clearUserSession();
     router.push('/signin');
@@ -77,27 +104,27 @@ export default function Sidebar() {
 
   const menuItems = [
     {
-      icon: <LayoutGrid size={20} />,
+      icon: LayoutGrid,
       href: '/dashboard',
       label: 'Dashboard'
     },
     {
-      icon: <PlusSquare size={20} />,
+      icon: PlusSquare,
       href: '/manage-locker',
       label: 'Kelola Loker'
     },
     {
-      icon: <Package size={20} />,
+      icon: Package,
       href: '/manage-items',
       label: 'Kelola Barang'
     },
     {
-      icon: <FolderTree size={20} />,
+      icon: FolderTree,
       href: '/manage-categories',
       label: 'Kelola Kategori'
     },
     {
-      icon: <ScanLine size={20} />,
+      icon: ScanLine,
       href: '/scan-qr',
       label: 'Scan QR Code'
     }
@@ -156,7 +183,7 @@ export default function Sidebar() {
                 whileTap={{ scale: 0.95 }}
                 transition={{ duration: 0.2 }}
               >
-                {item.icon}
+                <item.icon size={20} />
               </motion.div>
             </Link>
 
@@ -277,13 +304,16 @@ export default function Sidebar() {
 
       {/* Mobile Bottom Navigation (FAB Style) */}
       <motion.div 
-        className="lg:hidden fixed bottom-4 left-0 right-0 z-50 px-4"
+        className="lg:hidden fixed bottom-4 left-0 right-0 z-50 px-8"
         initial={animateMobileNav ? { y: 100, opacity: 0 } : false}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.4, ease: 'easeOut' }}
+        animate={{ 
+          y: showMobileNav ? 0 : 120,
+          opacity: showMobileNav ? 1 : 0
+        }}
+        transition={{ duration: 0.3, ease: 'easeInOut' }}
       >
-        <div className="relative bg-white rounded-full shadow-2xl border border-gray-200 px-3 py-2 max-w-sm mx-auto">
-          <div className="flex items-center justify-between gap-2 relative">
+        <div className="relative bg-white rounded-full shadow-2xl border border-gray-200 px-2 py-2.5 max-w-[280px] mx-auto">
+          <div className="flex items-center justify-between gap-1 relative">
             {/* Left Menu Items */}
             {mobileMenuLeft.map((item, index) => (
               <Link key={index} href={item.href}>
@@ -294,7 +324,7 @@ export default function Sidebar() {
                       initial={false}
                       transition={{ duration: 0.28, ease: 'easeInOut' }}
                       className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none bg-emerald-600"
-                      style={{ width: 40, height: 40, zIndex: 10 }}
+                      style={{ width: 44, height: 44, zIndex: 10 }}
                     />
                   )}
 
@@ -305,7 +335,7 @@ export default function Sidebar() {
                       whileTap={{ scale: 0.9 }}
                       transition={{ duration: 0.1 }}
                     >
-                      {item.icon}
+                      <item.icon size={22} />
                     </motion.div>
                   </div>
                 </div>
@@ -321,12 +351,12 @@ export default function Sidebar() {
                     initial={false}
                     transition={{ duration: 0.28, ease: 'easeInOut' }}
                     className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none bg-emerald-600"
-                    style={{ width: 56, height: 56, zIndex: 10 }}
+                    style={{ width: 60, height: 60, zIndex: 10 }}
                   />
                 )}
 
                 <div
-                  className={`p-3.5 rounded-full transition-all shadow-lg -mt-8 relative z-20 ${
+                  className={`p-4 rounded-full transition-all shadow-lg -mt-8 relative z-20 ${
                     pathname === '/scan-qr'
                       ? 'bg-emerald-600 text-white scale-110'
                       : 'bg-emerald-500 text-white'
@@ -336,7 +366,7 @@ export default function Sidebar() {
                     whileTap={{ scale: 0.9 }}
                     transition={{ duration: 0.1 }}
                   >
-                    <ScanLine size={24} />
+                    <ScanLine size={26} />
                   </motion.div>
                 </div>
               </div>
@@ -352,7 +382,7 @@ export default function Sidebar() {
                       initial={false}
                       transition={{ duration: 0.28, ease: 'easeInOut' }}
                       className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none bg-emerald-600"
-                      style={{ width: 40, height: 40, zIndex: 10 }}
+                      style={{ width: 44, height: 44, zIndex: 10 }}
                     />
                   )}
 
@@ -363,13 +393,32 @@ export default function Sidebar() {
                       whileTap={{ scale: 0.9 }}
                       transition={{ duration: 0.1 }}
                     >
-                      {item.icon}
+                      <item.icon size={22} />
                     </motion.div>
                   </div>
                 </div>
               </Link>
             ))}
           </div>
+        </div>
+      </motion.div>
+
+      {/* Tooltip when menu is hidden */}
+      <motion.div
+        className="lg:hidden fixed bottom-2 left-1/2 -translate-x-1/2 z-40"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ 
+          opacity: !showMobileNav ? 1 : 0,
+          y: !showMobileNav ? 0 : 20
+        }}
+        transition={{ duration: 0.3, ease: 'easeInOut' }}
+        style={{ pointerEvents: 'none' }}
+      >
+        <div className="bg-gray-900/90 backdrop-blur-sm text-white text-xs px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1.5">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="text-white">
+            <path d="M6 2L6 10M6 2L3 5M6 2L9 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          <span>Scroll Keatas Membuka Menu</span>
         </div>
       </motion.div>
     </>
