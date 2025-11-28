@@ -422,9 +422,9 @@ export default function Header() {
 
             {/* Desktop Search Results Dropdown */}
             {showResults && searchResults && (
-              <div className="absolute top-full mt-2 left-0 right-0 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50 max-h-96 overflow-y-auto">
+              <div className="absolute top-full mt-2 left-0 right-0 bg-[var(--surface-1)] rounded-xl shadow-lg border border-[var(--border)] py-2 z-50 max-h-96 overflow-y-auto">
                 {searchResults.items.length === 0 && searchResults.lockers.length === 0 && searchResults.categories.length === 0 ? (
-                  <div className="px-4 py-8 text-center text-gray-500 text-sm">
+                  <div className="px-4 py-8 text-center text-[var(--text-secondary)] text-sm">
                     Tidak ada hasil ditemukan
                   </div>
                 ) : (
@@ -432,19 +432,19 @@ export default function Header() {
                     {/* Items Section */}
                     {searchResults.items.length > 0 && (
                       <div className="mb-2">
-                        <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase">Barang</div>
+                        <div className="px-4 py-2 text-xs font-semibold text-[var(--text-tertiary)] uppercase">Barang</div>
                         {searchResults.items.map((item: any) => (
                           <div
                             key={item.id}
-                            className="px-4 py-3 hover:bg-gray-50 transition-colors cursor-default"
+                            className="px-4 py-3 hover:bg-[var(--surface-2)] transition-colors cursor-default"
                           >
                             <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                                <Package size={16} className="text-emerald-600" />
+                              <div className="w-8 h-8 rounded-lg bg-[var(--color-primary)]/10 flex items-center justify-center flex-shrink-0">
+                                <Package size={16} className="text-[var(--color-primary)]" />
                               </div>
                               <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-gray-900 truncate">{item.name}</p>
-                                <p className="text-xs text-gray-500">{item.locker.code} - {item.locker.name}</p>
+                                <p className="text-sm font-medium text-[var(--text-primary)] truncate">{item.name}</p>
+                                <p className="text-xs text-[var(--text-secondary)]">{item.locker.code} - {item.locker.name}</p>
                               </div>
                             </div>
                           </div>
@@ -455,20 +455,20 @@ export default function Header() {
                     {/* Lockers Section */}
                     {searchResults.lockers.length > 0 && (
                       <div className="mb-2">
-                        <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase">Loker</div>
+                        <div className="px-4 py-2 text-xs font-semibold text-[var(--text-tertiary)] uppercase">Loker</div>
                         {searchResults.lockers.map((locker: any) => (
                           <button
                             key={locker.id}
                             onClick={() => handleResultClick('locker', locker.id)}
-                            className="w-full px-4 py-3 hover:bg-gray-50 transition-colors text-left"
+                            className="w-full px-4 py-3 hover:bg-[var(--surface-2)] transition-colors text-left"
                           >
                             <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-                                <Archive size={16} className="text-blue-600" />
+                              <div className="w-8 h-8 rounded-lg bg-[var(--color-info)]/10 flex items-center justify-center flex-shrink-0">
+                                <Archive size={16} className="text-[var(--color-info)]" />
                               </div>
                               <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-gray-900 truncate">{locker.name}</p>
-                                <p className="text-xs text-gray-500">Kode: {locker.code}</p>
+                                <p className="text-sm font-medium text-[var(--text-primary)] truncate">{locker.name}</p>
+                                <p className="text-xs text-[var(--text-secondary)]">Kode: {locker.code}</p>
                               </div>
                             </div>
                           </button>
@@ -479,19 +479,19 @@ export default function Header() {
                     {/* Categories Section */}
                     {searchResults.categories.length > 0 && (
                       <div>
-                        <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase">Kategori</div>
+                        <div className="px-4 py-2 text-xs font-semibold text-[var(--text-tertiary)] uppercase">Kategori</div>
                         {searchResults.categories.map((category: any) => (
                           <button
                             key={category.id}
                             onClick={() => handleResultClick('category', category.id)}
-                            className="w-full px-4 py-3 hover:bg-gray-50 transition-colors text-left"
+                            className="w-full px-4 py-3 hover:bg-[var(--surface-2)] transition-colors text-left"
                           >
                             <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
-                                <FolderTree size={16} className="text-purple-600" />
+                              <div className="w-8 h-8 rounded-lg bg-[var(--color-secondary)]/10 flex items-center justify-center flex-shrink-0">
+                                <FolderTree size={16} className="text-[var(--color-secondary)]" />
                               </div>
                               <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-gray-900 truncate">{category.name}</p>
+                                <p className="text-sm font-medium text-[var(--text-primary)] truncate">{category.name}</p>
                               </div>
                             </div>
                           </button>
