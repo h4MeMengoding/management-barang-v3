@@ -20,7 +20,7 @@ export default function CategoryList({
   onToggleActions,
   onEdit,
   onDelete,
-}: CategoriesListProps) {
+}: CategoryListProps) {
   return (
     <Card>
       <div className="flex items-center justify-between mb-5">

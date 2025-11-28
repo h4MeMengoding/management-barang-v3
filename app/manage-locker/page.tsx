@@ -3,7 +3,7 @@
 import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
 import Card from '@/components/Card';
-import LockerCard from '@/components/LockerCard';
+import LockerCard from '@/components/lockers/LockerCard';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, ChevronDown, ChevronUp, RefreshCw, Download } from 'lucide-react';
 import { useState, useEffect } from 'react';
