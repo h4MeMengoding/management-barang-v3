@@ -6,7 +6,7 @@ import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
 import Card from '@/components/Card';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import CategoryDetailSkeleton from '@/components/CategoryDetailSkeleton';
+import CategoryDetailSkeleton from '@/components/categories/CategoryDetailSkeleton';
 import ItemsListSkeleton from '@/components/ItemsListSkeleton';
 import { getCurrentUser } from '@/lib/auth';
 import { Package, Edit2, Trash2, ArrowLeft, FolderTree } from 'lucide-react';
