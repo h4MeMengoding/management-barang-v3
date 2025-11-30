@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Card from '@/components/Card';
-import { Package, MoreVertical, Edit2, Trash2, X, Check } from 'lucide-react';
+import { Package, MoreVertical, Edit2, Trash2, X, Check, ArrowRight } from 'lucide-react';
 import type { Item } from '@/lib/hooks/useManageItems';
 
 interface ItemListProps {
@@ -13,6 +13,7 @@ interface ItemListProps {
   onToggleActions: (itemId: string) => void;
   onEdit: (item: Item) => void;
   onDelete: (itemId: string) => Promise<void>;
+  onMove: (item: Item) => void;
   onBulkAction?: (itemIds: string[]) => void;
 }
 
@@ -23,6 +24,7 @@ export default function ItemList({
   onToggleActions,
   onEdit,
   onDelete,
+  onMove,
   onBulkAction,
 }: ItemListProps) {
   const [isSelectionMode, setIsSelectionMode] = useState(false);
@@ -270,6 +272,16 @@ export default function ItemList({
                       >
                         <Edit2 size={16} />
                         Edit
+                      </motion.button>
+                      <div className="w-px h-8 bg-[var(--divider)]" />
+                      <motion.button
+                        onClick={() => onMove(item)}
+                        className="flex-1 px-4 py-3 text-sm font-medium text-[var(--color-warning)] hover:bg-[var(--color-warning)]/10 transition-colors flex items-center justify-center gap-2"
+                        whileTap={{ scale: 0.95 }}
+                        whileHover={{ backgroundColor: 'rgba(var(--color-warning-rgb), 0.15)' }}
+                      >
+                        <ArrowRight size={16} />
+                        Pindah
                       </motion.button>
                       <div className="w-px h-8 bg-[var(--divider)]" />
                       <motion.button

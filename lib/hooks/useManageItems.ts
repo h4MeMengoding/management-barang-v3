@@ -326,6 +326,60 @@ export function useManageItems() {
     }
   };
 
+  const moveItem = async (itemId: string, newLockerId: string): Promise<boolean> => {
+    setError('');
+    setSuccess('');
+    setIsLoading(true);
+
+    try {
+      const user = getCurrentUser();
+      if (!user) {
+        setError('User tidak ditemukan');
+        return false;
+      }
+
+      // Get current item data
+      const currentItem = items.find(item => item.id === itemId);
+      if (!currentItem) {
+        setError('Barang tidak ditemukan');
+        return false;
+      }
+
+      const response = await fetch(`/api/items?id=${itemId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: currentItem.name,
+          categoryId: currentItem.categoryId,
+          quantity: currentItem.quantity,
+          lockerId: newLockerId,
+          description: currentItem.description || null,
+          userId: user.id,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Gagal memindahkan barang');
+      }
+
+      setSuccess('Barang berhasil dipindahkan!');
+      await loadItems();
+
+      // Invalidate queries
+      queryClient.invalidateQueries({ queryKey: queryKeys.items(user.id) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.stats(user.id) });
+
+      return true;
+    } catch (err: any) {
+      setError(err.message);
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const clearMessages = () => {
     setSuccess('');
     setError('');
@@ -356,6 +410,7 @@ export function useManageItems() {
     createMultipleItems,
     updateItem,
     deleteItem,
+    moveItem,
     clearMessages,
   };
 }

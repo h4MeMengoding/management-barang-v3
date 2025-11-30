@@ -9,6 +9,7 @@ import AlertMessage from '@/components/AlertMessage';
 import ItemForm from '@/components/manage-items/ItemForm';
 import ItemList from '@/components/manage-items/ItemList';
 import BulkItemActionsModal from '@/components/manage-items/BulkItemActionsModal';
+import MoveItemModal from '@/components/manage-items/MoveItemModal';
 import { useManageItems, type Item } from '@/lib/hooks/useManageItems';
 import { bulkDeleteItems, bulkMoveItems } from '@/lib/hooks/useItems';
 import { getCurrentUser } from '@/lib/auth';
@@ -27,9 +28,11 @@ export default function ManageItems() {
     createMultipleItems,
     updateItem,
     deleteItem,
+    moveItem,
   } = useManageItems();
 
   const [editingItem, setEditingItem] = useState<Item | null>(null);
+  const [movingItem, setMovingItem] = useState<Item | null>(null);
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
   const [showBulkModal, setShowBulkModal] = useState(false);
   const [selectedItemIds, setSelectedItemIds] = useState<string[]>([]);
@@ -81,6 +84,18 @@ export default function ManageItems() {
   const handleDelete = async (itemId: string) => {
     await deleteItem(itemId);
     setActiveCardId(null);
+  };
+
+  const handleMove = (item: Item) => {
+    setMovingItem(item);
+    setActiveCardId(null);
+  };
+
+  const handleMoveConfirm = async (itemId: string, targetLockerId: string) => {
+    const result = await moveItem(itemId, targetLockerId);
+    if (result) {
+      setMovingItem(null);
+    }
   };
 
   const handleBulkAction = (itemIds: string[]) => {
@@ -153,6 +168,7 @@ export default function ManageItems() {
                   activeCardId={activeCardId}
                   onToggleActions={toggleActions}
                   onEdit={handleEdit}
+                  onMove={handleMove}
                   onDelete={handleDelete}
                   onBulkAction={handleBulkAction}
                 />
@@ -171,6 +187,14 @@ export default function ManageItems() {
             setSelectedItemIds([]);
           }}
           onConfirm={handleConfirmBulkAction}
+        />
+
+        <MoveItemModal
+          isOpen={!!movingItem}
+          item={movingItem}
+          lockers={lockers}
+          onClose={() => setMovingItem(null)}
+          onConfirm={handleMoveConfirm}
         />
       </div>
     </ProtectedRoute>
