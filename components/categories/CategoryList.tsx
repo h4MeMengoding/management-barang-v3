@@ -1,7 +1,9 @@
 import { motion } from 'framer-motion';
-import { FolderTree } from 'lucide-react';
+import { FolderTree, Trash2, X } from 'lucide-react';
+import { useState } from 'react';
 import Card from '@/components/Card';
 import CategoryCard from './CategoryCard';
+import DeleteCategoryModal from './DeleteCategoryModal';
 import { Category } from '@/lib/hooks/useManageCategories';
 
 interface CategoryListProps {
@@ -11,6 +13,7 @@ interface CategoryListProps {
   onToggleActions: (categoryId: string) => void;
   onEdit: (category: Category) => void;
   onDelete: (categoryId: string) => void;
+  onBulkDelete?: (categoryIds: string[], moveToCategoryId?: string) => Promise<void>;
 }
 
 export default function CategoryList({
@@ -20,7 +23,62 @@ export default function CategoryList({
   onToggleActions,
   onEdit,
   onDelete,
+  onBulkDelete,
 }: CategoryListProps) {
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set());
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
+  const handleToggleSelection = (categoryId: string) => {
+    setSelectedCategories((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(categoryId)) {
+        newSet.delete(categoryId);
+      } else {
+        newSet.add(categoryId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleSelectAll = () => {
+    if (selectedCategories.size === categories.length) {
+      setSelectedCategories(new Set());
+    } else {
+      setSelectedCategories(new Set(categories.map((c) => c.id)));
+    }
+  };
+
+  const handleCancelSelection = () => {
+    setIsSelectionMode(false);
+    setSelectedCategories(new Set());
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedCategories.size === 0) return;
+    
+    setShowDeleteDialog(true);
+  };
+
+  const handleConfirmDelete = async (action: 'delete-all' | 'move', targetCategoryId?: string) => {
+    setIsDeleting(true);
+    try {
+      if (onBulkDelete) {
+        await onBulkDelete(
+          Array.from(selectedCategories),
+          action === 'move' ? targetCategoryId : undefined
+        );
+      }
+      setSelectedCategories(new Set());
+      setIsSelectionMode(false);
+    } catch (error) {
+      console.error('Error deleting categories:', error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <Card>
       <div className="flex items-center justify-between mb-5">
@@ -29,11 +87,59 @@ export default function CategoryList({
           <p className="text-sm text-[var(--text-secondary)] mt-1">Kelola semua kategori barang</p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="px-3 py-1.5 bg-[var(--color-primary)]/10 rounded-full text-sm font-semibold text-[var(--color-primary)]">
-            {categories.length} Kategori
-          </span>
+          {!isSelectionMode ? (
+            <>
+              <span className="px-3 py-1.5 bg-[var(--color-primary)]/10 rounded-full text-sm font-semibold text-[var(--color-primary)]">
+                {categories.length} Kategori
+              </span>
+              {categories.length > 0 && (
+                <button
+                  onClick={() => setIsSelectionMode(true)}
+                  className="px-3 py-1.5 bg-[var(--surface-2)] hover:bg-[var(--surface-3)] rounded-lg text-sm font-medium text-[var(--text-primary)] transition-colors"
+                >
+                  Pilih
+                </button>
+              )}
+            </>
+          ) : (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleSelectAll}
+                className="px-3 py-1.5 bg-[var(--surface-2)] hover:bg-[var(--surface-3)] rounded-lg text-sm font-medium text-[var(--text-primary)] transition-colors"
+              >
+                {selectedCategories.size === categories.length ? 'Batal Semua' : 'Pilih Semua'}
+              </button>
+              <button
+                onClick={handleCancelSelection}
+                className="p-1.5 bg-[var(--surface-2)] hover:bg-[var(--surface-3)] rounded-lg text-[var(--text-secondary)] transition-colors"
+                title="Batal"
+              >
+                <X size={18} />
+              </button>
+            </div>
+          )}
         </div>
       </div>
+
+      {isSelectionMode && selectedCategories.size > 0 && (
+        <div className="mb-4 p-3 bg-[var(--surface-2)] rounded-lg flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-[var(--text-secondary)]">
+              {selectedCategories.size} kategori dipilih
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleBulkDelete}
+              disabled={isDeleting}
+              className="flex items-center gap-2 px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Trash2 size={16} />
+              {isDeleting ? 'Menghapus...' : 'Hapus'}
+            </button>
+          </div>
+        </div>
+      )}
 
       {isLoading ? (
         <LoadingSkeleton />
@@ -60,10 +166,21 @@ export default function CategoryList({
               onToggleActions={() => onToggleActions(category.id)}
               onEdit={() => onEdit(category)}
               onDelete={() => onDelete(category.id)}
+              isSelectionMode={isSelectionMode}
+              isSelected={selectedCategories.has(category.id)}
+              onToggleSelect={() => handleToggleSelection(category.id)}
             />
           ))}
         </motion.div>
       )}
+
+      <DeleteCategoryModal
+        isOpen={showDeleteDialog}
+        categoriesToDelete={categories.filter((c) => selectedCategories.has(c.id))}
+        allCategories={categories}
+        onClose={() => setShowDeleteDialog(false)}
+        onConfirm={handleConfirmDelete}
+      />
     </Card>
   );
 }

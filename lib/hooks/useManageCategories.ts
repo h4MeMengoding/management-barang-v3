@@ -161,6 +161,59 @@ export function useManageCategories() {
     }
   };
 
+  const bulkDeleteCategories = async (categoryIds: string[], moveToCategoryId?: string): Promise<void> => {
+    setError('');
+    setSuccess('');
+
+    try {
+      const user = getCurrentUser();
+      if (!user) {
+        throw new Error('User tidak ditemukan');
+      }
+
+      // If moveToCategoryId is provided, first move all items
+      if (moveToCategoryId) {
+        const moveResponse = await fetch('/api/items?bulkMoveCategory=true', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fromCategoryIds: categoryIds,
+            toCategoryId: moveToCategoryId,
+            userId: user.id,
+          }),
+        });
+
+        if (!moveResponse.ok) {
+          const moveData = await moveResponse.json();
+          throw new Error(moveData.error || 'Gagal memindahkan barang');
+        }
+      }
+
+      // Then delete the categories
+      const response = await fetch(`/api/categories?ids=${categoryIds.join(',')}&userId=${user.id}`, {
+        method: 'DELETE',
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Gagal menghapus kategori');
+      }
+
+      setSuccess(data.message || 'Kategori berhasil dihapus!');
+      await loadCategories();
+
+      // Invalidate queries
+      queryClient.invalidateQueries({ queryKey: queryKeys.categories(user.id) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.stats(user.id) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.items(user.id) });
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Terjadi kesalahan saat menghapus kategori';
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    }
+  };
+
   const clearMessages = () => {
     setSuccess('');
     setError('');
@@ -187,6 +240,7 @@ export function useManageCategories() {
     createCategory,
     updateCategory,
     deleteCategory,
+    bulkDeleteCategories,
     clearMessages,
   };
 }

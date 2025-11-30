@@ -7,6 +7,7 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import CategoryForm from '@/components/categories/CategoryForm';
 import CategoryList from '@/components/categories/CategoryList';
 import AlertMessage from '@/components/AlertMessage';
+import DeleteCategoryModal from '@/components/categories/DeleteCategoryModal';
 import { useManageCategories, Category } from '@/lib/hooks/useManageCategories';
 
 export default function ManageCategories() {
@@ -19,10 +20,13 @@ export default function ManageCategories() {
     createCategory,
     updateCategory,
     deleteCategory,
+    bulkDeleteCategories,
   } = useManageCategories();
 
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
+  const [deletingCategoryId, setDeletingCategoryId] = useState<string | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const handleSubmit = async (formData: { name: string; description: string }) => {
     const result = editingCategory
@@ -44,10 +48,20 @@ export default function ManageCategories() {
   };
 
   const handleDelete = async (categoryId: string) => {
-    if (!confirm('Apakah Anda yakin ingin menghapus kategori ini?')) return;
-    
-    await deleteCategory(categoryId);
-    setActiveCardId(null);
+    setDeletingCategoryId(categoryId);
+    setShowDeleteDialog(true);
+  };
+
+  const handleConfirmDelete = async (action: 'delete-all' | 'move', targetCategoryId?: string) => {
+    if (deletingCategoryId) {
+      await bulkDeleteCategories([deletingCategoryId], action === 'move' ? targetCategoryId : undefined);
+      setActiveCardId(null);
+      setDeletingCategoryId(null);
+    }
+  };
+
+  const handleBulkDelete = async (categoryIds: string[], moveToCategoryId?: string) => {
+    await bulkDeleteCategories(categoryIds, moveToCategoryId);
   };
 
   const toggleActions = (categoryId: string) => {
@@ -88,11 +102,23 @@ export default function ManageCategories() {
                   onToggleActions={toggleActions}
                   onEdit={handleEdit}
                   onDelete={handleDelete}
+                  onBulkDelete={handleBulkDelete}
                 />
               </div>
             </div>
           </div>
         </main>
+
+        <DeleteCategoryModal
+          isOpen={showDeleteDialog}
+          categoriesToDelete={deletingCategoryId ? categories.filter((c) => c.id === deletingCategoryId) : []}
+          allCategories={categories}
+          onClose={() => {
+            setShowDeleteDialog(false);
+            setDeletingCategoryId(null);
+          }}
+          onConfirm={handleConfirmDelete}
+        />
       </div>
     </ProtectedRoute>
   );

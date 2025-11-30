@@ -140,7 +140,51 @@ export async function PUT(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const id = searchParams.get('id');
     const bulkMove = searchParams.get('bulkMove');
+    const bulkMoveCategory = searchParams.get('bulkMoveCategory');
     const body = await request.json();
+
+    // Bulk move items from one or more categories to another
+    if (bulkMoveCategory === 'true') {
+      const { fromCategoryIds, toCategoryId, userId } = body;
+
+      if (!fromCategoryIds || !Array.isArray(fromCategoryIds) || !toCategoryId || !userId) {
+        return NextResponse.json(
+          { error: 'fromCategoryIds (array), toCategoryId, and userId are required for bulk move' },
+          { status: 400 }
+        );
+      }
+
+      // Verify target category exists and belongs to user
+      const targetCategory = await prisma.category.findFirst({
+        where: { id: toCategoryId, userId },
+      });
+
+      if (!targetCategory) {
+        return NextResponse.json(
+          { error: 'Target category not found' },
+          { status: 404 }
+        );
+      }
+
+      // Move all items from source categories to target category
+      const result = await prisma.item.updateMany({
+        where: {
+          categoryId: { in: fromCategoryIds },
+          userId,
+        },
+        data: {
+          categoryId: toCategoryId,
+        },
+      });
+
+      return NextResponse.json(
+        {
+          message: `${result.count} items moved successfully`,
+          count: result.count,
+        },
+        { status: 200 }
+      );
+    }
 
     // Bulk move items from one or more lockers to another
     if (bulkMove === 'true') {

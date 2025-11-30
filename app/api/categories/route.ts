@@ -190,16 +190,50 @@ export async function PUT(request: NextRequest) {
   }
 }
 
-// DELETE - Delete category
+// DELETE - Delete category (single or bulk)
 export async function DELETE(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const id = searchParams.get('id');
+    const idsParam = searchParams.get('ids');
     const userId = searchParams.get('userId');
 
-    if (!id || !userId) {
+    if (!userId) {
       return NextResponse.json(
-        { error: 'Category ID and userId are required' },
+        { error: 'User ID is required' },
+        { status: 400 }
+      );
+    }
+
+    // Bulk delete
+    if (idsParam) {
+      const ids = idsParam.split(',').filter(Boolean);
+      
+      if (ids.length === 0) {
+        return NextResponse.json(
+          { error: 'No categories selected' },
+          { status: 400 }
+        );
+      }
+
+      // Delete all categories with the given IDs that belong to user
+      await prisma.category.deleteMany({
+        where: {
+          id: { in: ids },
+          userId,
+        },
+      });
+
+      return NextResponse.json(
+        { message: `${ids.length} kategori berhasil dihapus` },
+        { status: 200 }
+      );
+    }
+
+    // Single delete
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Category ID is required' },
         { status: 400 }
       );
     }
