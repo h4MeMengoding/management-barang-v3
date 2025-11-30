@@ -11,6 +11,7 @@ import LockerDetailSkeleton from '@/components/lockers/LockerDetailSkeleton';
 import LockerInfo from '@/components/lockers/LockerInfo';
 import AddItemForm from '@/components/lockers/AddItemForm';
 import LockerItemList from '@/components/lockers/LockerItemList';
+import DeleteLockerModal from '@/components/lockers/DeleteLockerModal';
 import { useLockerDetail } from '@/lib/hooks/useLockerDetail';
 
 export default function LockerDetail() {
@@ -22,6 +23,7 @@ export default function LockerDetail() {
     locker,
     items,
     categories,
+    allLockers,
     isLoading,
     isLoadingItems,
     error,
@@ -32,21 +34,23 @@ export default function LockerDetail() {
   } = useLockerDetail(lockerId);
 
   const [viewMode, setViewMode] = useState<'qr' | 'form'>('qr');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const handleEdit = () => {
     if (!locker) return;
     console.log('Edit locker:', locker.id);
   };
 
-  const handleDelete = async () => {
-    if (!confirm('Apakah Anda yakin ingin menghapus loker ini?')) return;
+  const handleDelete = () => {
+    setShowDeleteModal(true);
+  };
 
+  const handleConfirmDelete = async (action: 'delete-all' | 'move', targetLockerId?: string) => {
     try {
-      await deleteLocker();
-      alert('Loker berhasil dihapus');
+      await deleteLocker(action === 'move' ? targetLockerId : undefined);
       router.push('/manage-locker');
     } catch (err: any) {
-      alert(err.message);
+      alert(err.message || 'Gagal menghapus loker');
     }
   };
 
@@ -205,6 +209,22 @@ export default function LockerDetail() {
                 />
               </div>
             </div>
+
+            {/* Delete Confirmation Modal */}
+            {locker && (
+              <DeleteLockerModal
+                isOpen={showDeleteModal}
+                lockersToDelete={[{
+                  id: locker.id,
+                  name: locker.name,
+                  code: locker.code,
+                  itemCount: itemCount,
+                }]}
+                allLockers={allLockers.filter(l => l.id !== locker.id)}
+                onClose={() => setShowDeleteModal(false)}
+                onConfirm={handleConfirmDelete}
+              />
+            )}
           </div>
         </main>
       </div>

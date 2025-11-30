@@ -150,6 +150,64 @@ export function useManageLockers() {
     setError('');
   };
 
+  const bulkDeleteLockers = async (lockerIds: string[], moveToLockerId?: string): Promise<void> => {
+    setError('');
+    setSuccess('');
+
+    try {
+      const user = getCurrentUser();
+      if (!user) {
+        throw new Error('User tidak ditemukan');
+      }
+
+      // If moveToLockerId is provided, move all items first
+      if (moveToLockerId) {
+        const moveResponse = await fetch('/api/items?bulkMove=true', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            fromLockerIds: lockerIds,
+            toLockerId: moveToLockerId,
+            userId: user.id,
+          }),
+        });
+
+        if (!moveResponse.ok) {
+          const moveData = await moveResponse.json();
+          throw new Error(moveData.error || 'Gagal memindahkan items');
+        }
+
+        const moveData = await moveResponse.json();
+        console.log(`Moved ${moveData.count} items`);
+      }
+
+      // Then delete the lockers
+      const response = await fetch(`/api/lockers?ids=${lockerIds.join(',')}`, {
+        method: 'DELETE',
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Gagal menghapus locker');
+      }
+
+      setSuccess(data.message || 'Locker berhasil dihapus!');
+      await loadLockers();
+
+      // Invalidate queries
+      queryClient.invalidateQueries({ queryKey: queryKeys.lockers(user.id) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.stats(user.id) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.items(user.id) });
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Terjadi kesalahan saat menghapus locker';
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    }
+  };
+
   useEffect(() => {
     loadLockers();
   }, []);
@@ -173,5 +231,6 @@ export function useManageLockers() {
     checkCodeAvailability,
     createLocker,
     clearMessages,
+    bulkDeleteLockers,
   };
 }

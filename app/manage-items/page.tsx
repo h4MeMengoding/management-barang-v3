@@ -10,7 +10,7 @@ import Card from '@/components/Card';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { getCurrentUser } from '@/lib/auth';
 import { queryKeys } from '@/lib/hooks/useQuery';
-import { Plus, ChevronDown, ChevronUp, Package, MoreVertical, Edit2, Trash2, Minus, Check } from 'lucide-react';
+import { Plus, ChevronDown, ChevronUp, Package, MoreVertical, Edit2, Trash2, Minus, Check, X } from 'lucide-react';
 
 interface Category {
   id: string;
@@ -406,6 +406,13 @@ export default function AddItem() {
     });
     setIsFormOpen(true);
     setActiveCardId(null);
+    
+    // Smooth scroll to form on mobile
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 100);
+    }
   };
 
   const handleCancelEdit = () => {
@@ -483,30 +490,81 @@ export default function AddItem() {
         <Header />
 
         {/* Success/Error Messages */}
+        <AnimatePresence>
         {success && (
-          <div className="mb-6 p-4 bg-[var(--color-success)]/10 border border-[var(--color-success)]/30 rounded-lg">
+          <motion.div 
+            className="mb-6 p-4 bg-[var(--color-success)]/10 border border-[var(--color-success)]/30 rounded-lg"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+          >
             <p className="text-[var(--color-success)] text-sm font-medium">{success}</p>
-          </div>
+          </motion.div>
         )}
+        </AnimatePresence>
+        <AnimatePresence>
         {error && (
-          <div className="mb-6 p-4 bg-[var(--color-danger)]/10 border border-[var(--color-danger)]/30 rounded-lg">
+          <motion.div 
+            className="mb-6 p-4 bg-[var(--color-danger)]/10 border border-[var(--color-danger)]/30 rounded-lg"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+          >
             <p className="text-[var(--color-danger)] text-sm font-medium">{error}</p>
-          </div>
+          </motion.div>
         )}
+        </AnimatePresence>
+
+        {/* Edit Mode Indicator - Mobile */}
+        <AnimatePresence>
+        {editingItem && (
+          <motion.div 
+            className="mb-4 lg:hidden p-3 bg-[var(--color-info)]/10 border border-[var(--color-info)]/30 rounded-lg flex items-center justify-between gap-3"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="flex items-center gap-2">
+              <Edit2 size={16} className="text-[var(--color-info)]" />
+              <div>
+                <p className="text-sm font-semibold text-[var(--color-info)]">Mode Edit</p>
+                <p className="text-xs text-[var(--text-secondary)]">Mengedit: {editingItem.name}</p>
+              </div>
+            </div>
+            <motion.button
+              onClick={handleCancelEdit}
+              className="p-1.5 hover:bg-[var(--color-info)]/20 rounded-lg transition-colors"
+              whileTap={{ scale: 0.9 }}
+            >
+              <X size={18} className="text-[var(--color-info)]" />
+            </motion.button>
+          </motion.div>
+        )}
+        </AnimatePresence>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column: Form - Sticky on Desktop */}
           <div className="lg:col-span-1">
             <div className="lg:sticky lg:top-6">
               <Card>
-                <button
+                <motion.button
                   onClick={() => setIsFormOpen(!isFormOpen)}
                   className="w-full flex items-center justify-between gap-3 hover:opacity-80 transition-opacity"
+                  whileTap={{ scale: 0.98 }}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-[var(--color-primary)]/10 flex items-center justify-center flex-shrink-0">
+                    <motion.div 
+                      className="w-12 h-12 rounded-xl bg-[var(--color-primary)]/10 flex items-center justify-center flex-shrink-0"
+                      animate={editingItem ? { 
+                        backgroundColor: ['rgba(var(--color-primary-rgb), 0.1)', 'rgba(var(--color-primary-rgb), 0.2)', 'rgba(var(--color-primary-rgb), 0.1)']
+                      } : {}}
+                      transition={{ duration: 2, repeat: editingItem ? Infinity : 0 }}
+                    >
                       <Plus size={24} className="text-[var(--color-primary)]" />
-                    </div>
+                    </motion.div>
                     <div className="text-left">
                       <h2 className="text-lg font-bold text-[var(--text-primary)]">
                         {editingItem ? 'Edit Barang' : 'Tambah Barang'}
@@ -516,12 +574,13 @@ export default function AddItem() {
                       </p>
                     </div>
                   </div>
-                  {isFormOpen ? (
-                    <ChevronUp size={24} className="text-[var(--text-tertiary)] flex-shrink-0" />
-                  ) : (
+                  <motion.div
+                    animate={{ rotate: isFormOpen ? 180 : 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
                     <ChevronDown size={24} className="text-[var(--text-tertiary)] flex-shrink-0" />
-                  )}
-                </button>
+                  </motion.div>
+                </motion.button>
 
                 <AnimatePresence>
                 {isFormOpen && (
@@ -538,7 +597,7 @@ export default function AddItem() {
                       <label htmlFor="name" className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
                         Nama Barang <span className="text-red-500">*</span>
                       </label>
-                      <input
+                      <motion.input
                         type="text"
                         id="name"
                         name="name"
@@ -547,6 +606,8 @@ export default function AddItem() {
                         required
                         placeholder="Nama barang (wajib)"
                         className="w-full px-4 py-3 rounded-lg border border-[var(--border)] bg-[var(--surface-1)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] outline-none transition-colors text-sm"
+                        whileFocus={{ scale: 1.01 }}
+                        transition={{ duration: 0.2 }}
                       />
                       {!editingItem && (
                         <p className="mt-1.5 text-xs text-[var(--text-secondary)]">
@@ -564,24 +625,33 @@ export default function AddItem() {
                       <label htmlFor="categoryInput" className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
                         Kategori Barang <span className="text-red-500">*</span>
                       </label>
-                      <button
+                      <motion.button
                         type="button"
                         onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
                         className={`w-full px-4 py-3 rounded-lg border ${
                           formData.categoryId ? 'border-[var(--color-primary)]' : 'border-[var(--border)]'
                         } bg-[var(--surface-1)] text-left focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] outline-none transition-colors text-sm flex items-center justify-between`}
+                        whileTap={{ scale: 0.98 }}
                       >
                         <span className={formData.categoryInput ? 'text-[var(--text-primary)]' : 'text-[var(--text-tertiary)]'}>
                           {formData.categoryInput || 'Pilih Kategori'}
                         </span>
-                        <ChevronDown 
-                          size={18} 
-                          className={`text-[var(--text-tertiary)] transition-transform ${showCategoryDropdown ? 'rotate-180' : ''}`} 
-                        />
-                      </button>
+                        <motion.div
+                          animate={{ rotate: showCategoryDropdown ? 180 : 0 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <ChevronDown size={18} className="text-[var(--text-tertiary)]" />
+                        </motion.div>
+                      </motion.button>
                       
                       {showCategoryDropdown && (
-                        <div className="absolute z-20 w-full mt-1 bg-[var(--surface-1)] border border-[var(--border)] rounded-lg shadow-lg max-h-60 overflow-hidden">
+                        <motion.div 
+                          className="absolute z-20 w-full mt-1 bg-[var(--surface-1)] border border-[var(--border)] rounded-lg shadow-lg max-h-60 overflow-hidden"
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ duration: 0.2 }}
+                        >
                           {/* Search input */}
                           <div className="p-3 border-b border-[var(--divider)]">
                             <input
@@ -627,21 +697,23 @@ export default function AddItem() {
                               </div>
                             ) : (
                               filteredCategories.map((category) => (
-                                <button
+                                <motion.button
                                   key={category.id}
                                   type="button"
                                   onClick={() => handleCategorySelect(category)}
                                   className="w-full px-4 py-2.5 text-left text-sm hover:bg-[var(--surface-2)] transition-colors flex items-center justify-between group"
+                                  whileHover={{ x: 4 }}
+                                  transition={{ duration: 0.15 }}
                                 >
                                   <span className="font-medium text-[var(--text-primary)]">{category.name}</span>
                                   {formData.categoryId === category.id && (
                                     <Check size={16} className="text-[var(--color-primary)]" />
                                   )}
-                                </button>
+                                </motion.button>
                               ))
                             )}
                           </div>
-                        </div>
+                        </motion.div>
                       )}
                     </div>
 
@@ -689,13 +761,15 @@ export default function AddItem() {
                           Jumlah Barang <span className="text-red-500">*</span>
                         </label>
                         <div className="flex items-center gap-2">
-                          <button
+                          <motion.button
                             type="button"
                             onClick={decrementQuantity}
                             className="w-10 h-10 flex items-center justify-center bg-[var(--surface-2)] hover:bg-[var(--surface-3)] rounded-lg transition-colors"
+                            whileTap={{ scale: 0.9 }}
+                            whileHover={{ scale: 1.05 }}
                           >
                             <Minus size={18} className="text-[var(--text-primary)]" />
-                          </button>
+                          </motion.button>
                           <input
                             type="number"
                             id="quantity"
@@ -706,13 +780,15 @@ export default function AddItem() {
                             min="0"
                             className="flex-1 px-4 py-3 rounded-lg border border-[var(--border)] bg-[var(--surface-1)] text-[var(--text-primary)] text-center font-semibold focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] outline-none transition-colors text-sm"
                           />
-                          <button
+                          <motion.button
                             type="button"
                             onClick={incrementQuantity}
                             className="w-10 h-10 flex items-center justify-center bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] rounded-lg transition-colors"
+                            whileTap={{ scale: 0.9 }}
+                            whileHover={{ scale: 1.05 }}
                           >
                             <Plus size={18} className="text-white" />
-                          </button>
+                          </motion.button>
                         </div>
                       </div>
                     )}
@@ -721,35 +797,46 @@ export default function AddItem() {
                       <label htmlFor="lockerId" className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
                         Loker <span className="text-red-500">*</span>
                       </label>
-                      <button
+                      <motion.button
                         type="button"
                         onClick={() => setShowLockerDropdown(!showLockerDropdown)}
                         className={`w-full px-4 py-3 rounded-lg border ${
                           formData.lockerId ? 'border-[var(--color-primary)]' : 'border-[var(--border)]'
                         } bg-[var(--surface-1)] text-left focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] outline-none transition-colors text-sm flex items-center justify-between`}
+                        whileTap={{ scale: 0.98 }}
                       >
                         <span className={formData.lockerName ? 'text-[var(--text-primary)]' : 'text-[var(--text-tertiary)]'}>
                           {formData.lockerName || 'Pilih Loker'}
                         </span>
-                        <ChevronDown 
-                          size={18} 
-                          className={`text-gray-600 transition-transform ${showLockerDropdown ? 'rotate-180' : ''}`} 
-                        />
-                      </button>
+                        <motion.div
+                          animate={{ rotate: showLockerDropdown ? 180 : 0 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <ChevronDown size={18} className="text-gray-600" />
+                        </motion.div>
+                      </motion.button>
                       
                       {showLockerDropdown && (
-                        <div className="absolute z-20 w-full mt-1 bg-[var(--surface-1)] border border-[var(--border)] rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                        <motion.div 
+                          className="absolute z-20 w-full mt-1 bg-[var(--surface-1)] border border-[var(--border)] rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ duration: 0.2 }}
+                        >
                           {lockers.length === 0 ? (
                             <div className="px-4 py-3 text-sm text-[var(--color-warning)]">
                               Belum ada loker. Silakan buat loker terlebih dahulu.
                             </div>
                           ) : (
                             lockers.map((locker) => (
-                              <button
+                              <motion.button
                                 key={locker.id}
                                 type="button"
                                 onClick={() => handleLockerSelect(locker)}
                                 className="w-full px-4 py-3 text-left text-sm hover:bg-[var(--surface-2)] transition-colors flex items-center justify-between group"
+                                whileHover={{ x: 4 }}
+                                transition={{ duration: 0.15 }}
                               >
                                 <div>
                                   <div className="font-medium text-[var(--text-primary)]">{locker.name}</div>
@@ -758,10 +845,10 @@ export default function AddItem() {
                                 {formData.lockerId === locker.id && (
                                   <Check size={16} className="text-[var(--color-primary)]" />
                                 )}
-                              </button>
+                              </motion.button>
                             ))
                           )}
-                        </div>
+                        </motion.div>
                       )}
                     </div>
 
@@ -781,10 +868,13 @@ export default function AddItem() {
                     </div>
 
                     <div className="flex gap-2">
-                      <button
+                      <motion.button
                         type="submit"
                         disabled={isLoading || lockers.length === 0}
                         className="flex-1 px-6 py-3 bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                        whileTap={{ scale: 0.98 }}
+                        whileHover={{ scale: 1.02 }}
+                        transition={{ duration: 0.2 }}
                       >
                         {isLoading ? (
                           <>
@@ -797,15 +887,19 @@ export default function AddItem() {
                             {editingItem ? 'Update Barang' : 'Tambah Barang'}
                           </>
                         )}
-                      </button>
+                      </motion.button>
                       {editingItem && (
-                        <button
+                        <motion.button
                           type="button"
                           onClick={handleCancelEdit}
                           className="px-4 py-3 bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--text-primary)] font-semibold rounded-lg transition-colors"
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: 20 }}
+                          whileTap={{ scale: 0.95 }}
                         >
                           Batal
-                        </button>
+                        </motion.button>
                       )}
                     </div>
                   </motion.form>
@@ -877,11 +971,16 @@ export default function AddItem() {
                       }}
                       transition={{ duration: 0.3 }}
                       whileHover={{ y: -2 }}
+                      layout
                     >
                       <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-[var(--color-primary)]/10 flex items-center justify-center flex-shrink-0">
+                        <motion.div 
+                          className="w-10 h-10 rounded-lg bg-[var(--color-primary)]/10 flex items-center justify-center flex-shrink-0"
+                          whileHover={{ rotate: 5, scale: 1.05 }}
+                          transition={{ duration: 0.2 }}
+                        >
                           <Package size={20} className="text-[var(--color-primary)]" />
-                        </div>
+                        </motion.div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2">
                             <div className="flex-1 min-w-0">
@@ -890,8 +989,10 @@ export default function AddItem() {
                             </div>
                             <motion.button
                               onClick={() => toggleActions(item.id)}
-                              className="p-1 hover:bg-[var(--surface-2)] rounded transition-colors flex-shrink-0"
-                              whileTap={{ scale: 0.9 }}
+                              className="p-1.5 hover:bg-[var(--surface-2)] rounded-lg transition-colors flex-shrink-0"
+                              whileTap={{ scale: 0.9, rotate: 90 }}
+                              whileHover={{ scale: 1.1 }}
+                              transition={{ duration: 0.2 }}
                             >
                               <MoreVertical size={16} className="text-[var(--text-tertiary)]" />
                             </motion.button>
@@ -906,27 +1007,32 @@ export default function AddItem() {
                       <AnimatePresence>
                         {activeCardId === item.id && (
                           <motion.div 
-                            className="absolute left-0 right-0 top-full mt-2 bg-[var(--surface-1)] rounded-lg shadow-lg border border-[var(--border)] p-3 z-10"
+                            className="absolute left-0 right-0 top-full mt-2 bg-[var(--surface-1)] rounded-lg shadow-lg border border-[var(--border)] overflow-hidden z-10"
                             initial={{ opacity: 0, y: -10, scale: 0.95 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                            transition={{ duration: 0.2 }}
+                            transition={{ duration: 0.2, ease: 'easeOut' }}
                           >
-                            <div className="flex items-center gap-2">
-                              <button 
+                            <div className="flex items-center">
+                              <motion.button 
                                 onClick={() => handleEdit(item)}
-                                className="flex-1 px-3 py-2 text-xs font-medium text-[var(--color-info)] hover:bg-[var(--color-info)]/10 rounded-lg transition-colors flex items-center justify-center gap-1"
+                                className="flex-1 px-4 py-3 text-sm font-medium text-[var(--color-info)] hover:bg-[var(--color-info)]/10 transition-colors flex items-center justify-center gap-2"
+                                whileTap={{ scale: 0.95 }}
+                                whileHover={{ backgroundColor: 'rgba(var(--color-info-rgb), 0.15)' }}
                               >
-                                <Edit2 size={14} />
+                                <Edit2 size={16} />
                                 Edit
-                              </button>
-                              <button 
+                              </motion.button>
+                              <div className="w-px h-8 bg-[var(--divider)]" />
+                              <motion.button 
                                 onClick={() => handleDelete(item.id)}
-                                className="flex-1 px-3 py-2 text-xs font-medium text-[var(--color-danger)] hover:bg-[var(--color-danger)]/10 rounded-lg transition-colors flex items-center justify-center gap-1"
+                                className="flex-1 px-4 py-3 text-sm font-medium text-[var(--color-danger)] hover:bg-[var(--color-danger)]/10 transition-colors flex items-center justify-center gap-2"
+                                whileTap={{ scale: 0.95 }}
+                                whileHover={{ backgroundColor: 'rgba(var(--color-danger-rgb), 0.15)' }}
                               >
-                                <Trash2 size={14} />
+                                <Trash2 size={16} />
                                 Hapus
-                              </button>
+                              </motion.button>
                             </div>
                           </motion.div>
                         )}

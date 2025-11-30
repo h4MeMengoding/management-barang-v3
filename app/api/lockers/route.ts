@@ -287,7 +287,35 @@ export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
+    const idsParam = searchParams.get('ids');
 
+    // Bulk delete
+    if (idsParam) {
+      const ids = idsParam.split(',').filter(Boolean);
+      
+      if (ids.length === 0) {
+        return NextResponse.json(
+          { error: 'Tidak ada locker yang dipilih' },
+          { status: 400 }
+        );
+      }
+
+      // Delete all lockers with the given IDs
+      await prisma.locker.deleteMany({
+        where: {
+          id: {
+            in: ids,
+          },
+        },
+      });
+
+      return NextResponse.json(
+        { message: `${ids.length} locker berhasil dihapus` },
+        { status: 200 }
+      );
+    }
+
+    // Single delete
     if (!id) {
       return NextResponse.json(
         { error: 'Locker ID diperlukan' },

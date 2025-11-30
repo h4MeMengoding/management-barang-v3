@@ -32,6 +32,7 @@ export function useLockerDetail(lockerId: string) {
   const [locker, setLocker] = useState<Locker | null>(null);
   const [items, setItems] = useState<Item[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [allLockers, setAllLockers] = useState<Array<{ id: string; name: string; code: string; itemCount: number }>>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingItems, setIsLoadingItems] = useState(true);
   const [error, setError] = useState('');
@@ -95,10 +96,52 @@ export function useLockerDetail(lockerId: string) {
     }
   };
 
-  const deleteLocker = async () => {
+  const loadAllLockers = async () => {
+    try {
+      const user = getCurrentUser();
+      if (!user) return;
+
+      const response = await fetch(`/api/lockers?userId=${user.id}`);
+      const data = await response.json();
+
+      if (response.ok) {
+        setAllLockers(data.lockers || []);
+      }
+    } catch (err) {
+      console.error('Error loading lockers:', err);
+    }
+  };
+
+  const deleteLocker = async (moveToLockerId?: string) => {
     if (!locker) return false;
 
     try {
+      const user = getCurrentUser();
+      if (!user) {
+        throw new Error('User tidak ditemukan');
+      }
+
+      // If moveToLockerId is provided, move all items first
+      if (moveToLockerId) {
+        const moveResponse = await fetch('/api/items?bulkMove=true', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            fromLockerIds: [lockerId],
+            toLockerId: moveToLockerId,
+            userId: user.id,
+          }),
+        });
+
+        if (!moveResponse.ok) {
+          const moveData = await moveResponse.json();
+          throw new Error(moveData.error || 'Gagal memindahkan items');
+        }
+      }
+
+      // Then delete the locker
       const response = await fetch(`/api/lockers?id=${locker.id}`, {
         method: 'DELETE',
       });
@@ -107,6 +150,11 @@ export function useLockerDetail(lockerId: string) {
         const data = await response.json();
         throw new Error(data.error || 'Gagal menghapus loker');
       }
+
+      // Invalidate queries
+      queryClient.invalidateQueries({ queryKey: queryKeys.lockers(user.id) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.stats(user.id) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.items(user.id) });
 
       return true;
     } catch (err: any) {
@@ -219,12 +267,14 @@ export function useLockerDetail(lockerId: string) {
     loadLocker();
     loadItems();
     loadCategories();
+    loadAllLockers();
   }, [lockerId]);
 
   return {
     locker,
     items,
     categories,
+    allLockers,
     isLoading,
     isLoadingItems,
     error,

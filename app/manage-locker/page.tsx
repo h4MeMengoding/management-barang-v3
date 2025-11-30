@@ -18,10 +18,15 @@ export default function ManageLocker() {
     generateCode,
     checkCodeAvailability,
     createLocker,
+    bulkDeleteLockers,
   } = useManageLockers();
 
   const handleSubmit = async (data: { name: string; code: string; description: string }) => {
     return await createLocker(data);
+  };
+
+  const handleBulkDelete = async (lockerIds: string[], moveToLockerId?: string) => {
+    return await bulkDeleteLockers(lockerIds, moveToLockerId);
   };
 
   return (
@@ -51,7 +56,11 @@ export default function ManageLocker() {
 
               {/* Right Column: Lockers List */}
               <div className="lg:col-span-2">
-                <LockerList lockers={lockers} isLoading={isLoadingLockers} />
+                <LockerList 
+                  lockers={lockers} 
+                  isLoading={isLoadingLockers}
+                  onBulkDelete={handleBulkDelete}
+                />
               </div>
             </div>
           </div>

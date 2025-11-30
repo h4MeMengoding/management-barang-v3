@@ -139,7 +139,53 @@ export async function PUT(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const id = searchParams.get('id');
+    const bulkMove = searchParams.get('bulkMove');
     const body = await request.json();
+
+    // Bulk move items from one or more lockers to another
+    if (bulkMove === 'true') {
+      const { fromLockerIds, toLockerId, userId } = body;
+
+      if (!fromLockerIds || !Array.isArray(fromLockerIds) || !toLockerId || !userId) {
+        return NextResponse.json(
+          { error: 'fromLockerIds (array), toLockerId, and userId are required for bulk move' },
+          { status: 400 }
+        );
+      }
+
+      // Verify target locker exists and belongs to user
+      const targetLocker = await prisma.locker.findFirst({
+        where: { id: toLockerId, userId },
+      });
+
+      if (!targetLocker) {
+        return NextResponse.json(
+          { error: 'Target locker not found' },
+          { status: 404 }
+        );
+      }
+
+      // Move all items from source lockers to target locker
+      const result = await prisma.item.updateMany({
+        where: {
+          lockerId: { in: fromLockerIds },
+          userId,
+        },
+        data: {
+          lockerId: toLockerId,
+        },
+      });
+
+      return NextResponse.json(
+        {
+          message: `${result.count} items moved successfully`,
+          count: result.count,
+        },
+        { status: 200 }
+      );
+    }
+
+    // Single item update
     const { name, categoryId, quantity, lockerId, description, userId } = body;
 
     if (!id || !userId) {
