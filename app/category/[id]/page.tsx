@@ -144,7 +144,7 @@ export default function CategoryDetail() {
   if (isLoading) {
     return (
       <ProtectedRoute>
-        <div className="min-h-screen bg-[#F5F1E8] lg:pl-24">
+        <div className="min-h-screen bg-[var(--body-bg)] lg:pl-24">
           <Sidebar />
           <main className="w-full px-4 pt-4 pb-20 md:px-6 md:py-6 lg:px-8 lg:pb-8">
             <Header />
@@ -158,15 +158,15 @@ export default function CategoryDetail() {
   if (error || !category) {
     return (
       <ProtectedRoute>
-        <div className="min-h-screen bg-[#F5F1E8] lg:pl-24">
+        <div className="min-h-screen bg-[var(--body-bg)] lg:pl-24">
           <Sidebar />
           <main className="w-full px-4 pt-4 pb-20 md:px-6 md:py-6 lg:px-8 lg:pb-8">
             <Header />
             <div className="text-center py-12">
-              <p className="text-red-600 mb-4">{error || 'Kategori tidak ditemukan'}</p>
+              <p className="text-[var(--color-danger)] mb-4">{error || 'Kategori tidak ditemukan'}</p>
               <button
                 onClick={() => router.push('/manage-categories')}
-                className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
+                className="px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg hover:bg-[var(--color-primary-dark)]"
               >
                 Kembali ke Daftar Kategori
               </button>
@@ -182,7 +182,7 @@ export default function CategoryDetail() {
 
   return (
     <ProtectedRoute>
-    <div className="min-h-screen bg-[#F5F1E8] lg:pl-24">
+    <div className="min-h-screen bg-[var(--body-bg)] lg:pl-24">
       <Sidebar />
       
       <main className="w-full px-4 pt-4 pb-20 md:px-6 md:py-6 lg:px-8 lg:pb-8">
@@ -192,7 +192,7 @@ export default function CategoryDetail() {
         {/* Back Button */}
         <button
           onClick={() => router.back()}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"
+          className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] mb-6 transition-colors"
         >
           <ArrowLeft size={20} />
           <span className="text-sm font-medium">Kembali</span>
@@ -205,50 +205,50 @@ export default function CategoryDetail() {
               <Card>
                 {/* Category Icon */}
                 <div className="flex flex-col items-center mb-6">
-                  <div className="w-32 h-32 rounded-2xl bg-emerald-100 flex items-center justify-center">
-                    <FolderTree size={64} className="text-emerald-600" />
+                  <div className="w-32 h-32 rounded-2xl bg-[var(--color-primary)]/10 flex items-center justify-center">
+                    <FolderTree size={64} className="text-[var(--color-primary)]" />
                   </div>
                 </div>
 
                 {/* Category Info */}
                 <div className="space-y-4">
                   <div>
-                    <h1 className="text-2xl font-bold text-gray-900">{category.name}</h1>
-                    <p className="text-sm text-gray-500 mt-1">Kategori Barang</p>
+                    <h1 className="text-2xl font-bold text-[var(--text-primary)]">{category.name}</h1>
+                    <p className="text-sm text-[var(--text-secondary)] mt-1">Kategori Barang</p>
                   </div>
 
                   {category.description && (
-                    <p className="text-sm text-gray-600 leading-relaxed pb-4 border-b border-gray-100">
+                    <p className="text-sm text-[var(--text-secondary)] leading-relaxed pb-4 border-b border-[var(--divider)]">
                       {category.description}
                     </p>
                   )}
                   
-                  <div className="space-y-3 pb-4 border-b border-gray-100">
+                  <div className="space-y-3 pb-4 border-b border-[var(--divider)]">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Total Barang:</span>
-                      <span className="text-sm font-semibold text-gray-900">{totalQuantity}</span>
+                      <span className="text-sm text-[var(--text-secondary)]">Total Barang:</span>
+                      <span className="text-sm font-semibold text-[var(--text-primary)]">{totalQuantity}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Jenis Barang:</span>
-                      <span className="text-sm font-semibold text-gray-900">{itemTypeCount}</span>
+                      <span className="text-sm text-[var(--text-secondary)]">Jenis Barang:</span>
+                      <span className="text-sm font-semibold text-[var(--text-primary)]">{itemTypeCount}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Dibuat:</span>
-                      <span className="text-sm font-semibold text-gray-900">{formatDate(category.createdAt)}</span>
+                      <span className="text-sm text-[var(--text-secondary)]">Dibuat:</span>
+                      <span className="text-sm font-semibold text-[var(--text-primary)]">{formatDate(category.createdAt)}</span>
                     </div>
                   </div>
 
                   <div className="space-y-2">
                     <button
                       onClick={handleEdit}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors shadow-sm"
+                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] hover:bg-blue-600 text-white font-semibold rounded-lg transition-colors shadow-sm"
                     >
                       <Edit2 size={18} />
                       Edit Kategori
                     </button>
                     <button
                       onClick={handleDelete}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors shadow-sm"
+                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg transition-colors shadow-sm"
                     >
                       <Trash2 size={18} />
                       Hapus Kategori
@@ -263,8 +263,8 @@ export default function CategoryDetail() {
           <div className="lg:col-span-2">
             <Card>
               <div className="flex items-center justify-between mb-5">
-                <h2 className="text-xl font-bold text-gray-900">Daftar Barang</h2>
-                <span className="px-3 py-1 bg-gray-100 rounded-full text-sm font-semibold text-gray-700">
+                <h2 className="text-xl font-bold text-[var(--text-primary)]">Daftar Barang</h2>
+                <span className="px-3 py-1 bg-[var(--surface-2)] rounded-full text-sm font-semibold text-[var(--text-primary)]">
                   {items.length} Jenis
                 </span>
               </div>
@@ -272,8 +272,8 @@ export default function CategoryDetail() {
               {isLoadingItems ? (
                 <ItemsListSkeleton />
               ) : items.length === 0 ? (
-                <div className="text-center py-12 text-gray-500">
-                  <Package size={48} className="mx-auto mb-3 text-gray-300" />
+                <div className="text-center py-12 text-[var(--text-secondary)]">
+                  <Package size={48} className="mx-auto mb-3 text-[var(--text-tertiary)]" />
                   <p>Belum ada barang di kategori ini</p>
                 </div>
               ) : (
@@ -281,20 +281,20 @@ export default function CategoryDetail() {
                   {items.map((item) => (
                     <div 
                       key={item.id} 
-                      className="p-4 rounded-lg border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all bg-white"
+                      className="p-4 rounded-lg border border-[var(--border)] hover:border-[var(--border-hover)] hover:shadow-sm transition-all bg-[var(--surface-1)]"
                     >
                       <div className="flex items-start gap-3">
-                        <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                          <Package size={24} className="text-emerald-600" />
+                        <div className="w-12 h-12 rounded-xl bg-[var(--color-primary)]/10 flex items-center justify-center flex-shrink-0">
+                          <Package size={24} className="text-[var(--color-primary)]" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 mb-1">
+                          <h3 className="text-sm font-semibold text-[var(--text-primary)] line-clamp-2 mb-1">
                             {item.name}
                           </h3>
-                          <p className="text-xs text-gray-500 mb-2">{item.locker.code} - {item.locker.name}</p>
+                          <p className="text-xs text-[var(--text-secondary)] mb-2">{item.locker.code} - {item.locker.name}</p>
                           <div className="flex items-center justify-between">
-                            <span className="text-lg font-bold text-gray-900">{item.quantity}</span>
-                            <span className="text-xs text-gray-400">{formatDate(item.createdAt)}</span>
+                            <span className="text-lg font-bold text-[var(--text-primary)]">{item.quantity}</span>
+                            <span className="text-xs text-[var(--text-tertiary)]">{formatDate(item.createdAt)}</span>
                           </div>
                         </div>
                       </div>
