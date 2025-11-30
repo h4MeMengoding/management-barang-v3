@@ -7,7 +7,7 @@ import { AlertTriangle, X, Trash2, MoveRight } from 'lucide-react';
 interface Category {
   id: string;
   name: string;
-  description?: string;
+  description: string | null;
   totalQuantity?: number;
 }
 
