@@ -8,7 +8,10 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import AlertMessage from '@/components/AlertMessage';
 import ItemForm from '@/components/manage-items/ItemForm';
 import ItemList from '@/components/manage-items/ItemList';
+import BulkItemActionsModal from '@/components/manage-items/BulkItemActionsModal';
 import { useManageItems, type Item } from '@/lib/hooks/useManageItems';
+import { bulkDeleteItems, bulkMoveItems } from '@/lib/hooks/useItems';
+import { getCurrentUser } from '@/lib/auth';
 
 export default function ManageItems() {
   const {
@@ -28,6 +31,8 @@ export default function ManageItems() {
 
   const [editingItem, setEditingItem] = useState<Item | null>(null);
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
+  const [showBulkModal, setShowBulkModal] = useState(false);
+  const [selectedItemIds, setSelectedItemIds] = useState<string[]>([]);
 
   const handleSubmit = async (formData: {
     name: string;
@@ -78,6 +83,35 @@ export default function ManageItems() {
     setActiveCardId(null);
   };
 
+  const handleBulkAction = (itemIds: string[]) => {
+    setSelectedItemIds(itemIds);
+    setShowBulkModal(true);
+  };
+
+  const handleConfirmBulkAction = async (
+    action: 'delete' | 'move-category' | 'move-locker',
+    targetId?: string
+  ) => {
+    const user = getCurrentUser();
+    if (!user) return;
+
+    try {
+      if (action === 'delete') {
+        await bulkDeleteItems(selectedItemIds, user.id);
+      } else if (action === 'move-category') {
+        await bulkMoveItems(selectedItemIds, user.id, targetId, undefined);
+      } else if (action === 'move-locker') {
+        await bulkMoveItems(selectedItemIds, user.id, undefined, targetId);
+      }
+
+      // Refresh data
+      window.location.reload();
+    } catch (error) {
+      console.error('Bulk action error:', error);
+      alert('Gagal melakukan aksi. Silakan coba lagi.');
+    }
+  };
+
   const toggleActions = (itemId: string) => {
     setActiveCardId(activeCardId === itemId ? null : itemId);
   };
@@ -120,11 +154,24 @@ export default function ManageItems() {
                   onToggleActions={toggleActions}
                   onEdit={handleEdit}
                   onDelete={handleDelete}
+                  onBulkAction={handleBulkAction}
                 />
               </div>
             </div>
           </div>
         </main>
+
+        <BulkItemActionsModal
+          isOpen={showBulkModal}
+          itemsToProcess={items.filter((item) => selectedItemIds.includes(item.id))}
+          allCategories={categories}
+          allLockers={lockers}
+          onClose={() => {
+            setShowBulkModal(false);
+            setSelectedItemIds([]);
+          }}
+          onConfirm={handleConfirmBulkAction}
+        />
       </div>
     </ProtectedRoute>
   );

@@ -66,3 +66,42 @@ export function useCategories() {
     mutate,
   };
 }
+
+// Bulk operations for items
+export async function bulkDeleteItems(itemIds: string[], userId: string) {
+  const response = await fetch(`/api/items?ids=${itemIds.join(',')}&userId=${userId}`, {
+    method: 'DELETE',
+  });
+
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.error || 'Failed to delete items');
+  }
+
+  return response.json();
+}
+
+export async function bulkMoveItems(
+  itemIds: string[],
+  userId: string,
+  categoryId?: string,
+  lockerId?: string
+) {
+  const response = await fetch('/api/items?bulkMoveItems=true', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      itemIds,
+      userId,
+      categoryId,
+      lockerId,
+    }),
+  });
+
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.error || 'Failed to move items');
+  }
+
+  return response.json();
+}

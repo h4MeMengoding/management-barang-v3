@@ -141,7 +141,76 @@ export async function PUT(request: NextRequest) {
     const id = searchParams.get('id');
     const bulkMove = searchParams.get('bulkMove');
     const bulkMoveCategory = searchParams.get('bulkMoveCategory');
+    const bulkMoveItems = searchParams.get('bulkMoveItems');
     const body = await request.json();
+
+    // Bulk move specific items (by item IDs)
+    if (bulkMoveItems === 'true') {
+      const { itemIds, categoryId, lockerId, userId } = body;
+
+      if (!itemIds || !Array.isArray(itemIds) || !userId) {
+        return NextResponse.json(
+          { error: 'itemIds (array) and userId are required' },
+          { status: 400 }
+        );
+      }
+
+      if (!categoryId && !lockerId) {
+        return NextResponse.json(
+          { error: 'Either categoryId or lockerId must be provided' },
+          { status: 400 }
+        );
+      }
+
+      // Verify target category/locker exists and belongs to user
+      if (categoryId) {
+        const targetCategory = await prisma.category.findFirst({
+          where: { id: categoryId, userId },
+        });
+
+        if (!targetCategory) {
+          return NextResponse.json(
+            { error: 'Target category not found' },
+            { status: 404 }
+          );
+        }
+      }
+
+      if (lockerId) {
+        const targetLocker = await prisma.locker.findFirst({
+          where: { id: lockerId, userId },
+        });
+
+        if (!targetLocker) {
+          return NextResponse.json(
+            { error: 'Target locker not found' },
+            { status: 404 }
+          );
+        }
+      }
+
+      // Prepare update data
+      const updateData: any = {};
+      if (categoryId) updateData.categoryId = categoryId;
+      if (lockerId) updateData.lockerId = lockerId;
+
+      // Move items
+      const result = await prisma.item.updateMany({
+        where: {
+          id: { in: itemIds },
+          userId,
+        },
+        data: updateData,
+      });
+
+      return NextResponse.json(
+        {
+          message: `${result.count} items moved successfully`,
+          count: result.count,
+        },
+        { status: 200 }
+      );
+    }
 
     // Bulk move items from one or more categories to another
     if (bulkMoveCategory === 'true') {
@@ -316,8 +385,42 @@ export async function DELETE(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const id = searchParams.get('id');
+    const ids = searchParams.get('ids');
     const userId = searchParams.get('userId');
 
+    // Bulk delete
+    if (ids && userId) {
+      const itemIds = ids.split(',');
+      
+      // Verify all items belong to user before deleting
+      const items = await prisma.item.findMany({
+        where: {
+          id: { in: itemIds },
+          userId,
+        },
+      });
+
+      if (items.length !== itemIds.length) {
+        return NextResponse.json(
+          { error: 'Some items not found or do not belong to user' },
+          { status: 404 }
+        );
+      }
+
+      const result = await prisma.item.deleteMany({
+        where: {
+          id: { in: itemIds },
+          userId,
+        },
+      });
+
+      return NextResponse.json({
+        message: `${result.count} items deleted successfully`,
+        count: result.count,
+      });
+    }
+
+    // Single delete
     if (!id || !userId) {
       return NextResponse.json(
         { error: 'Item ID and userId are required' },
