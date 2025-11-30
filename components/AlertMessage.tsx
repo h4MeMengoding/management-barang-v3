@@ -1,3 +1,7 @@
+'use client';
+
+import { motion, AnimatePresence } from 'framer-motion';
+
 interface AlertMessageProps {
   type: 'success' | 'error';
   message: string;
@@ -5,24 +9,30 @@ interface AlertMessageProps {
 
 export default function AlertMessage({ type, message }: AlertMessageProps) {
   const isSuccess = type === 'success';
-  
+
   return (
-    <div
-      className={`mb-6 p-4 rounded-lg border ${
-        isSuccess
-          ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800/30'
-          : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800/30'
-      }`}
-    >
-      <p
-        className={`text-sm font-medium ${
-          isSuccess
-            ? 'text-green-800 dark:text-green-300'
-            : 'text-red-800 dark:text-red-300'
-        }`}
-      >
-        {message}
-      </p>
-    </div>
+    <AnimatePresence>
+      {message && (
+        <motion.div
+          className={`mb-6 p-4 rounded-lg border ${
+            isSuccess
+              ? 'bg-[var(--color-success)]/10 border-[var(--color-success)]/30'
+              : 'bg-[var(--color-danger)]/10 border-[var(--color-danger)]/30'
+          }`}
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.3 }}
+        >
+          <p
+            className={`text-sm font-medium ${
+              isSuccess ? 'text-[var(--color-success)]' : 'text-[var(--color-danger)]'
+            }`}
+          >
+            {message}
+          </p>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
