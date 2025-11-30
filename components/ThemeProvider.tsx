@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 
 type Theme = 'light' | 'dark' | 'system';
 
@@ -13,33 +13,49 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>('system');
-  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('light');
+  const [theme, setThemeState] = useState<Theme>(() => {
+    // Initialize from localStorage or default to system
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('theme') as Theme) || 'system';
+    }
+    return 'system';
+  });
+  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>(() => {
+    // Initialize resolved theme from html class
+    if (typeof window !== 'undefined') {
+      return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+    }
+    return 'light';
+  });
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Load saved theme from localStorage
-    const savedTheme = localStorage.getItem('theme') as Theme | null;
-    if (savedTheme) {
-      setThemeState(savedTheme);
-    }
+    // Enable transitions only after initial mount to prevent blink
+    setMounted(true);
+    const timer = setTimeout(() => {
+      document.documentElement.classList.add('transitions-enabled');
+    }, 100);
+    
+    return () => clearTimeout(timer);
   }, []);
 
-  useEffect(() => {
+  const updateTheme = useCallback((themeValue: Theme) => {
     const root = document.documentElement;
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    
+    let effectiveTheme: 'light' | 'dark' = 'light';
+    
+    if (themeValue === 'system') {
+      effectiveTheme = mediaQuery.matches ? 'dark' : 'light';
+    } else {
+      effectiveTheme = themeValue as 'light' | 'dark';
+    }
 
-    const updateTheme = () => {
+    // Use requestAnimationFrame for smooth transition
+    requestAnimationFrame(() => {
       root.classList.remove('light', 'dark');
-      
-      let effectiveTheme: 'light' | 'dark' = 'light';
-      
-      if (theme === 'system') {
-        effectiveTheme = mediaQuery.matches ? 'dark' : 'light';
-      } else {
-        effectiveTheme = theme as 'light' | 'dark';
-      }
-
       root.classList.add(effectiveTheme);
+      root.style.colorScheme = effectiveTheme;
       setResolvedTheme(effectiveTheme);
 
       // Update meta theme-color
@@ -47,28 +63,32 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       if (metaThemeColor) {
         metaThemeColor.setAttribute(
           'content',
-          effectiveTheme === 'dark' ? '#1C1C1E' : '#F5F1E8'
+          effectiveTheme === 'dark' ? '#081210' : '#F5F1E8'
         );
       }
-    };
+    });
+  }, []);
 
-    updateTheme();
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
-    // Listen to system theme changes
-    const listener = () => {
+    const handleChange = () => {
       if (theme === 'system') {
-        updateTheme();
+        updateTheme(theme);
       }
     };
 
-    mediaQuery.addEventListener('change', listener);
-    return () => mediaQuery.removeEventListener('change', listener);
-  }, [theme]);
+    updateTheme(theme);
 
-  const setTheme = (newTheme: Theme) => {
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, [theme, updateTheme]);
+
+  const setTheme = useCallback((newTheme: Theme) => {
     setThemeState(newTheme);
     localStorage.setItem('theme', newTheme);
-  };
+    updateTheme(newTheme);
+  }, [updateTheme]);
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme, resolvedTheme }}>

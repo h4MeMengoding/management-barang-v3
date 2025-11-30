@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Splash Screen Generator</title>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <script>
+        // Splash screen sizes for iOS and Android
+        const sizes = [
+            // iOS
+            { width: 2048, height: 2732, name: 'apple-splash-2048-2732' }, // 12.9" iPad Pro
+            { width: 1668, height: 2388, name: 'apple-splash-1668-2388' }, // 11" iPad Pro
+            { width: 1536, height: 2048, name: 'apple-splash-1536-2048' }, // 9.7" iPad
+            { width: 1668, height: 2224, name: 'apple-splash-1668-2224' }, // 10.5" iPad Pro
+            { width: 1620, height: 2160, name: 'apple-splash-1620-2160' }, // 10.2" iPad
+            { width: 1284, height: 2778, name: 'apple-splash-1284-2778' }, // iPhone 12/13/14 Pro Max
+            { width: 1170, height: 2532, name: 'apple-splash-1170-2532' }, // iPhone 12/13/14 Pro
+            { width: 1125, height: 2436, name: 'apple-splash-1125-2436' }, // iPhone X/XS/11 Pro
+            { width: 1242, height: 2688, name: 'apple-splash-1242-2688' }, // iPhone XS Max/11 Pro Max
+            { width: 828, height: 1792, name: 'apple-splash-828-1792' },   // iPhone XR/11
+            { width: 1242, height: 2208, name: 'apple-splash-1242-2208' }, // iPhone 8 Plus
+            { width: 750, height: 1334, name: 'apple-splash-750-1334' },   // iPhone 8/7/6s
+            { width: 640, height: 1136, name: 'apple-splash-640-1136' },   // iPhone SE
+        ];
+
+        function generateSplash(width, height, name) {
+            const canvas = document.getElementById('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+
+            // Background color (light theme)
+            ctx.fillStyle = '#F5F1E8';
+            ctx.fillRect(0, 0, width, height);
+
+            // Calculate center
+            const centerX = width / 2;
+            const centerY = height / 2;
+
+            // Logo size (responsive based on screen size)
+            const logoSize = Math.min(width, height) * 0.2;
+
+            // Draw logo background (rounded square with gradient effect)
+            const gradient = ctx.createLinearGradient(
+                centerX - logoSize / 2, 
+                centerY - logoSize / 2, 
+                centerX + logoSize / 2, 
+                centerY + logoSize / 2
+            );
+            gradient.addColorStop(0, '#10b981'); // green-500
+            gradient.addColorStop(1, '#059669'); // emerald-600
+            
+            ctx.fillStyle = gradient;
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+            ctx.shadowBlur = 30;
+            ctx.shadowOffsetY = 10;
+            
+            const borderRadius = logoSize * 0.2;
+            ctx.beginPath();
+            ctx.roundRect(
+                centerX - logoSize / 2,
+                centerY - logoSize / 2,
+                logoSize,
+                logoSize,
+                borderRadius
+            );
+            ctx.fill();
+
+            // Reset shadow
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetY = 0;
+
+            // Draw icon (box/package icon)
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = logoSize * 0.05;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            const iconSize = logoSize * 0.5;
+            const iconX = centerX;
+            const iconY = centerY;
+
+            // Draw package icon
+            ctx.beginPath();
+            // Top face
+            ctx.moveTo(iconX, iconY - iconSize * 0.35);
+            ctx.lineTo(iconX + iconSize * 0.35, iconY - iconSize * 0.15);
+            ctx.lineTo(iconX + iconSize * 0.35, iconY + iconSize * 0.25);
+            ctx.lineTo(iconX, iconY + iconSize * 0.45);
+            ctx.lineTo(iconX - iconSize * 0.35, iconY + iconSize * 0.25);
+            ctx.lineTo(iconX - iconSize * 0.35, iconY - iconSize * 0.15);
+            ctx.closePath();
+            ctx.stroke();
+
+            // Center line
+            ctx.beginPath();
+            ctx.moveTo(iconX, iconY - iconSize * 0.35);
+            ctx.lineTo(iconX, iconY + iconSize * 0.45);
+            ctx.stroke();
+
+            // App name
+            const fontSize = Math.min(width, height) * 0.05;
+            ctx.font = `bold ${fontSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif`;
+            ctx.fillStyle = '#111827'; // gray-900
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('Manajemen Barang', centerX, centerY + logoSize);
+
+            // Description
+            const descFontSize = fontSize * 0.5;
+            ctx.font = `${descFontSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif`;
+            ctx.fillStyle = '#6b7280'; // gray-500
+            ctx.fillText('Sistem manajemen penyimpanan barang', centerX, centerY + logoSize + fontSize);
+
+            // Download
+            canvas.toBlob((blob) => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${name}.png`;
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+        }
+
+        console.log('Generating splash screens...');
+        console.log('NOTE: This is a template generator. For production, please use your actual logo image.');
+        console.log('To generate all splash screens, uncomment the loop below:');
+        console.log('sizes.forEach(size => generateSplash(size.width, size.height, size.name));');
+    </script>
+</body>
+</html>

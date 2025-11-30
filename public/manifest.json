@@ -16,6 +16,7 @@
   "screenshots": [],
   "permissions": ["camera"],
   "prefer_related_applications": false,
+  "splash_pages": null,
   "icons": [
     {
       "src": "/favicon/web-app-manifest-192x192.png",

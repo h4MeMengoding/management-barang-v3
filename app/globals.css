@@ -173,11 +173,94 @@
   --color-text-inverse: var(--text-inverse);
 }
 
+/* View Transitions API Support */
+@view-transition {
+  navigation: auto;
+}
+
+/* Prevent white flash during view transitions */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.2s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  animation-name: fade-out;
+}
+
+::view-transition-new(root) {
+  animation-name: fade-in;
+}
+
+/* Ensure background stays consistent during transition */
+::view-transition-group(root) {
+  animation-duration: 0.2s;
+}
+
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0.98; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0.98; }
+  to { opacity: 1; }
+}
+
+/* Prevent layout shift during page transitions */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Critical: Prevent any white flash during navigation */
+html,
+body,
+#__next,
+main,
+[data-nextjs-scroll-focus-boundary] {
+  background-color: inherit !important;
+}
+
+/* Prevent white flash on route transitions */
+html::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: inherit;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Hardware acceleration for smoother rendering */
+.page-container,
+main,
+article,
+section {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Optimize rendering with content-visibility */
+section:not([data-no-optimize]),
+article:not([data-no-optimize]) {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 500px;
+}
+
 /* Fix iOS overscroll black area - Critical for PWA */
 html {
   -ms-content-zooming: none;
-  -ms-touch-action: pan-x pan-y;
-  touch-action: pan-x pan-y;
+  /* Allow pinch zoom but disable double-tap zoom */
+  -ms-touch-action: manipulation;
+  touch-action: manipulation;
   /* Background must be set to cover overscroll area */
   background: var(--background);
   /* iOS 26 Safari: Use dynamic viewport height (dvh) for better support */
@@ -190,14 +273,27 @@ html {
   /* Remove transform that can affect fixed positioning */
   transform: none !important;
   -webkit-transform: none !important;
+  /* Smooth color scheme transition */
+  color-scheme: light dark;
+  /* NO transition by default - will be enabled by .transitions-enabled class */
+}
+
+/* Light mode default background */
+html:not(.dark) {
+  background-color: #F5F1E8;
+}
+
+/* Dark mode background */
+html.dark {
+  background-color: #081210;
 }
 
 body {
   background: var(--body-bg);
   color: var(--text-primary);
   font-family: Arial, Helvetica, sans-serif;
-  /* Prevent zoom on touch devices */
-  touch-action: pan-x pan-y;
+  /* Allow pinch zoom but disable double-tap zoom */
+  touch-action: manipulation;
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
@@ -217,20 +313,41 @@ body {
   -webkit-transform: none !important;
   /* Smooth scrolling */
   -webkit-overflow-scrolling: touch;
-  /* Smooth theme transition */
-  transition: background-color 0.3s ease, color 0.3s ease;
+  /* NO transition by default - will be enabled by .transitions-enabled class */
+}
+
+/* Only add transitions after page load - controlled by ThemeProvider */
+html.transitions-enabled {
+  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html.transitions-enabled body {
+  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Additional zoom prevention */
 * {
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
+  /* Disable double-tap zoom, allow pinch zoom */
+  touch-action: manipulation;
 }
 
-/* Allow text selection for inputs and text areas */
-input, textarea, [contenteditable] {
+/* Allow text selection and normal touch behavior for inputs */
+input, 
+textarea, 
+select,
+[contenteditable] {
   -webkit-user-select: auto;
   user-select: auto;
+  touch-action: auto;
+}
+
+/* Allow scrolling on specific elements */
+[data-scroll],
+.scroll-container {
+  touch-action: pan-y;
 }
 
 /* Ensure iOS safe-area zones show the app background color (status bar area) */
