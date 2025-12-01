@@ -17,7 +17,7 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
   }, [router]);
 
   if (isLoading) {
-    return <div className="min-h-screen bg-[#F5F1E8]" style={{ background: '#F5F1E8' }} />;
+    return <div className="min-h-screen bg-[var(--body-bg)]" />;
   }
 
   return <>{children}</>;

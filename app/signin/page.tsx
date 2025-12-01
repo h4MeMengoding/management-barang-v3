@@ -69,10 +69,10 @@ export default function SignIn() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F1E8] flex items-center justify-center p-4 lg:p-8">
-      <div className="w-full max-w-6xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col lg:flex-row min-h-[700px]">
+    <div className="min-h-screen bg-[var(--body-bg)] text-[var(--text-primary)] flex items-center justify-center p-4 lg:p-8">
+      <div className="w-full max-w-6xl bg-[var(--surface-1)] border border-[var(--border)] rounded-3xl shadow-2xl overflow-hidden flex flex-col lg:flex-row min-h-[700px]">
         {/* Left Side - Image */}
-        <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-emerald-100 to-emerald-100">
+        <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-[rgba(var(--color-primary-rgb),0.15)] to-[rgba(var(--color-primary-rgb),0.25)]">
           <div className="absolute inset-0 flex items-center justify-center">
             {/* Placeholder untuk gambar ilustrasi */}
             {/* Ukuran ideal: 800x1000px (portrait) atau sesuaikan dengan aspect ratio 4:5 */}
@@ -93,10 +93,10 @@ export default function SignIn() {
           <div className="w-full max-w-md space-y-6">
             {/* Header */}
             <div className="text-center lg:text-left">
-              <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
+              <h1 className="text-2xl lg:text-3xl font-bold text-[var(--text-primary)] mb-2">
                 Masuk ke Sistem Manajemen Barang
               </h1>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-[var(--text-secondary)]">
                 Pantau, catat, dan temukan barang dengan cepat melalui sistem manajemen penyimpanan yang terorganisir.
               </p>
             </div>
@@ -112,7 +112,7 @@ export default function SignIn() {
 
               {/* Email */}
               <div>
-                <label htmlFor="email" className="block text-xs font-medium text-gray-700 mb-1.5">
+                <label htmlFor="email" className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
                   Email address
                 </label>
               <input
@@ -124,14 +124,14 @@ export default function SignIn() {
                   placeholder="amelia@mail.com"
                   required
                   disabled={isLoading}
-                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  className="w-full px-4 py-2.5 rounded-lg border border-[var(--border)] bg-[var(--surface-1)] text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors disabled:bg-[var(--surface-2)] disabled:cursor-not-allowed"
                 />
               </div>
 
               {/* Password */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label htmlFor="password" className="block text-xs font-medium text-gray-700">
+                  <label htmlFor="password" className="block text-xs font-medium text-[var(--text-secondary)]">
                     Password
                   </label>
                   <Link href="/forgot-password" className="text-xs text-emerald-600 hover:text-emerald-700 font-medium">
@@ -148,13 +148,13 @@ export default function SignIn() {
                     placeholder="••••••••"
                     required
                     disabled={isLoading}
-                    className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors pr-12 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    className="w-full px-4 py-2.5 rounded-lg border border-[var(--border)] bg-[var(--surface-1)] text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors pr-12 disabled:bg-[var(--surface-2)] disabled:cursor-not-allowed"
                   />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   disabled={isLoading}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 disabled:cursor-not-allowed"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:cursor-not-allowed"
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -169,9 +169,9 @@ export default function SignIn() {
                   name="rememberMe"
                   checked={formData.rememberMe}
                   onChange={handleChange}
-                  className="w-3.5 h-3.5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                  className="w-3.5 h-3.5 rounded border-[var(--border)] text-emerald-600 focus:ring-emerald-500"
                 />
-                <label htmlFor="rememberMe" className="ml-2 text-xs text-gray-700">
+                <label htmlFor="rememberMe" className="ml-2 text-xs text-[var(--text-secondary)]">
                   Remember me
                 </label>
               </div>
@@ -187,7 +187,7 @@ export default function SignIn() {
             </form>
 
           {/* Sign Up Link */}
-          <p className="text-center text-sm text-gray-600">
+          <p className="text-center text-sm text-[var(--text-secondary)]">
             Belum ada akun?{' '}
             <Link href="/signup" className="text-emerald-600 hover:text-emerald-700 font-semibold">
               Buat Akun
@@ -196,7 +196,7 @@ export default function SignIn() {
 
           {/* Footer Text */}
           <div className="text-center pt-4">
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-[var(--text-tertiary)]">
               © 2025 Manajemen Barang. Made by Ilham with ❤️
             </p>
           </div>

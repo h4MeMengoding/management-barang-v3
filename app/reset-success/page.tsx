@@ -45,10 +45,10 @@ export default function ResetSuccess() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F1E8] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[var(--body-bg)] text-[var(--text-primary)] flex items-center justify-center p-4">
       <div className="max-w-md w-full">
         {/* Success Card */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100">
+        <div className="bg-[var(--surface-1)] rounded-2xl shadow-lg border border-[var(--border)]">
           {/* Header with Icon */}
           <div className="bg-emerald-600 px-4 py-6 text-center rounded-t-2xl">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white shadow-lg mb-3">
@@ -64,34 +64,34 @@ export default function ResetSuccess() {
           <div className="px-4 py-5 space-y-4">
             {/* Info Message */}
             <div className="text-center">
-              <p className="text-sm text-gray-700 leading-relaxed">
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
                 Semua data telah dihapus. Akun Anda masih aktif dan siap untuk memulai dari awal.
               </p>
             </div>
 
             {/* Deleted Items List */}
-            <div className="bg-gray-50 rounded-xl p-3 space-y-2">
-              <p className="text-xs font-semibold text-gray-800 mb-2 text-center">
+            <div className="bg-[var(--surface-2)] rounded-xl p-3 space-y-2">
+              <p className="text-xs font-semibold text-[var(--text-primary)] mb-2 text-center">
                 Data yang telah dihapus:
               </p>
               <div className="space-y-1.5">
-                <div className="flex items-center gap-2 p-2 bg-white rounded-lg">
+                <div className="flex items-center gap-2 p-2 bg-[var(--surface-1)] rounded-lg border border-[var(--border)]">
                   <div className="w-7 h-7 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
                     <PlusSquare className="text-emerald-600" size={14} />
                   </div>
-                  <span className="text-sm text-gray-700">Semua Loker</span>
+                  <span className="text-sm text-[var(--text-secondary)]">Semua Loker</span>
                 </div>
-                <div className="flex items-center gap-2 p-2 bg-white rounded-lg">
+                <div className="flex items-center gap-2 p-2 bg-[var(--surface-1)] rounded-lg border border-[var(--border)]">
                   <div className="w-7 h-7 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
                     <FolderTree className="text-emerald-600" size={14} />
                   </div>
-                  <span className="text-sm text-gray-700">Semua Kategori</span>
+                  <span className="text-sm text-[var(--text-secondary)]">Semua Kategori</span>
                 </div>
-                <div className="flex items-center gap-2 p-2 bg-white rounded-lg">
+                <div className="flex items-center gap-2 p-2 bg-[var(--surface-1)] rounded-lg border border-[var(--border)]">
                   <div className="w-7 h-7 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
                     <Package className="text-emerald-600" size={14} />
                   </div>
-                  <span className="text-sm text-gray-700">Semua Barang</span>
+                  <span className="text-sm text-[var(--text-secondary)]">Semua Barang</span>
                 </div>
               </div>
             </div>
@@ -105,7 +105,7 @@ export default function ResetSuccess() {
 
             {/* Countdown Info */}
             <div className="text-center">
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-[var(--text-secondary)]">
                 Otomatis kembali dalam <span className="font-bold text-emerald-600 text-lg">{countdown}</span> detik
               </p>
             </div>

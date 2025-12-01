@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ProgressBar from "@/components/ProgressBar";
 import RegisterSW from '@/components/RegisterSW';
-import SplashScreen from '@/components/SplashScreen';
 import { Suspense } from "react";
 import QueryProvider from '@/components/QueryProvider';
 import { ThemeProvider } from '@/components/ThemeProvider';
@@ -187,9 +186,8 @@ export default function RootLayout({
         <link rel="shortcut icon" href="/favicon/favicon.ico" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased touch-pan-x touch-pan-y`}
       >
-        <SplashScreen />
         <ThemeProvider>
           <ThemeSync />
           <QueryProvider>
